@@ -2,13 +2,21 @@
 # Visualize Latent Ability by Age
 #-------------------------------------
 
+# As a function the argument would be the name of the phoneme_group, find the
+#corresponding model file
+
 # Remove figures
 if (dev.cur() != 1) {  # Device 1 is always the null device
   dev.off()
 }
 
+phoneme_group_str <- "Vowels_Level1_Level2"
+model_name = paste0("model_", phoneme_group_str,".RData")
+model_place = paste0("./data/processed_data/",model_name)
+
 # Load model
-load("./data/processed_data/model.RData")
+#load("./data/processed_data/model.RData")
+load(model_place)
 
 # Load data
 #load("../../data/df_final.RData")
@@ -24,9 +32,9 @@ posterior_samples <- as_draws_df(model)
 random_effects <- posterior_samples %>%
   select(starts_with("r_speaker"))
 
-#extract the fisex effect coefficient (posterior draws) for the variable age_months
+#extract the fixed effect coefficient (posterior draws) for the variable age_months
 #in the linear predictor eta. b_eta_age_X is the name used by brms when modeling
-#hhierarchical predictors. pulls() turns the one column into a plain numerical vector
+#hierarchical predictors. pulls() turns the one column into a plain numerical vector
 
 fixed_effect_age <- posterior_samples %>%
   select(b_eta_age_months) %>% 
@@ -75,4 +83,7 @@ plot_random_effects <- ggplot(random_effects_combined, aes(x = Combined_Effect, 
 
 # Display the plot
 print(plot_random_effects)
-ggsave("./output/bayesian_model/random_effects.png", plot = plot_random_effects, width = 8, height = 6, dpi = 300)
+plot_name <- paste0("random_effects_",phoneme_group_str,".png")
+plot_place <- paste0("./output/bayesian_model/",plot_name)
+#ggsave("./output/bayesian_model/random_effects.png", plot = plot_random_effects, width = 8, height = 6, dpi = 300)
+ggsave(plot_place, plot = plot_random_effects, width = 8, height = 6, dpi = 300)

@@ -1,6 +1,14 @@
 #-----------------------
 # Run Bayesian analysis
 #-----------------------
+# Load packages
+library(dplyr)
+library(tidyr)
+library(psych)    # For factor analysis and scree plot
+library(readr)   
+library(brms)     # For Bayesian analysis
+library(splines)  # For natural splines
+library(tidyverse)
 
 # Load data
 #load("../../data/df_final.RData")
@@ -8,7 +16,13 @@ load("./data/processed_data/df_final.RData")
 load("./data/processed_data/phoneme_levels.RData")
 
 # Phonemes of interest
-target_phonemes <- phoneme_levels$Vowels$Level3  
+#target_phonemes <- phoneme_levels$Vowels$Level3 
+target_phonemes <- c(phoneme_levels$Vowels$Level1,
+                     phoneme_levels$Vowels$Level2)
+
+phoneme_group_str <- "Vowels_Level1_Level2"
+
+head(target_phonemes)
 
 # Filter data to include only those phonemes
 df_filtered <- df_final %>%
@@ -33,4 +47,7 @@ model <- brm(
   chains = 4, iter = 4000, cores = 4
 )
 
-save(model, file = "./data/processed_data/model.RData")
+model_name = paste0("model_", phoneme_group_str,".RData")
+model_place = paste0("./data/processed_data/",model_name)
+save(model, file = model_place)
+#save(model, file = "./data/processed_data/model.RData")

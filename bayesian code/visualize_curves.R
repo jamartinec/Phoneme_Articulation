@@ -2,17 +2,29 @@
 # Visualize Logit Curves
 #-------------------------------------
 
+# As a function the argument would be the name of the phoneme_group, find the
+#corresponding model file
+
 # Remove figures
 if (dev.cur() != 1) {  # Device 1 is always the null device
   dev.off()
 }
 
+tmp_env <- new.env()
 
 # Load model
-load("./data/processed_data/model.RData")
+#load("./data/processed_data/model.RData")
+phoneme_group_str <- "Vowels_Level1_Level2"
+model_name = paste0("model_", phoneme_group_str,".RData")
+model_place = paste0("./data/processed_data/",model_name)
+
+# Load model
+load(model_place,envir = tmp_env)
 
 # Extract posterior samples
 posterior_samples <- as_draws_df(model)
+
+head(posterior_samples)
 
 #-----------------------------------------------
 # Posterior samples of discrimination parameter
@@ -22,8 +34,12 @@ posterior_samples <- as_draws_df(model)
 alpha_samples <- posterior_samples %>%
   select(starts_with("b_logalpha"))
 
+
+# In a function the intercept/reference phoneme should be detected (first alphabetically)
+
 # Rename the intercept column to "AO"
-colnames(alpha_samples)[1] <- "AO"
+#colnames(alpha_samples)[1] <- "AO"
+colnames(alpha_samples)[1] <- "AA"
 
 # Extract original phoneme names from column names (excluding the intercept)
 phoneme_names <- colnames(alpha_samples)[-1] %>%
@@ -33,15 +49,18 @@ phoneme_names <- colnames(alpha_samples)[-1] %>%
 full_col_names <- colnames(alpha_samples)[-1]
 
 # Add the intercept (AO) to each phoneme coefficient, but don't exponentiate yet
+#alpha_samples <- alpha_samples %>%
+  #mutate(across(all_of(full_col_names), ~ . + AO))
 alpha_samples <- alpha_samples %>%
-  mutate(across(all_of(full_col_names), ~ . + AO))
+  mutate(across(all_of(full_col_names), ~ . + AA))
 
 # Now, exponentiate everything (including AO itself)
 alpha_samples <- alpha_samples %>%
   mutate(across(everything(), exp))
 
 # Rename columns according to the extracted phoneme names
-colnames(alpha_samples) <- c("AO", phoneme_names)
+#colnames(alpha_samples) <- c("AO", phoneme_names)
+colnames(alpha_samples) <- c("AA", phoneme_names)
 
 # Check the transformed data
 head(alpha_samples)
@@ -55,7 +74,8 @@ beta_samples <- posterior_samples %>%
   select(starts_with("b_eta"), -matches("b_eta_age_months"))
 
 # Rename the intercept column to "AO"
-colnames(beta_samples)[1] <- "AO"
+#colnames(beta_samples)[1] <- "AO"
+colnames(beta_samples)[1] <- "AA"
 
 # Extract original phoneme names from column names (excluding the intercept)
 phoneme_names <- colnames(beta_samples)[-1] %>%
@@ -65,16 +85,20 @@ phoneme_names <- colnames(beta_samples)[-1] %>%
 full_col_names <- colnames(beta_samples)[-1]
 
 # Add the intercept (AO) to each phoneme coefficient
+#beta_samples <- beta_samples %>%
+  #mutate(across(all_of(full_col_names), ~ . + AO))
 beta_samples <- beta_samples %>%
-  mutate(across(all_of(full_col_names), ~ . + AO))
+  mutate(across(all_of(full_col_names), ~ . + AA))
 
 
 # Negate everything (including AO)
 beta_samples <- beta_samples %>%
   mutate(across(everything(), ~ (-.)))
 
+
 # Rename columns according to the extracted phoneme names
-colnames(beta_samples) <- c("AO", phoneme_names)
+#colnames(beta_samples) <- c("AO", phoneme_names)
+colnames(beta_samples) <- c("AA", phoneme_names)
 
 # Check the transformed data
 head(beta_samples)
@@ -137,4 +161,7 @@ logistic_plot <- ggplot(logistic_summary, aes(x = theta, y = median_prob, color 
 
 # Display the plot
 print(logistic_plot)
-ggsave("./output/bayesian_model/logistic_plot.png", plot = logistic_plot, width = 8, height = 6, dpi = 300)
+plot_name <- paste0("logistic_plot_",phoneme_group_str,".png")
+plot_place <- paste0("./output/bayesian_model/",plot_name)
+#ggsave("./output/bayesian_model/logistic_plot.png", plot = logistic_plot, width = 8, height = 6, dpi = 300)
+ggsave(plot_place, plot = logistic_plot, width = 8, height = 6, dpi = 300)
