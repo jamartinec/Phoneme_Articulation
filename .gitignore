@@ -1,0 +1,24 @@
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Rprofile
+*.Rproj
+renv/
+renv.lock
+data/.gitkeep
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Data and outputs
+data/
+
+*.csv
+*.RData
+*.gz
+*.zip
+
+# Mac/Linux/General
+.DS_Store
