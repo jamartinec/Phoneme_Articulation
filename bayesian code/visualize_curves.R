@@ -14,7 +14,9 @@ tmp_env <- new.env()
 
 # Load model
 #load("./data/processed_data/model.RData")
-phoneme_group_str <- "Vowels_Level1_Level2"
+phoneme_group_str <- "Vowels_Level3"
+#phoneme_group_str <- "Vowels_Level1_Level2"
+#phoneme_group_str <- "Vowels_Level4_Level5"
 model_name = paste0("model_", phoneme_group_str,".RData")
 model_place = paste0("./data/processed_data/",model_name)
 
@@ -37,9 +39,14 @@ alpha_samples <- posterior_samples %>%
 
 # In a function the intercept/reference phoneme should be detected (first alphabetically)
 
+reference_col_str = "AO"
+#reference_col_str = "AE"
+
 # Rename the intercept column to "AO"
 #colnames(alpha_samples)[1] <- "AO"
-colnames(alpha_samples)[1] <- "AA"
+#colnames(alpha_samples)[1] <- "AA"
+colnames(alpha_samples)[1] <- reference_col_str
+
 
 # Extract original phoneme names from column names (excluding the intercept)
 phoneme_names <- colnames(alpha_samples)[-1] %>%
@@ -52,7 +59,7 @@ full_col_names <- colnames(alpha_samples)[-1]
 #alpha_samples <- alpha_samples %>%
   #mutate(across(all_of(full_col_names), ~ . + AO))
 alpha_samples <- alpha_samples %>%
-  mutate(across(all_of(full_col_names), ~ . + AA))
+  mutate(across(all_of(full_col_names), ~ . + .data[[reference_col_str]]))
 
 # Now, exponentiate everything (including AO itself)
 alpha_samples <- alpha_samples %>%
@@ -60,7 +67,7 @@ alpha_samples <- alpha_samples %>%
 
 # Rename columns according to the extracted phoneme names
 #colnames(alpha_samples) <- c("AO", phoneme_names)
-colnames(alpha_samples) <- c("AA", phoneme_names)
+colnames(alpha_samples) <- c(reference_col_str, phoneme_names)
 
 # Check the transformed data
 head(alpha_samples)
@@ -75,7 +82,7 @@ beta_samples <- posterior_samples %>%
 
 # Rename the intercept column to "AO"
 #colnames(beta_samples)[1] <- "AO"
-colnames(beta_samples)[1] <- "AA"
+colnames(beta_samples)[1] <- reference_col_str
 
 # Extract original phoneme names from column names (excluding the intercept)
 phoneme_names <- colnames(beta_samples)[-1] %>%
@@ -88,7 +95,7 @@ full_col_names <- colnames(beta_samples)[-1]
 #beta_samples <- beta_samples %>%
   #mutate(across(all_of(full_col_names), ~ . + AO))
 beta_samples <- beta_samples %>%
-  mutate(across(all_of(full_col_names), ~ . + AA))
+  mutate(across(all_of(full_col_names), ~ . + .data[[reference_col_str]]))
 
 
 # Negate everything (including AO)
@@ -98,7 +105,7 @@ beta_samples <- beta_samples %>%
 
 # Rename columns according to the extracted phoneme names
 #colnames(beta_samples) <- c("AO", phoneme_names)
-colnames(beta_samples) <- c("AA", phoneme_names)
+colnames(beta_samples) <- c(reference_col_str, phoneme_names)
 
 # Check the transformed data
 head(beta_samples)

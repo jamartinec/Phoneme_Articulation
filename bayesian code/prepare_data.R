@@ -20,6 +20,7 @@ library(tidyverse)
 #                         Level 4 (vowel), Level 4 (consonant), Level 5 (vowel), Level 5 (consonant), 
 #                         Level 6 (consonant), Level 7 (consonant), Level 8 (consonant)
 
+rm(list=ls())
 
 # Load data
 #df <- read.csv("../../data/probabilities-max-frame.csv")

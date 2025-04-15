@@ -13,7 +13,9 @@ tmp_env <- new.env()
 
 # Load model
 #load("./data/processed_data/model.RData")
-phoneme_group_str <- "Vowels_Level1_Level2"
+phoneme_group_str <- "Vowels_Level3"
+#phoneme_group_str <- "Vowels_Level1_Level2"
+#phoneme_group_str <- "Vowels_Level4_Level5"
 model_name = paste0("model_", phoneme_group_str,".RData")
 model_place = paste0("./data/processed_data/",model_name)
 
@@ -35,7 +37,9 @@ head(posterior_samples)
 alpha_samples <- posterior_samples %>%
   select(starts_with("b_logalpha"))
 
-reference_col_str = "AA"
+reference_col_str = "AO"
+#reference_col_str = "AA"
+#reference_col_str = "AE"
 
 # Rename the intercept column to "AO"
 # Here "A0" is the reference category. 
@@ -99,7 +103,7 @@ full_col_names <- colnames(beta_samples)[-1]
 #beta_samples <- beta_samples %>%
   #mutate(across(all_of(full_col_names), ~ . + AO))
 beta_samples <- beta_samples %>%
-  mutate(across(all_of(full_col_names), ~ . + AA))
+  mutate(across(all_of(full_col_names), ~ . + .data[[reference_col_str]]))
 
 
 # Negate everything (including AO)

@@ -1,9 +1,27 @@
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(brms)     # For Bayesian analysis
+
+tmp_env <- new.env()
+
+# Load model
+#load("./data/processed_data/model.RData")
+
+phoneme_group_str <- "Vowels_Level3"
+#phoneme_group_str <- "Vowels_Level1_Level2"
+#phoneme_group_str <- "Vowels_Level4_Level5"
+
+model_name = paste0("model_", phoneme_group_str,".RData")
+model_place = paste0("./data/processed_data/",model_name)
+
+# Load model
+load(model_place,envir = tmp_env)
 
 # Extract posterior means for logalpha and eta from the model
 posterior_samples <- fixef(model)
+
+head(posterior_samples)
 
 # Extract fixed effects
 logalpha_intercept <- posterior_samples["logalpha_Intercept", "Estimate"]
@@ -13,8 +31,14 @@ eta_intercept <- posterior_samples["eta_Intercept", "Estimate"]
 logalpha_phoneme <- posterior_samples[grep("logalpha_expected_phoneme", rownames(posterior_samples)), "Estimate"]
 eta_phoneme <- posterior_samples[grep("eta_expected_phoneme", rownames(posterior_samples)), "Estimate"]
 
+print(eta_phoneme)
+print(logalpha_phoneme)
+
 # Create a dataframe for phoneme-specific values
 phoneme_levels <- levels(df_filtered$expected_phoneme)  # Ensure phoneme levels are correct
+
+head(phoneme_levels)
+# there is some problem with the dimensions in the following dataframe:
 
 phoneme_params <- data.frame(
   expected_phoneme = phoneme_levels,
