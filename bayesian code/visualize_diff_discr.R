@@ -13,9 +13,15 @@ tmp_env <- new.env()
 
 # Load model
 #load("./data/processed_data/model.RData")
-phoneme_group_str <- "Vowels_Level3"
+
+phoneme_group_str <- "Consonants_Level6"
+#phoneme_group_str <- "Consonants_Level5"
+#phoneme_group_str <- "Consonants_Level4"
+#phoneme_group_str <- "Consonants_Level3"
+#phoneme_group_str <- "Vowels_Level3"
 #phoneme_group_str <- "Vowels_Level1_Level2"
 #phoneme_group_str <- "Vowels_Level4_Level5"
+
 model_name = paste0("model_", phoneme_group_str,".RData")
 model_place = paste0("./data/processed_data/",model_name)
 
@@ -37,7 +43,11 @@ head(posterior_samples)
 alpha_samples <- posterior_samples %>%
   select(starts_with("b_logalpha"))
 
-reference_col_str = "AO"
+reference_col_str = "CH"
+#reference_col_str = "L"
+#reference_col_str = "B"
+#reference_col_str = "HH"
+#reference_col_str = "AO"
 #reference_col_str = "AA"
 #reference_col_str = "AE"
 

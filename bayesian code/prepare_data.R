@@ -90,7 +90,7 @@ unique_counts <- df_final %>%
 print(unique_counts)
 # Type       Level  Unique_Phoneme_Count
 # <chr>      <chr>                 <int>
-#   1 Consonants Level3                  5
+# 1 Consonants Level3                    5
 # 2 Consonants Level4                    6
 # 3 Consonants Level5                    4
 # 4 Consonants Level6                    8

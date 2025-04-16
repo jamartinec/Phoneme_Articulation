@@ -16,16 +16,24 @@ load("./data/processed_data/df_final.RData")
 load("./data/processed_data/phoneme_levels.RData")
 
 # Phonemes of interest
-target_phonemes <- phoneme_levels$Vowels$Level3 
+#target_phonemes <- phoneme_levels$Vowels$Level3 
 #target_phonemes <- c(phoneme_levels$Vowels$Level1,
                      #phoneme_levels$Vowels$Level2)
 
 #target_phonemes <- c(phoneme_levels$Vowels$Level4,
                      #phoneme_levels$Vowels$Level5)
 
-phoneme_group_str <- "Vowels_Level3"
-#phoneme_group_str <- "Vowels_Level1_Level2"
+#target_phonemes <- phoneme_levels$Consonants$Level3 
+#target_phonemes <- phoneme_levels$Consonants$Level4 
+#target_phonemes <- phoneme_levels$Consonants$Level5
+target_phonemes <- phoneme_levels$Consonants$Level6
 
+phoneme_group_str <- "Consonants_Level6"
+#phoneme_group_str <- "Consonants_Level5"
+#phoneme_group_str <- "Consonants_Level4"
+#phoneme_group_str <- "Consonants_Level3"
+#phoneme_group_str <- "Vowels_Level3"
+#phoneme_group_str <- "Vowels_Level1_Level2"
 #phoneme_group_str <- "Vowels_Level4_Level5"
 
 

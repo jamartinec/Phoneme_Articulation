@@ -10,7 +10,11 @@ if (dev.cur() != 1) {  # Device 1 is always the null device
   dev.off()
 }
 
-phoneme_group_str <- "Vowels_Level3"
+phoneme_group_str <- "Consonants_Level6"
+#phoneme_group_str <- "Consonants_Level5"
+#phoneme_group_str <- "Consonants_Level4"
+#phoneme_group_str <- "Consonants_Level3"
+#phoneme_group_str <- "Vowels_Level3"
 #phoneme_group_str <- "Vowels_Level1_Level2"
 #phoneme_group_str <- "Vowels_Level4_Level5"
 model_name = paste0("model_", phoneme_group_str,".RData")
