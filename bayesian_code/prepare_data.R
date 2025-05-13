@@ -1,8 +1,6 @@
 #-------------------------------------
 # Prepare data for Bayesian analysis
 #-------------------------------------
-
-
 # Load packages
 library(dplyr)
 library(tidyr)

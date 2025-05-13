@@ -10,10 +10,6 @@ import("stats")
 export("visualize_curves_funct")
 visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior_samples){
 
-  
-  # As a function the argument would be the name of the phoneme_group, find the
-  #corresponding model file
-  
   # Remove figures
   #if (dev.cur() != 1) {  # Device 1 is always the null device
   #  dev.off()
@@ -22,39 +18,6 @@ visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior
   #-------------------------------------
   # Visualize Logit Curves
   #-------------------------------------
-
-  ###########################################################################
-  #tmp_env <- new.env()
-  
-  # Load model
-  #load("./data/processed_data/model.RData")
-  
-  #phoneme_group_str <- "Consonants_Level6"
-  #phoneme_group_str <- "Consonants_Level5"
-  #phoneme_group_str <- "Consonants_Level4"
-  #phoneme_group_str <- "Consonants_Level3"
-  #phoneme_group_str <- "Vowels_Level3"
-  #phoneme_group_str <- "Vowels_Level1_Level2"
-  #phoneme_group_str <- "Vowels_Level4_Level5"
-  
-  # In a function the intercept/reference phoneme should be detected (first alphabetically)
-  #reference_col_str = "HH"
-  #reference_col_str = "AO"
-  #reference_col_str = "AE"
-  #reference_col_str = "B"
-  #reference_col_str = "L"
-  #reference_col_str = "CH"
-  
-  
-  #model_name = paste0("model_", phoneme_group_str,".RData")
-  #model_place = paste0("./data/processed_data/",model_name)
-  
-  # Load model
-  #load(model_place,envir = tmp_env)
-  
-  # Extract posterior samples
-  #posterior_samples <- as_draws_df(model)
-  #head(posterior_samples)
   
   ##############################################################################
   #-----------------------------------------------
@@ -65,11 +28,9 @@ visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior
   alpha_samples <- posterior_samples %>%
     select(starts_with("b_logalpha"))
   
-
+  
   
   # Rename the intercept column to "AO"
-  #colnames(alpha_samples)[1] <- "AO"
-  #colnames(alpha_samples)[1] <- "AA"
   colnames(alpha_samples)[1] <- reference_col_str
   
   
@@ -81,8 +42,6 @@ visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior
   full_col_names <- colnames(alpha_samples)[-1]
   
   # Add the intercept (AO) to each phoneme coefficient, but don't exponentiate yet
-  #alpha_samples <- alpha_samples %>%
-    #mutate(across(all_of(full_col_names), ~ . + AO))
   alpha_samples <- alpha_samples %>%
     mutate(across(all_of(full_col_names), ~ . + .data[[reference_col_str]]))
   
@@ -91,7 +50,6 @@ visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior
     mutate(across(everything(), exp))
   
   # Rename columns according to the extracted phoneme names
-  #colnames(alpha_samples) <- c("AO", phoneme_names)
   colnames(alpha_samples) <- c(reference_col_str, phoneme_names)
   
   # Check the transformed data
@@ -106,7 +64,6 @@ visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior
     select(starts_with("b_eta"), -matches("b_eta_age_months"))
   
   # Rename the intercept column to "AO"
-  #colnames(beta_samples)[1] <- "AO"
   colnames(beta_samples)[1] <- reference_col_str
   
   # Extract original phoneme names from column names (excluding the intercept)
@@ -117,8 +74,6 @@ visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior
   full_col_names <- colnames(beta_samples)[-1]
   
   # Add the intercept (AO) to each phoneme coefficient
-  #beta_samples <- beta_samples %>%
-    #mutate(across(all_of(full_col_names), ~ . + AO))
   beta_samples <- beta_samples %>%
     mutate(across(all_of(full_col_names), ~ . + .data[[reference_col_str]]))
   
@@ -129,7 +84,6 @@ visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior
   
   
   # Rename columns according to the extracted phoneme names
-  #colnames(beta_samples) <- c("AO", phoneme_names)
   colnames(beta_samples) <- c(reference_col_str, phoneme_names)
   
   # Check the transformed data
@@ -195,6 +149,5 @@ visualize_curves_funct <- function(phoneme_group_str,reference_col_str,posterior
   print(logistic_plot)
   plot_name <- paste0("logistic_plot_",phoneme_group_str,".png")
   plot_place <- paste0("./output/bayesian_model/",plot_name)
-  #ggsave("./output/bayesian_model/logistic_plot.png", plot = logistic_plot, width = 8, height = 6, dpi = 300)
   ggsave(plot_place, plot = logistic_plot, width = 8, height = 6, dpi = 300)
 }

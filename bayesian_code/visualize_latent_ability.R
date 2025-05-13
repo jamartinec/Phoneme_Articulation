@@ -7,47 +7,18 @@ import("purrr")
 import("stats") 
 
 
-
-
-
 export("visualize_latent_ability_funct")
 visualize_latent_ability_funct <- function(phoneme_group_str, df_final, posterior_samples){
   #-------------------------------------
   # Visualize Latent Ability by Age
   #-------------------------------------
-  # As a function the argument would be the name of the phoneme_group, find the
-  #corresponding model file
   
   # Remove figures
   #if (dev.cur() != 1) {  # Device 1 is always the null device
   #  dev.off()
   #}
   
-  #########################################################################
-  #phoneme_group_str <- "Consonants_Level6"
-  #phoneme_group_str <- "Consonants_Level5"
-  #phoneme_group_str <- "Consonants_Level4"
-  #phoneme_group_str <- "Consonants_Level3"
-  #phoneme_group_str <- "Vowels_Level3"
-  #phoneme_group_str <- "Vowels_Level1_Level2"
-  #phoneme_group_str <- "Vowels_Level4_Level5"
-  #model_name = paste0("model_", phoneme_group_str,".RData")
-  #model_place = paste0("./data/processed_data/",model_name)
-  
-  # Load model
-  #load("./data/processed_data/model.RData")
-  #load(model_place)
-  
-  # Load data
-  #load("../../data/df_final.RData")
-  #load("./data/processed_data/df_final.RData")
-  
-  # Extract posterior samples. This extracts the posterior samples (i.e. the draws
-  #from the posterior distribution of the model parameters) and stores in df -like format
-  #posterior_samples <- as_draws_df(model)
-  
-  ##############################################################################
-  
+
   # Step 1: Extract relevant posterior samples
   # grab all posterior draws for the random intercept/slopes associated with the
   #grouping factor speaker.
@@ -107,7 +78,6 @@ visualize_latent_ability_funct <- function(phoneme_group_str, df_final, posterio
   print(plot_random_effects)
   plot_name <- paste0("random_effects_",phoneme_group_str,".png")
   plot_place <- paste0("./output/bayesian_model/",plot_name)
-  #ggsave("./output/bayesian_model/random_effects.png", plot = plot_random_effects, width = 8, height = 6, dpi = 300)
   ggsave(plot_place, plot = plot_random_effects, width = 8, height = 6, dpi = 300)
   
 }
