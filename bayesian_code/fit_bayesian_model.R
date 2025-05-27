@@ -11,7 +11,7 @@ import("tidyverse")
 import("utils")
  
 export("fit_bayesian_model_funct")
-fit_bayesian_model_funct <- function(df_filtered,target_phonemes,phoneme_group_str){
+fit_bayesian_model_funct <- function(df_filtered,target_phonemes,phoneme_group_str,prefix){
 
   # Fit the Bayesian beta regression model (2PL model)
   model <- brm(
@@ -32,6 +32,6 @@ fit_bayesian_model_funct <- function(df_filtered,target_phonemes,phoneme_group_s
   )
   
   model_name = paste0("model_", phoneme_group_str,".RData")
-  model_place = paste0("./data/processed_data/",model_name)
+  model_place = paste0(prefix,model_name,sep="")
   save(model, file = model_place)
 }

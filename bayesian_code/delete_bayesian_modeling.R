@@ -34,7 +34,7 @@ fit_bayesian_model_func<- function(df_final,phoneme_levels,phoneme_group_str){
     prior = c(
       prior(normal(0,5), class = "b", nlpar = "eta"),
       prior(normal(0,1), class = "b", nlpar = "logalpha"),
-      prior(constant(1), class="sd", group="speaker", nlpar = "eta"),
+      prior(constant(1), class = "sd",  group="speaker", nlpar = "eta"),
       prior(normal(0, 1), dpar = "phi", class = "b")
     ),
     chains = 4, iter = 4000, cores = 4
@@ -43,6 +43,5 @@ fit_bayesian_model_func<- function(df_final,phoneme_levels,phoneme_group_str){
   model_name = paste0("model_", phoneme_group_str,".RData")
   model_place = paste0("./data/processed_data/",model_name)
   save(model, file = model_place)
-  #save(model, file = "./data/processed_data/model.RData")
 }
   
