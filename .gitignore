@@ -5,7 +5,7 @@
 .Rprofile
 *.Rproj
 renv/
-renv.lock
+!renv.lock
 data/.gitkeep
 # Python
 venv/

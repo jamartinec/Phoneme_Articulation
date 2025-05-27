@@ -74,7 +74,6 @@ run_visuals <- function(category, levels){
 }
 
 # Example execution
-
 #phoneme_group_str <- "Consonants_Level6"
 #phoneme_group_str <- "Consonants_Level5"
 #phoneme_group_str <- "Consonants_Level4"
