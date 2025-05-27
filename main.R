@@ -3,9 +3,11 @@ library(dplyr)
 library(posterior)
 
 
+prefix <- "../data/processed_data/"
 lib_bayesian_code1 <- modules::use("bayesian_code/visualize_diff_discr.R")
 lib_bayesian_code2 <- modules::use("bayesian_code/visualize_curves.R")
 lib_bayesian_code3 <- modules::use("bayesian_code/visualize_latent_ability.R")
+<<<<<<< HEAD
 lib_bayesian_code4 <- modules::use("bayesian_code/fit_bayesian_model2.R")
 
 #########################################################################################################
@@ -15,8 +17,19 @@ run_bayesian_modeling <- function(category, levels,model_specific){
   # Load data
   tmp_env_data <- new.env()
   loaded_data_objects_1 <- load("./data/processed_data/df_final.RData",envir = tmp_env_data)
+=======
+lib_bayesian_code4 <- modules::use("bayesian_code/fit_bayesian_model.R")
+lib_bayesian_code5 <- modules::use("bayesian_code/visualize_age_standards.R")
+#########################################################################################################
+
+run_bayesian_modeling <- function(category, levels, prefix){
+  
+  # Load data
+  tmp_env_data <- new.env()
+  loaded_data_objects_1 <- load(paste(prefix,"df_final.RData", sep = ""),envir = tmp_env_data)
+>>>>>>> amy_changes
   df_final_data <- tmp_env_data[[loaded_data_objects_1[1]]] 
-  loaded_data_objects_2 <- load("./data/processed_data/phoneme_levels.RData",envir = tmp_env_data)
+  loaded_data_objects_2 <- load(paste(prefix,"phoneme_levels.RData", sep = ""),envir = tmp_env_data)
   phoneme_levels <- tmp_env_data[[loaded_data_objects_2[1]]] 
   print(phoneme_levels)
   
@@ -34,45 +47,38 @@ run_bayesian_modeling <- function(category, levels,model_specific){
     filter(expected_phoneme %in% target_phonemes)
   df_filtered$expected_phoneme <- as.factor(df_filtered$expected_phoneme)
 
+<<<<<<< HEAD
   lib_bayesian_code4$fit_bayesian_model_funct(model_specific,df_filtered,target_phonemes,phoneme_group_str)
+=======
+  lib_bayesian_code4$fit_bayesian_model_funct(df_filtered,target_phonemes,phoneme_group_str,prefix)
+>>>>>>> amy_changes
 }
 ##########################################################################################################
 
 
-run_visuals <- function(category, levels){
-
-  load("./data/processed_data/phoneme_levels.RData")
+run_visuals <- function(category, levels, prefix) {
+  
+  # Load phoneme levels
+  load(paste0(prefix, "phoneme_levels.RData"))
   phonemes <- unlist(phoneme_levels[[category]][levels])
   reference_col_str <- min(phonemes)
-  print(reference_col_str)
   phoneme_group_str <- paste(c(category, levels), collapse = "_")
-  print(phoneme_group_str)
-
-  # Load data
-  tmp_env_data <- new.env()
-  loaded_data_objects <- load("./data/processed_data/df_final.RData",envir = tmp_env_data)
-  # Assuming one object, probably named 'df_final'
-  df_final_data <- tmp_env_data[[loaded_data_objects[1]]] 
   
-  # Load model
-  tmp_env <- new.env()
-  model_name = paste0("model_", phoneme_group_str,".RData")
-  model_place = paste0("./data/processed_data/",model_name)
+  # Remove "ZH" since it is not included in dataset
+  phonemes <- setdiff(phonemes, "ZH")
   
-  loaded_model_objects <- load(model_place, envir = tmp_env)
-  # Assuming only one object is saved
-  model <- tmp_env[[loaded_model_objects[1]]]  
+  # Load data and model directly into current environment
+  load(paste0(prefix, "df_final.RData"))  # Assumes it loads `df_final`
+  load(paste0(prefix, "model_", phoneme_group_str, ".RData"))  # Assumes it loads `model`
   
-  # Extract posterior samples. This extracts the posterior samples (i.e. the draws
-  #from the posterior distribution of the model parameters) and stores in df -like format
+  # Extract posterior samples
   posterior_samples <- as_draws_df(model)
-  print(head(posterior_samples))
   
-  
+  # Generate visualizations
   lib_bayesian_code3$visualize_latent_ability_funct(phoneme_group_str, df_final, posterior_samples)
-  lib_bayesian_code2$visualize_curves_funct(phoneme_group_str,reference_col_str,posterior_samples)
-  lib_bayesian_code1$visualize_diff_discr_funct(phoneme_group_str,reference_col_str,posterior_samples)
-
+  lib_bayesian_code2$visualize_curves_funct(phoneme_group_str, reference_col_str, posterior_samples)
+  lib_bayesian_code1$visualize_diff_discr_funct(phoneme_group_str, reference_col_str, posterior_samples)
+  lib_bayesian_code5$visualize_age_standards_funct(model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
 }
 
 # Example execution
@@ -85,6 +91,7 @@ run_visuals <- function(category, levels){
 #phoneme_group_str <- "Vowels_Level4_Level5"
 
 # Uncomment depending on what you want to run
+<<<<<<< HEAD
 category <- "Vowels"
 levels <- c("Level4","Level5")
 model_specific <- list(
@@ -93,4 +100,10 @@ model_specific <- list(
 #levels <- c("Level3")
 run_bayesian_modeling(category, levels, model_specific)
 #run_visuals(category, levels)
+=======
+category <- "Consonants"
+levels <- c("Level6")
+#run_bayesian_modeling(category, levels, prefix)
+run_visuals(category, levels, prefix)
+>>>>>>> amy_changes
 
