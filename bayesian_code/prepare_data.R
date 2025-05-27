@@ -78,6 +78,8 @@ phoneme_df <- do.call(rbind, lapply(names(phoneme_levels), function(type) {
 df_final <- df_summary %>%
   left_join(phoneme_df, by = "expected_phoneme")
 
+glimpse(df_final)
+
 # Count unique phonemes by Type and Level
 unique_counts <- df_final %>%
   distinct(expected_phoneme, Type, Level) %>%  # Keep unique phoneme-type-level combinations
@@ -101,8 +103,8 @@ print(unique_counts)
 
 # Save df_classified as an R data file
 #save(df_final, file = "../../data/df_final.RData")
-save(df_final, file = "./data/processed_data/df_final.RData")
-save(phoneme_levels, file = "./data/processed_data/phoneme_levels.RData")
+#save(df_final, file = "./data/processed_data/df_final.RData")
+#save(phoneme_levels, file = "./data/processed_data/phoneme_levels.RData")
 
 # Clear everything from the environment except df_classified
 rm(list = ls())

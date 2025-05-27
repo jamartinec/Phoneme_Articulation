@@ -5,15 +5,19 @@
 .Rprofile
 *.Rproj
 renv/
-!renv.lock
-data/.gitkeep
+#!renv.lock
+
 # Python
 venv/
 __pycache__/
 *.pyc
 
-# Data and outputs
-data/
+# Data and outputs: ignore everything in data but keep the folder structure.
+data/**
+!data/
+!data/**/
+!data/**/.gitkeep
+!data/.gitkeep
 
 *.csv
 *.RData
