@@ -1,0 +1,8 @@
+- model_opt: "model2"
+  category: "Vowels"
+  levels: 
+        - "Level1"
+        - "Level2"
+  model_specific:
+        - phi_formula: "~ 1 + age_months"
+        - logalpha_formula: "~ 1 + expected_phoneme"
