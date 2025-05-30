@@ -1,0 +1,49 @@
+import("loo")
+
+export("model_validation")
+export("iterate_model_validation")
+
+
+
+model_validation <- function(category, levels, prefix) {
+  #include type of validation ?
+  
+  phoneme_group_str <- paste(c(category, levels), collapse = "_")
+  model_id = paste0(prefix, "model_", phoneme_group_str)
+  tmp_env_data <- new.env()
+  loaded_model_objc <- load(paste0(model_id,".RData"), 
+                                envir = tmp_env_data)
+  model <- tmp_env_data[[loaded_model_objc[1]]] 
+  ls()
+  
+  loo <- loo(model)
+  
+  dict_validation <- list( model_id = model_id,
+                           waic = waic(model,moment_match = TRUE),
+                           #kfold10 = kfold(model,k=10),
+                           loo = loo(model)
+                          )
+  
+  return(dict_validation)
+}
+
+#category <- "Vowels"
+#levels <- c("Level1", "Level2" )#,"Level5")
+#dict_validation <- model_validation(category, levels, prefix)
+#print(dict_validation)
+
+
+#create a function that iterate over a list of models, compute the scores
+
+iterate_model_validation <- function(list_to_validate){
+  results <- list()
+  for (item in list_to_validate){
+    prefix <- paste("./data/processed_data/", item["model_opt"], "/", sep="")
+    print(prefix)
+    dict_validation <- model_validation(item[["category"]], item[["levels"]], prefix)
+    results[[dict_validation[["model_id"]]]] = dict_validation
+  }
+  # Save the corresponding dictionary in an external file .rds
+  saveRDS(results, file = "./model_validation/model_validation_results.rds")
+  return(results)
+}
