@@ -1,109 +1,86 @@
 library(tidyverse)
 library(dplyr)
 library(posterior)
+library(yaml)
 
+################################################################################
 
-prefix <- "../data/processed_data/"
-lib_bayesian_code1 <- modules::use("bayesian_code/visualize_diff_discr.R")
-lib_bayesian_code2 <- modules::use("bayesian_code/visualize_curves.R")
-lib_bayesian_code3 <- modules::use("bayesian_code/visualize_latent_ability.R")
-<<<<<<< HEAD
-lib_bayesian_code4 <- modules::use("bayesian_code/fit_bayesian_model2.R")
+lib_bayesian_code_modeling1 <- modules::use("bayesian_code/modeling/fit_bayesian_model.R")
+lib_bayesian_code_visuals1 <- modules::use("bayesian_code/visuals/run_visuals.R")
+lib_bayesian_code_model_validation1 <- modules::use("bayesian_code/model_validation/model_validation.R")
 
-#########################################################################################################
+###############################################################################3
 
-run_bayesian_modeling <- function(category, levels,model_specific){
-  
-  # Load data
-  tmp_env_data <- new.env()
-  loaded_data_objects_1 <- load("./data/processed_data/df_final.RData",envir = tmp_env_data)
-=======
-lib_bayesian_code4 <- modules::use("bayesian_code/fit_bayesian_model.R")
-lib_bayesian_code5 <- modules::use("bayesian_code/visualize_age_standards.R")
-#########################################################################################################
-
-run_bayesian_modeling <- function(category, levels, prefix){
-  
-  # Load data
-  tmp_env_data <- new.env()
-  loaded_data_objects_1 <- load(paste(prefix,"df_final.RData", sep = ""),envir = tmp_env_data)
->>>>>>> amy_changes
-  df_final_data <- tmp_env_data[[loaded_data_objects_1[1]]] 
-  loaded_data_objects_2 <- load(paste(prefix,"phoneme_levels.RData", sep = ""),envir = tmp_env_data)
-  phoneme_levels <- tmp_env_data[[loaded_data_objects_2[1]]] 
-  print(phoneme_levels)
-  
-  # Phonemes of interest
-  #target_phonemes <- phoneme_levels$Consonants$Level6
-  target_phonemes <-  unlist(lapply(levels, function(lvl) phoneme_levels[[category]][[lvl]]))
-  #phoneme_group_str <- "Consonants_Level6"
-  phoneme_group_str <- paste(c(category, levels), collapse = "_")
-  
-
-  print(head(target_phonemes))
-  
-  # Filter data to include only those phonemes
-  df_filtered <- df_final_data %>%
-    filter(expected_phoneme %in% target_phonemes)
-  df_filtered$expected_phoneme <- as.factor(df_filtered$expected_phoneme)
-
-<<<<<<< HEAD
-  lib_bayesian_code4$fit_bayesian_model_funct(model_specific,df_filtered,target_phonemes,phoneme_group_str)
-=======
-  lib_bayesian_code4$fit_bayesian_model_funct(df_filtered,target_phonemes,phoneme_group_str,prefix)
->>>>>>> amy_changes
-}
-##########################################################################################################
-
-
-run_visuals <- function(category, levels, prefix) {
-  
-  # Load phoneme levels
-  load(paste0(prefix, "phoneme_levels.RData"))
-  phonemes <- unlist(phoneme_levels[[category]][levels])
-  reference_col_str <- min(phonemes)
-  phoneme_group_str <- paste(c(category, levels), collapse = "_")
-  
-  # Remove "ZH" since it is not included in dataset
-  phonemes <- setdiff(phonemes, "ZH")
-  
-  # Load data and model directly into current environment
-  load(paste0(prefix, "df_final.RData"))  # Assumes it loads `df_final`
-  load(paste0(prefix, "model_", phoneme_group_str, ".RData"))  # Assumes it loads `model`
-  
-  # Extract posterior samples
-  posterior_samples <- as_draws_df(model)
-  
-  # Generate visualizations
-  lib_bayesian_code3$visualize_latent_ability_funct(phoneme_group_str, df_final, posterior_samples)
-  lib_bayesian_code2$visualize_curves_funct(phoneme_group_str, reference_col_str, posterior_samples)
-  lib_bayesian_code1$visualize_diff_discr_funct(phoneme_group_str, reference_col_str, posterior_samples)
-  lib_bayesian_code5$visualize_age_standards_funct(model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
-}
-
+###############################################################################
+# Multiple versions of the models are available. Refer to ./bayesian_code/README.md
+# for the naming conventions. The prefix used will depend on the specific model type
+folder_path = "./data/processed_data/"
+model_opt = "model2"
+prefix <- paste(folder_path, model_opt, "/", sep="")
+################################################################################
 # Example execution
-#phoneme_group_str <- "Consonants_Level6"
-#phoneme_group_str <- "Consonants_Level5"
-#phoneme_group_str <- "Consonants_Level4"
-#phoneme_group_str <- "Consonants_Level3"
-#phoneme_group_str <- "Vowels_Level3"
-#phoneme_group_str <- "Vowels_Level1_Level2"
-#phoneme_group_str <- "Vowels_Level4_Level5"
-
-# Uncomment depending on what you want to run
-<<<<<<< HEAD
-category <- "Vowels"
-levels <- c("Level4","Level5")
-model_specific <- list(
-  phi_formula = ~ 1 + expected_phoneme
-)
-#levels <- c("Level3")
-run_bayesian_modeling(category, levels, model_specific)
-#run_visuals(category, levels)
-=======
 category <- "Consonants"
-levels <- c("Level6")
-#run_bayesian_modeling(category, levels, prefix)
-run_visuals(category, levels, prefix)
->>>>>>> amy_changes
+levels <- c("Level6" )#,"Level5")
 
+#model_specific <- list(
+# phi_formula = ~ 1 + expected_phoneme
+#)
+
+model_specific <- list(
+  phi_formula = ~ 1 + age_months
+)
+
+
+
+################################################################################
+# Model Fitting
+################################################################################
+lib_bayesian_code_modeling1$run_bayesian_modeling(category, levels, prefix, model_specific)
+
+# Specify the models you want to run:
+raw_yaml <- read_yaml("bayesian_code/modeling/models_to_fit.yaml")
+list_to_fit <- lapply(raw_yaml, function(entry) {
+  
+  if (!is.null(entry$model_specific)) {
+    # Flatten list of named lists to a single named list
+    model_spec <- entry$model_specific
+    flattened <- setNames(
+      lapply(model_spec, function(x) as.formula(x[[1]])),
+      sapply(model_spec, function(x) names(x)[1])
+    )
+    entry$model_specific <- flattened
+  }
+  
+  entry
+})
+lib_bayesian_code_modeling1$iterate_run_bayesian_modeling(list_to_fit)
+#######################################################################################################
+# Visuals
+################################################################################
+
+
+lib_bayesian_code_visuals1$run_visuals(category, levels, prefix)
+# Specify models you want to generate visualizations for:
+
+raw_list_visuals <- read_yaml("bayesian_code/visuals/models_to_visualize.yaml")
+list_to_visualize <- lapply(raw_list_visuals, function(entry) {
+  entry$levels <- as.character(entry$levels)
+  entry
+})
+
+lib_bayesian_code_visuals1$iterate_run_visuals(list_to_visualize)
+##############################################################################
+# MODEL VALIDATION
+##############################################################################
+# Validate a single model:
+#dict_validation <- model_validation(category, levels, prefix)
+#print(dict_validation)
+
+# Specify models to evaluate:
+raw_list <- read_yaml("bayesian_code/model_validation/models_to_validate.yaml")
+list_to_validate <- lapply(raw_list, function(entry) {
+  entry$levels <- as.character(entry$levels)
+  entry
+})
+results <- lib_bayesian_code_model_validation1$iterate_model_validation(list_to_validate)
+#print(results)
