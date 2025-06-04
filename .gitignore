@@ -20,6 +20,7 @@ data/**
 !data/.gitkeep
 
 *.csv
+!./bayesian_code/model_validation/pivot_combined.csv
 *.RData
 *.gz
 *.zip

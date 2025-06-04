@@ -6,6 +6,8 @@ import("utils")
 import("purrr")
 import("stats") 
 
+library(tidyverse)
+
 folder_path <- "./bayesian_code/model_validation/model_validation_results2.rds"
 model_validation_results <- readRDS(folder_path)
 rows <- list()
@@ -41,4 +43,22 @@ for (key in names(model_validation_results)){
 }
 result_df <- do.call(rbind, lapply(rows, as.data.frame))
 rownames(result_df) <- NULL
+saveRDS(result_df, file = "./bayesian_code/model_validation/result_df_unstack.rds")
 print(result_df)
+
+# Pivot for elpd_waic
+waic_pivot <- result_df %>%
+  select(phoneme_group_str, model_opt, elpd_waic) %>%
+  pivot_wider(names_from = model_opt, values_from = elpd_waic, names_prefix = "waic_")
+
+# Pivot for elpd_loo
+loo_pivot <- result_df %>%
+  select(phoneme_group_str, model_opt, elpd_loo) %>%
+  pivot_wider(names_from = model_opt, values_from = elpd_loo, names_prefix = "loo_")
+
+
+pivot_combined <- left_join(waic_pivot, loo_pivot, by = "phoneme_group_str")
+
+print(pivot_combined)
+
+write.csv(pivot_combined, file = "./bayesian_code/model_validation/pivot_combined.csv", row.names = FALSE)
