@@ -20,45 +20,45 @@
   category:  "Vowels"
   levels:
         - "Level4"
-        - "Level5" 
-  
+        - "Level5"
+
 - model_opt: "model1"
   category: "Vowels"
-  levels: 
+  levels:
         - "Level4"
-        - "Level5" 
+        - "Level5"
 
 - model_opt:  "model2"
   category:  "Vowels"
   levels:
         - "Level4"
         - "Level5"
-  
+
 - model_opt: "model0"
   category: "Vowels"
-  levels: 
+  levels:
         - "Level3"
-    
+
 - model_opt: "model1"
   category: "Vowels"
   levels:
         - "Level3"
-  
+
 - model_opt: "model2"
   category: "Vowels"
   levels:
-        - "Level3" 
-  
+        - "Level3"
+
 - model_opt: "model0"
   category: "Consonants"
   levels:
-        - "Level3"  
+        - "Level3"
 
 - model_opt: "model1"
   category: "Consonants"
   levels:
         - "Level3"
-  
+
 - model_opt: "model2"
   category: "Consonants"
   levels:
@@ -71,14 +71,14 @@
 
 - model_opt: "model1"
   category: "Consonants"
-  levels: 
+  levels:
         - "Level4"
-  
+
 - model_opt: "model2"
   category: "Consonants"
   levels:
         - "Level4"
- 
+
 - model_opt: "model0"
   category: "Consonants"
   levels:
@@ -87,13 +87,13 @@
 - model_opt: "model1"
   category: "Consonants"
   levels:
-        - "Level5" 
+        - "Level5"
 
 - model_opt: "model2"
   category: "Consonants"
   levels:
         - "Level5"
-  
+
 - model_opt: "model0"
   category: "Consonants"
   levels:

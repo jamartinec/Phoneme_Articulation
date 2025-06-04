@@ -5,9 +5,11 @@ export("iterate_model_validation")
 
 
 
-model_validation <- function(category, levels, prefix) {
+#model_validation <- function(category, levels, prefix) {
+model_validation <- function(model_opt, category, levels) {
   #include type of validation ?
-  
+  prefix <- paste("./data/processed_data/", model_opt, "/", sep="")
+  print(prefix)
   phoneme_group_str <- paste(c(category, levels), collapse = "_")
   model_id = paste0(prefix, "model_", phoneme_group_str)
   tmp_env_data <- new.env()
@@ -19,6 +21,8 @@ model_validation <- function(category, levels, prefix) {
   loo <- loo(model)
   
   dict_validation <- list( model_id = model_id,
+                           model_opt = model_opt,
+                           phoneme_group_str = phoneme_group_str,
                            waic = waic(model,moment_match = TRUE),
                            #kfold10 = kfold(model,k=10),
                            loo = loo(model)
@@ -38,12 +42,12 @@ model_validation <- function(category, levels, prefix) {
 iterate_model_validation <- function(list_to_validate){
   results <- list()
   for (item in list_to_validate){
-    prefix <- paste("./data/processed_data/", item["model_opt"], "/", sep="")
-    print(prefix)
-    dict_validation <- model_validation(item[["category"]], item[["levels"]], prefix)
+    #prefix <- paste("./data/processed_data/", item["model_opt"], "/", sep="")
+    #print(prefix)
+    dict_validation <- model_validation(item["model_opt"], item[["category"]], item[["levels"]])
     results[[dict_validation[["model_id"]]]] = dict_validation
   }
   # Save the corresponding dictionary in an external file .rds
-  saveRDS(results, file = "./model_validation/model_validation_results.rds")
+  saveRDS(results, file = "./bayesian_code/model_validation/model_validation_results2.rds")
   return(results)
 }

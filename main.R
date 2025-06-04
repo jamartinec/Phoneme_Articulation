@@ -83,4 +83,3 @@ list_to_validate <- lapply(raw_list, function(entry) {
   entry
 })
 results <- lib_bayesian_code_model_validation1$iterate_model_validation(list_to_validate)
-#print(results)
