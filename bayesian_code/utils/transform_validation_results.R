@@ -66,5 +66,6 @@ file_paths <-list(file_path1,file_path2)
 
 df_list <- lapply(file_paths,read_csv)
 joined_df <- Reduce(function(x,y) left_join(x,y,by="phoneme_group_str"),df_list)
+joined_df <-joined_df[,c(1, order(names(joined_df)[-1]) + 1)]
 print(joined_df)
 write.csv(joined_df, file = "./bayesian_code/model_validation/validation_results.csv", row.names = FALSE)
