@@ -48,6 +48,6 @@ iterate_model_validation <- function(list_to_validate){
     results[[dict_validation[["model_id"]]]] = dict_validation
   }
   # Save the corresponding dictionary in an external file .rds
-  saveRDS(results, file = "./bayesian_code/model_validation/model_validation_results2.rds")
+  saveRDS(results, file = "./bayesian_code/model_validation/model_validation_results3.rds")
   return(results)
 }

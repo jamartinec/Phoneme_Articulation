@@ -1,14 +1,8 @@
-import("dplyr") 
-import("stringr")
-import("tidyr")
-import("ggplot2")
-import("utils")
-import("purrr")
-import("stats") 
+
 
 library(tidyverse)
 
-folder_path <- "./bayesian_code/model_validation/model_validation_results2.rds"
+folder_path <- "./bayesian_code/model_validation/model_validation_results3.rds"
 model_validation_results <- readRDS(folder_path)
 rows <- list()
 for (key in names(model_validation_results)){
@@ -43,7 +37,7 @@ for (key in names(model_validation_results)){
 }
 result_df <- do.call(rbind, lapply(rows, as.data.frame))
 rownames(result_df) <- NULL
-saveRDS(result_df, file = "./bayesian_code/model_validation/result_df_unstack.rds")
+saveRDS(result_df, file = "./bayesian_code/model_validation/result_df_unstack2.rds")
 print(result_df)
 
 # Pivot for elpd_waic
@@ -61,4 +55,16 @@ pivot_combined <- left_join(waic_pivot, loo_pivot, by = "phoneme_group_str")
 
 print(pivot_combined)
 
-write.csv(pivot_combined, file = "./bayesian_code/model_validation/pivot_combined.csv", row.names = FALSE)
+write.csv(pivot_combined, file = "./bayesian_code/model_validation/pivot_combined2.csv", row.names = FALSE)
+
+## if there are several score files from previous experiments unify them
+
+file_path1 <- "./bayesian_code/model_validation/pivot_combined.csv"
+file_path2 <- "./bayesian_code/model_validation/pivot_combined2.csv"
+
+file_paths <-list(file_path1,file_path2)
+
+df_list <- lapply(file_paths,read_csv)
+joined_df <- Reduce(function(x,y) left_join(x,y,by="phoneme_group_str"),df_list)
+print(joined_df)
+write.csv(joined_df, file = "./bayesian_code/model_validation/validation_results.csv", row.names = FALSE)

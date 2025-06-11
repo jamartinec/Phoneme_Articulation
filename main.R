@@ -6,11 +6,12 @@ library(yaml)
 ################################################################################
 
 lib_bayesian_code_modeling1 <- modules::use("bayesian_code/modeling/fit_bayesian_model.R")
+lib_bayesian_code_modeling3 <- modules::use("bayesian_code/modeling/models_to_fit.R")
+
 lib_bayesian_code_visuals1 <- modules::use("bayesian_code/visuals/run_visuals.R")
 lib_bayesian_code_model_validation1 <- modules::use("bayesian_code/model_validation/model_validation.R")
-
-###############################################################################3
-
+lib_bayesian_code_model_validation2 <- modules::use("bayesian_code/model_validation/models_to_validate.R")
+###############################################################################
 ###############################################################################
 # Multiple versions of the models are available. Refer to ./bayesian_code/README.md
 # for the naming conventions. The prefix used will depend on the specific model type
@@ -38,21 +39,25 @@ model_specific <- list(
 lib_bayesian_code_modeling1$run_bayesian_modeling(category, levels, prefix, model_specific)
 
 # Specify the models you want to run:
-raw_yaml <- read_yaml("bayesian_code/modeling/models_to_fit.yaml")
-list_to_fit <- lapply(raw_yaml, function(entry) {
-  
-  if (!is.null(entry$model_specific)) {
-    # Flatten list of named lists to a single named list
-    model_spec <- entry$model_specific
-    flattened <- setNames(
-      lapply(model_spec, function(x) as.formula(x[[1]])),
-      sapply(model_spec, function(x) names(x)[1])
-    )
-    entry$model_specific <- flattened
-  }
-  
-  entry
-})
+#raw_yaml <- read_yaml("bayesian_code/modeling/models_to_fit.yaml")
+# list_to_fit <- lapply(raw_yaml, function(entry) {
+#   
+#   if (!is.null(entry$model_specific)) {
+#     # Flatten list of named lists to a single named list
+#     model_spec <- entry$model_specific
+#     flattened <- setNames(
+#       lapply(model_spec, function(x) as.formula(x[[1]])),
+#       sapply(model_spec, function(x) names(x)[1])
+#     )
+#     entry$model_specific <- flattened
+#   }
+#   
+#   entry
+# })
+#source("./bayesian_code/modeling/models_to_fit.R")
+list_to_fit<-lib_bayesian_code_modeling3$return_dict_exp()
+print(list_to_fit)
+
 lib_bayesian_code_modeling1$iterate_run_bayesian_modeling(list_to_fit)
 #######################################################################################################
 # Visuals
@@ -77,9 +82,16 @@ lib_bayesian_code_visuals1$iterate_run_visuals(list_to_visualize)
 #print(dict_validation)
 
 # Specify models to evaluate:
-raw_list <- read_yaml("bayesian_code/model_validation/models_to_validate.yaml")
-list_to_validate <- lapply(raw_list, function(entry) {
-  entry$levels <- as.character(entry$levels)
-  entry
-})
+###########################################################################
+## in case you prefer to specify the models to validate using the yaml file
+###########################################################################
+# raw_list <- read_yaml("bayesian_code/model_validation/models_to_validate.yaml")
+# list_to_validate <- lapply(raw_list, function(entry) {
+#   entry$levels <- as.character(entry$levels)
+#   entry
+# })
+###########################################################################
+## in case you prefer to speicify the models to validate using the R file
+list_to_validate <- lib_bayesian_code_model_validation2$return_dict_exp()
+###########################################################################
 results <- lib_bayesian_code_model_validation1$iterate_model_validation(list_to_validate)

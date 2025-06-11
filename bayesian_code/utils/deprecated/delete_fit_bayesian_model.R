@@ -9,16 +9,42 @@ import("brms") # For Bayesian analysis
 import("splines") # For natural splines
 import("tidyverse")
 import("utils")
-
+ 
 export("fit_bayesian_model_funct")
 fit_bayesian_model_funct <- function(model_specific,
                                      df_filtered,
                                      target_phonemes,
                                      phoneme_group_str,
-                                    prefix){
-  print(model_specific)
+                                     prefix){
+  # Recover model specifications
+  default_formulas <- list(
+    #mean_prob_formula = ~ exp(logalpha) * eta, 
+    eta_formula = ~ 1 + expected_phoneme +  age_months + (1 | speaker),
+    logalpha_formula =  ~ 1 + expected_phoneme,  
+    phi_formula = ~ 1 + expected_phoneme + age_months
+  )
+  formula_dict<- modifyList(default_formulas, model_specific)
+  #mean_prob_formula <-formula_dict$mean_prob_formula
+  eta_formula <-formula_dict$eta_formula
+  logalpha_formula <- formula_dict$logalpha_formula
+  phi_formula <- formula_dict$phi_formula
+  
+  
+  print(cat("this is phi_formula ", deparse(phi_formula), "\n"))
+  
+  # Fit the Bayesian beta regression model (2PL model)
+  model_formula <-  bf( 
+    mean_prob ~ exp(logalpha) * eta, 
+    #eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
+    eta = eta_formula,
+    #logalpha  ~ 1 + expected_phoneme, 
+    logalpha = logalpha_formula, 
+    #phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+    phi = phi_formula,
+    nl = TRUE)  # Non-linear model
+  
   model <- brm(
-    formula = model_specific,
+    formula = model_formula,
     family = Beta(link = "logit"),
     data = df_filtered,
     prior = c(
@@ -28,13 +54,10 @@ fit_bayesian_model_funct <- function(model_specific,
       prior(normal(0, 1), dpar = "phi", class = "b")
     ),
     chains = 4, iter = 4000, cores = 4
-    #chains = 1, iter = 400, cores = 4
   )
   
   model_name = paste0("model_", phoneme_group_str,".RData")
-  print(model_name)
   model_place = paste0(prefix,model_name,sep="")
-  print("saving file")
   save(model, file = model_place)
 }
 
@@ -58,17 +81,16 @@ run_bayesian_modeling <- function(category, levels, prefix, model_specific){
   target_phonemes <-  unlist(lapply(levels, function(lvl) phoneme_levels[[category]][[lvl]]))
   #phoneme_group_str <- "Consonants_Level6"
   phoneme_group_str <- paste(c(category, levels), collapse = "_")
-  print(phoneme_group_str)
   
   # Filter data to include only those phonemes
   df_filtered <- df_final_data %>%
     filter(expected_phoneme %in% target_phonemes)
   df_filtered$expected_phoneme <- as.factor(df_filtered$expected_phoneme)
   fit_bayesian_model_funct(model_specific, 
-                           df_filtered,
-                           target_phonemes,
-                           phoneme_group_str,
-                           prefix)
+                                              df_filtered,
+                                              target_phonemes,
+                                              phoneme_group_str,
+                                              prefix)
   
 }
 
@@ -78,7 +100,6 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
   for (item in list_to_fit){
     
     prefix <- paste(folder_path, item["model_opt"], "/", sep="")
-    print(prefix)
     
     run_bayesian_modeling(item[["category"]], item[["levels"]], prefix, item[["model_specific"]])
   }
