@@ -1,9 +1,14 @@
 import("tidyr")
 import("purrr")
 
+#library(tidyr)
+#library(purrr)
+
 model_names_list <- list(
   "model3",
-  "model4"
+  "model4",
+  "model5",
+  "model6"
 )
 
 data1<-list(
@@ -52,6 +57,7 @@ combined_model_data_list <- expand.grid(
   stringsAsFactors = FALSE
 )
 
+
 # grid
 model_data_grid <- expand_grid(
   model_opt = model_names_list,
@@ -69,6 +75,8 @@ list_to_validate <- pmap(model_data_grid, function(model_opt, data_index) {
 })
 
 print(list_to_validate)
+#delete problematic instances model 3 consonants level 4 and level 6
+list_to_validate <- list_to_validate[-c(5,7)]
 export("return_dict_exp")
 return_dict_exp = function(){
   return(list_to_validate)

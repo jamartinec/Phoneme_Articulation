@@ -12,6 +12,7 @@ model_validation <- function(model_opt, category, levels) {
   print(prefix)
   phoneme_group_str <- paste(c(category, levels), collapse = "_")
   model_id = paste0(prefix, "model_", phoneme_group_str)
+  print(model_id)
   tmp_env_data <- new.env()
   loaded_model_objc <- load(paste0(model_id,".RData"), 
                                 envir = tmp_env_data)
@@ -19,13 +20,13 @@ model_validation <- function(model_opt, category, levels) {
   ls()
   
   loo <- loo(model)
-  
+  waic <-waic(model,moment_match = TRUE)
   dict_validation <- list( model_id = model_id,
                            model_opt = model_opt,
                            phoneme_group_str = phoneme_group_str,
-                           waic = waic(model,moment_match = TRUE),
+                           waic = waic,
                            #kfold10 = kfold(model,k=10),
-                           loo = loo(model)
+                           loo = loo
                           )
   
   return(dict_validation)

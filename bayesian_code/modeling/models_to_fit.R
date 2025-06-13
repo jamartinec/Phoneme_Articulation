@@ -6,6 +6,7 @@ model0 <- bf(
     eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
     logalpha  ~ 1 + expected_phoneme, 
     phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+    family = Beta(link = "logit"),
     nl = TRUE)  # Non-linear model
 
 model1 <- bf(
@@ -13,6 +14,7 @@ model1 <- bf(
   eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
   logalpha  ~ 1 + expected_phoneme, 
   phi  ~ 1 + expected_phoneme,  # Precision parameter
+  family = Beta(link = "logit"),
   nl = TRUE)  # Non-linear model
 
 model2 <- bf(
@@ -20,6 +22,7 @@ model2 <- bf(
   eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
   logalpha  ~ 1 + expected_phoneme, 
   phi ~  1 + age_months,  # Precision parameter
+  family = Beta(link = "logit"),
   nl = TRUE)  # Non-linear model
 
 model3 <- bf(
@@ -28,6 +31,7 @@ model3 <- bf(
   eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
   logalpha  ~ 1 + expected_phoneme, 
   phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+  family = Beta(link = "identity"),
   nl = TRUE)  # Non-linear model
 
 model4 <- bf(
@@ -35,6 +39,23 @@ model4 <- bf(
   eta ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker),
   logalpha  ~ 1 + expected_phoneme, 
   phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+  family = Beta(link = "logit"),
+  nl = TRUE)  # Non-linear model
+
+model5 <- bf(
+  mean_prob ~ exp(logalpha) * eta, 
+  eta ~ 1 + expected_phoneme +  ns(age_months,2) + (1 | speaker),
+  logalpha  ~ 1 + expected_phoneme, 
+  phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+  family = Beta(link = "logit"),
+  nl = TRUE)  # Non-linear model
+
+model6 <- bf(
+  mean_prob ~ exp(logalpha) * eta, 
+  eta ~ 1 + expected_phoneme +  ns(age_months,4) + (1 | speaker),
+  logalpha  ~ 1 + expected_phoneme, 
+  phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+  family = Beta(link = "logit"),
   nl = TRUE)  # Non-linear model
 
 model_list <- list(
@@ -43,6 +64,8 @@ model_list <- list(
   #"model2" = model2,
   "model3" = model3#,
   #"model4" = model4
+  #"model5" = model5,#
+  #"model6" = model6#
 )
 ########################################################################
 data1<-list(
@@ -81,7 +104,11 @@ data7<-list(
 )
 ########################################################################
 data_list_fit <- list(
-  data1, data2, data3, data4, data5, data6, data7
+  #data1, 
+  #data2, data3, 
+  
+  #data4, 
+  data5#, data6, data7
 )
 
 ####################################################################

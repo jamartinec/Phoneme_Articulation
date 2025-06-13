@@ -32,8 +32,16 @@ fit_bayesian_model_funct <- function(model_specific,
   )
   
   model_name = paste0("model_", phoneme_group_str,".RData")
+  #model_place = paste0(prefix,model_name,sep="")
+  model_place<- file.path(prefix, model_name)
   print(model_name)
-  model_place = paste0(prefix,model_name,sep="")
+ 
+  # Create directory if it doesn't exist
+  dir_path <- dirname(model_place)
+  if (!dir.exists(dir_path)) {
+    dir.create(dir_path, recursive = TRUE, showWarnings = FALSE)
+  }
+  
   print("saving file")
   save(model, file = model_place)
 }
