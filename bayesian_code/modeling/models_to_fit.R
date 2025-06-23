@@ -25,8 +25,8 @@ model2 <- bf(
   family = Beta(link = "logit"),
   nl = TRUE)  # Non-linear model
 
-model3 <- bf(
-  mean_prob ~  asymptote/ (1+  exp(-exp(logalpha) * eta)),
+model3 <- bf( # apply inverse logit function to asymptote, for constraing the values
+  mean_prob ~  inv_logit(asymptote)/ (1+  exp(-exp(logalpha) * eta)),
   asymptote ~ (1 + expected_phoneme),
   eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
   logalpha  ~ 1 + expected_phoneme, 
@@ -58,8 +58,55 @@ model6 <- bf(
   family = Beta(link = "logit"),
   nl = TRUE)  # Non-linear model
 
+# versions based on model 3, modifying phi formula
+model7 <- bf( # apply inverse logit function to asymptote, for constraing the values
+  mean_prob ~  inv_logit(asymptote)/ (1+  exp(-exp(logalpha) * eta)),
+  asymptote ~ (1 + expected_phoneme),
+  eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
+  logalpha  ~ 1 + expected_phoneme, 
+  phi ~  1 + expected_phoneme,  # Precision parameter
+  family = Beta(link = "identity"),
+  nl = TRUE)  # Non-linear model
+
+model8 <- bf( # apply inverse logit function to asymptote, for constraing the values
+  mean_prob ~  inv_logit(asymptote)/ (1+  exp(-exp(logalpha) * eta)),
+  asymptote ~ (1 + expected_phoneme),
+  eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
+  logalpha  ~ 1 + expected_phoneme, 
+  phi ~  1 + age_months,  # Precision parameter
+  family = Beta(link = "identity"),
+  nl = TRUE)  # Non-linear model
+
+# versions based on model, modifying eta formula (adding splines to age)
+model9 <- bf( # apply inverse logit function to asymptote, for constraing the values
+  mean_prob ~  inv_logit(asymptote)/ (1+  exp(-exp(logalpha) * eta)),
+  asymptote ~ (1 + expected_phoneme),
+  eta ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker),
+  logalpha  ~ 1 + expected_phoneme, 
+  phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+  family = Beta(link = "identity"),
+  nl = TRUE)  # Non-linear model
+
+model10 <- bf( # apply inverse logit function to asymptote, for constraing the values
+  mean_prob ~  inv_logit(asymptote)/ (1+  exp(-exp(logalpha) * eta)),
+  asymptote ~ (1 + expected_phoneme),
+  eta ~ 1 + expected_phoneme +  ns(age_months,2) + (1 | speaker),
+  logalpha  ~ 1 + expected_phoneme, 
+  phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+  family = Beta(link = "identity"),
+  nl = TRUE)  # Non-linear model
+
+model10 <- bf( # apply inverse logit function to asymptote, for constraing the values
+  mean_prob ~  inv_logit(asymptote)/ (1+  exp(-exp(logalpha) * eta)),
+  asymptote ~ (1 + expected_phoneme),
+  eta ~ 1 + expected_phoneme +  ns(age_months,4) + (1 | speaker),
+  logalpha  ~ 1 + expected_phoneme, 
+  phi ~ 1 + expected_phoneme + age_months,  # Precision parameter
+  family = Beta(link = "identity"),
+  nl = TRUE)  # Non-linear model
+
 model_list <- list(
-  #"model0" = model0,
+  #"model0" = model0#,
   #"model1" = model1,
   #"model2" = model2,
   "model3" = model3#,
@@ -104,11 +151,10 @@ data7<-list(
 )
 ########################################################################
 data_list_fit <- list(
-  #data1, 
-  #data2, data3, 
-  
-  #data4, 
-  data5#, data6, data7
+  data1, 
+  data2, data3, 
+  data4, 
+  data5, data6, data7
 )
 
 ####################################################################
