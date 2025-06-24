@@ -50,6 +50,8 @@ fit_bayesian_model_funct <- function(model_specific,
   
   print("saving file")
   save(model, file = model_place)
+  rm(model)
+  gc()
 }
 
 ##########################################################################
@@ -128,6 +130,8 @@ run_bayesian_modeling <- function(category,
                            phoneme_group_str,
                            prefix
                            )
+  rm(df_filtered)
+  gc()
   }
 
 export("iterate_run_bayesian_modeling")
@@ -168,5 +172,6 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
                           df_final_data,
                           phoneme_levels
                           )
+    
   }
 }

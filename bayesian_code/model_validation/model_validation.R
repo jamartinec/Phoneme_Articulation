@@ -5,7 +5,6 @@ export("model_validation")
 export("iterate_model_validation")
 
 
-
 #model_validation <- function(category, levels, prefix) {
 model_validation <- function(model_opt, category, levels) {
   #include type of validation ?
@@ -22,6 +21,8 @@ model_validation <- function(model_opt, category, levels) {
   
   loo <- loo(model)
   waic <-waic(model,moment_match = TRUE)
+  rm(model)
+  gc()
   dict_validation <- list( model_id = model_id,
                            model_opt = model_opt,
                            phoneme_group_str = phoneme_group_str,
@@ -52,7 +53,10 @@ iterate_model_validation <- function(list_to_validate, results_filename){
     results[[dict_validation[["model_id"]]]] = dict_validation
   }
   # Save the corresponding dictionary in an external file .rds
-  
-  saveRDS(results, file = "./bayesian_code/model_validation/model_validation_results3.rds")
+  folder_path <- Paths$model_valresults_dir
+  results_filename <- paste0(results_filename,".rds")
+  file_path <- file.path(folder_path,results_filename)
+  #saveRDS(results, file = "./bayesian_code/model_validation/model_validation_results3.rds")
+  saveRDS(results, file = file_path)
   return(results)
 }

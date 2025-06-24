@@ -8,4 +8,5 @@ bayesian_code_dir <- "./bayesian_code"
 modeling_dir <- file.path(bayesian_code_dir, "modeling")
 model_validation_dir <- file.path(bayesian_code_dir,"model_validation")
 model_valresults_dir <- file.path(model_validation_dir,"validation_results")
+model_valreports_dir <- file.path(model_valresults_dir,"validation_reports")
 

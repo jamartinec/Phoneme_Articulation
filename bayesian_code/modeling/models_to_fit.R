@@ -25,8 +25,8 @@ model2 <- bf(
   family = Beta(link = "logit"),
   nl = TRUE)  # Non-linear model
 
-model3 <- bf( # apply inverse logit function to asymptote, for constraing the values
-  mean_prob ~  inv_logit(asymptote)/ (1+  exp(-exp(logalpha) * eta)),
+model3 <- bf( # apply inverse logit function to asymptote, for constraint the values
+  mean_prob ~  inv_logit(asymptote)/ (1 + exp(-exp(logalpha) * eta)),
   asymptote ~ (1 + expected_phoneme),
   eta ~ 1 + expected_phoneme +  age_months + (1 | speaker),
   logalpha  ~ 1 + expected_phoneme, 
@@ -151,10 +151,11 @@ data7<-list(
 )
 ########################################################################
 data_list_fit <- list(
-  data1, 
-  data2, data3, 
-  data4, 
-  data5, data6, data7
+  #data1, 
+  #data2, data3, 
+  #data4, 
+  #data5, data6, 
+  data7
 )
 
 ####################################################################
