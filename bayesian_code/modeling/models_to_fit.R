@@ -106,15 +106,62 @@ model10 <- bf( # apply inverse logit function to asymptote, for constraing the v
   nl = TRUE)  # Non-linear model
 
 model_list <- list(
+  model0 = list(name = "model0", object = model0)#,
+  #model1 = list(name = "model1", object = model1),
+  #model2 = list(name = "model2", object = model2),
+  #model3 = list(name = "model3", object = model3),
+  #model4 = list(name = "model4", object = model4),
+  #model5 = list(name = "model5", object = model5),
+  #model6 = list(name = "model6", object = model6),
+  #model7 = list(name = "model7", object = model7),
+  #model8 = list(name = "model8", object = model8),
+  #model9 = list(name = "model9", object = model9),
+  #model10 =list(name = "model10", object = model10),
+)
+
+#model_list <- list(
   #"model0" = model0#,
   #"model1" = model1,
   #"model2" = model2,
-  "model3" = model3#,
+  #"model3" = model3#,
   #"model4" = model4
   #"model5" = model5,#
   #"model6" = model6#
+#)
+################################################################################
+# PRIORS:
+# Define a list of difFerent priors. For each prior we also specify a list of models
+# for which this prior make sense.
+
+prior0 = c(
+  prior(normal(0,5), class = "b", nlpar = "eta"),
+  prior(normal(0,1), class = "b", nlpar = "logalpha"),
+  prior(constant(1), class="sd", group="speaker", nlpar = "eta"),
+  prior(normal(0, 1), dpar = "phi", class = "b")
 )
-########################################################################
+
+#chatgpt advice for priors (don't judge me)
+prior1 = c(
+  # Coefficients for eta (usually log-linear predictor for mean)
+  prior(normal(0, 2), class = "b", nlpar = "eta"),
+  # Coefficients for logalpha (used in exponent → strong effect on steepness)
+  prior(normal(0, 1), class = "b", nlpar = "logalpha"),
+  # Coefficients for asymptote (used only in models 3 and 7–10)
+  prior(normal(0, 1), class = "b", nlpar = "asymptote"),
+  # Prior on group-level SD for random intercept (speaker-level variability)
+  prior(exponential(1), class = "sd", group = "speaker", nlpar = "eta"),
+  # Coefficients for phi (precision, dpar)
+  prior(normal(0, 1), class = "b", dpar = "phi")
+)
+
+all_models <- c("model0", "model1", "model2", "model3", "model4", "model5", "model6")
+
+prior_list_fit <- list(
+  prior0 = list(name = "prior0", object = prior0, valid_models = all_models )#,
+  #prior1 = list(name = "prior1", object = prior1, valid_models = all_models ),
+  
+)
+################################################################################
 data1<-list(
   category = "Vowels",
   levels = c("Level1", "Level2")
@@ -151,35 +198,62 @@ data7<-list(
 )
 ########################################################################
 data_list_fit <- list(
-  #data1, 
+  data1#, 
   #data2, data3, 
   #data4, 
   #data5, data6, 
-  data7
+  #data7
 )
 
 ####################################################################
-# Create the Cartesian product
-combined_model_data_list <- expand.grid(
-  model_opt = names(model_list),
-  data_index = seq_along(data_list_fit),
-  stringsAsFactors = FALSE
-)
+# Create the Cartesian product (including also the priors)
+# combined_model_data_list <- expand.grid(
+#   model_opt = names(model_list),
+#   data_index = seq_along(data_list_fit),
+#   #prior_index = seq_along(prior_list_fit)
+#   stringsAsFactors = FALSE
+# )
+# 
+# # Build the combined list
+# list_to_fit <- apply(combined_model_data_list, 1, function(row) {
+#   model_name <- row[["model_opt"]]
+#   data_index <- as.integer(row[["data_index"]])
+#   data_entry <- data_list_fit[[data_index]]
+#   #prior_entry
+#   
+#   list(
+#     model_opt = model_name,
+#     category = data_entry$category,
+#     levels = data_entry$levels,
+#     model_specific = model_list[[model_name]]#,
+#     #prior_specific = prior_list[[prior_entry]]
+#   
+#   )
+# })
+###############################################################################
+list_to_fit <- list()
+counter <- 1
 
-# Build the combined list
-list_to_fit <- apply(combined_model_data_list, 1, function(row) {
-  model_name <- row[["model_opt"]]
-  data_index <- as.integer(row[["data_index"]])
-  data_entry <- data_list_fit[[data_index]]
-  
-  list(
-    model_opt = model_name,
-    category = data_entry$category,
-    levels = data_entry$levels,
-    model_specific = model_list[[model_name]]
-  )
-})
+for (model_entry in model_list) {
+  for (d_idx in seq_along(data_list_fit)) {
+    for (prior_entry in prior_list_fit) {
+      if (model_entry$name %in% prior_entry$valid_models) {
+        list_to_fit[[counter]] <- list(
+          model_opt = model_entry$name,
+          category = data_list_fit[[d_idx]]$category,
+          levels = data_list_fit[[d_idx]]$levels,
+          model_specific = model_entry$object,
+          prior_name = prior_entry$name,
+          prior_specific = prior_entry$object
+        )
+        counter <- counter + 1
+      }
+    }
+  }
+}
 
+
+###############################################################################
 export("return_dict_exp")
 return_dict_exp = function(){
   return(list_to_fit)
