@@ -20,11 +20,11 @@ data/**
 !data/.gitkeep
 
 *.csv
-!/bayesian_code/model_validation/pivot_combined.csv
-!/bayesian_code/model_validation/pivot_combined2.csv
-!/bayesian_code/model_validation/pivot_combined3.csv
-!/bayesian_code/model_validation/validation_results.csv
-!/bayesian_code/model_validation/validation_results.xlsx
+!/bayesian_code/model_validation/validation_results/validation_reports/pivot_combined.csv
+!/bayesian_code/model_validation/validation_results/validation_reports/pivot_combined2.csv
+!/bayesian_code/model_validation/validation_results/validation_reports/pivot_combined3.csv
+!/bayesian_code/model_validation/validation_results/validation_reports/validation_results.csv
+!/bayesian_code/model_validation/validation_results/validation_reports/validation_results.xlsx
 *.RData
 *.gz
 *.zip
