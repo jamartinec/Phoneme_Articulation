@@ -132,7 +132,4 @@ build_validation <- function(input_filename, output_filename){
   write.csv(pivot_combined, file = pivot_file_path, row.names = FALSE)
 }
 
-
-build_validation( "model_validation_results4","pivot_combined3")
-
-
+build_validation( "model_validation_resultsTRIQUIS","pivot_combinedTRIQUIS")

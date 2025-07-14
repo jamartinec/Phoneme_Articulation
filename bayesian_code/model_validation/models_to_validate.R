@@ -5,7 +5,10 @@ import("purrr")
 #library(purrr)
 
 model_names_list <- list(
-  "model3"#,
+  "model0",
+  "model1"#,
+  # "model2",
+  #"model3"#,
   #"model4",
   #"model5",
   #"model6"
@@ -47,7 +50,8 @@ data7<-list(
 )
 ########################################################################
 data_list_to_validate <- list(
-  data1, data2, data3, data4, data5, data6
+  data1
+  #, data2, data3, data4, data5, data6
   #, data7
 )
 
