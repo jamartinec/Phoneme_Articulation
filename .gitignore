@@ -31,3 +31,4 @@ data/**
 
 # Mac/Linux/General
 .DS_Store
+renv.lock

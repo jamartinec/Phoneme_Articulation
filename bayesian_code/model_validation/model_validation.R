@@ -10,17 +10,35 @@ model_validation <- function(model_opt, category, levels) {
   #include type of validation ?
   folder_path <- file.path(Paths$processed_data_dir,model_opt)
   phoneme_group_str <- paste(c(category, levels), collapse = "_")
-  filename <- paste0("model_",phoneme_group_str)
+  filename <- paste0("model_TRIQUISX",phoneme_group_str)
   model_id = file.path(folder_path, filename)
   print(model_id)
-  tmp_env_data <- new.env()
-  loaded_model_objc <- load(paste0(model_id,".RData"), 
-                                envir = tmp_env_data)
-  model <- tmp_env_data[[loaded_model_objc[1]]] 
+  #tmp_env_data <- new.env()
+  #loaded_model_objc <- load(paste0(model_id,".rds"), 
+  #                              envir = tmp_env_data)
+  #model <- tmp_env_data[[loaded_model_objc[1]]]
+  model <- readRDS(paste0(model_id, ".rds"))
   ls()
+  # verificar si los criterios especificados ya fueron guardados en el objeto
+  # inspeccionar names(model$criteria), si ya existe  usar
+  # loo <- model$criteria$loo
+  # waic <- model$criteria$waic
+  criteria_list <- c("loo", "waic")
   
-  loo <- loo(model)
-  waic <-waic(model,moment_match = TRUE)
+  if ("loo" %in% names(model$criteria)) {
+    loo <- model$criteria$loo
+  } else {
+    loo <- loo(model)
+  }
+  
+  if ("waic" %in% names(model$criteria)) {
+    waic <- model$criteria$waic
+  } else {
+    waic <- waic(model, moment_match = TRUE)
+  }
+  
+  #loo <- loo(model)
+  #waic <-waic(model,moment_match = TRUE)
   rm(model)
   gc()
   dict_validation <- list( model_id = model_id,
@@ -60,3 +78,5 @@ iterate_model_validation <- function(list_to_validate, results_filename){
   saveRDS(results, file = file_path)
   return(results)
 }
+
+#brms::loo_compare(model0,model1)|>print(simplify=FALSE)

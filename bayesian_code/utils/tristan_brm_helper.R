@@ -143,3 +143,63 @@ handle_control_args <- function(args) {
 #
 #   results
 # }
+export("add_validation_criterion")
+# reloo = TRUE (Indicate whether reloo should be applied on problematic observations)
+# reloo.brmsfit: Compute exact cross-validation for problematic observations for
+# which approximate leave-one-out cross-validation may return incorrect results.
+# recompile: Logical, indicating whether the Stan model should be recompiled.
+# if NULL recompile_model tries to figure out internally if recompilation is 
+# necessary. FALSE will cause recompile_model to always return the brmsfit object
+# unchanged. This may be necessary if you are running reloo on another machine
+#than the one used to fit the model.
+#' Add validation criteria (e.g., LOO/WAIC) to a brms model
+#'
+#' @param x A brmsfit object (fitted model).
+#' @param ... Additional arguments passed to brms::add_criterion().
+#' @param val_list Character vector of criteria to add (default: "loo").
+#'                 Can include "loo", "waic", "kfold".
+#' @param use_reloo Logical. Use exact LOO (`reloo=TRUE`) for problematic observations? (default: FALSE)
+#'
+#' @return A brmsfit object with updated criteria.
+#'
+#' @examples
+#' model <- add_validation_criterion(model, val_list = c("loo", "waic"), use_reloo = TRUE)
+add_validation_criterion <- function(
+    x,
+    ...,
+    val_list = c("loo"),
+    use_reloo = FALSE
+) {
+  # Check that x is a brmsfit
+  if (!inherits(x, "brmsfit")) {
+    stop("`x` must be a brmsfit object.")
+  }
+  
+  # Validate val_list contents
+  allowed_criteria <- c("loo", "waic", "kfold")
+  invalid_criteria <- setdiff(val_list, allowed_criteria)
+  if (length(invalid_criteria) > 0) {
+    stop(
+      sprintf("Invalid criteria specified: %s. Allowed: %s",
+              paste(invalid_criteria, collapse = ", "),
+              paste(allowed_criteria, collapse = ", "))
+    )
+  }
+  
+  # Call add_criterion with or without reloo
+  if (use_reloo) {
+    brms::add_criterion(
+      x,
+      criterion = val_list,
+      reloo = TRUE,
+      recompile = FALSE,
+      ...
+    )
+  } else {
+    brms::add_criterion(
+      x,
+      criterion = val_list,
+      ...
+    )
+  }
+}

@@ -106,8 +106,8 @@ model10 <- bf( # apply inverse logit function to asymptote, for constraing the v
   nl = TRUE)  # Non-linear model
 
 model_list <- list(
-  model0 = list(name = "model0", object = model0)#,
-  #model1 = list(name = "model1", object = model1),
+  model0 = list(name = "model0", object = model0),
+  model1 = list(name = "model1", object = model1)#,
   #model2 = list(name = "model2", object = model2),
   #model3 = list(name = "model3", object = model3),
   #model4 = list(name = "model4", object = model4),
@@ -199,7 +199,7 @@ data7<-list(
 ########################################################################
 data_list_fit <- list(
   data1#, 
-  #data2, data3, 
+  #data2#, data3, 
   #data4, 
   #data5, data6, 
   #data7

@@ -28,7 +28,7 @@ fit_bayesian_model_funct <- function(model_specific,
   # (para la funcion brm), que contiene la formula, data, prior, filename.
   
   #model_name = paste0("model_", phoneme_group_str,".RData")
-  model_name = paste0("model_TRIQUIS", phoneme_group_str)
+  model_name = paste0("model_TRIQUISX", phoneme_group_str)
   model_place <- file.path(prefix, model_name)
   #print(model_name)
   
@@ -50,36 +50,23 @@ fit_bayesian_model_funct <- function(model_specific,
                    data = df_filtered,
                    prior = prior_specific,
                    file = model_place,
+                   # the model is always refitted even if an object with the same name already exists.
+                   file_refit = "always", 
                    seed = 20250625,
                    chains = 4,
-                   iter = 4000,
+                   iter  = 400,#4000,
                    cores = 4#,
                    #...
                    )
   model <- do.call(brm, args)
-  
-  # model <- brm(
-  #   
-  #   formula = model_specific,
-  #   #family = Beta(link = "logit"),
-  #   data = df_filtered,
-  #   prior = c(
-  #     prior(normal(0,5), class = "b", nlpar = "eta"),
-  #     prior(normal(0,1), class = "b", nlpar = "logalpha"),
-  #     prior(constant(1), class="sd", group="speaker", nlpar = "eta"),
-  #     prior(normal(0, 1), dpar = "phi", class = "b")
-  #   ),
-  #   chains = 4, iter = 4000, cores = 4
-  #   #chains = 1, iter = 400, cores = 4
-  # )
-  #return(model)
+  # Add the validation criteria and save a file with same name.
+  model <- brms_help$add_validation_criterion(
+    model, 
+    val_list=c("loo","waic"), 
+    use_reloo = FALSE)
+  saveRDS(model, file = paste0(model_place,".rds"))
   rm(model)
   gc()
-
-# Considerar lo siguiente: que esta funcion retorne el modelo, 
-# en caso de que se haya indicado en la funcion que llama a la actual (run o iterate)
-  # que se desea hacer la validacion inmediatamente despues, procedar a hacerla
-  # siguiendo el ejemplo de adding_loo_criterion()
 }
 
 ##########################################################################
