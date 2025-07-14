@@ -6,7 +6,7 @@ library(readr)
 
 # Set the file path (assuming your data is in a folder named "data")
 #file_path <- "data/probabilities-middle-frame.csv"
-file_path <- "data/probabilities-max-frame.csv"
+file_path <- "./data/input_data/probabilities-max-frame.csv.gz"
 # Get the file size (in bytes)
 file_size <- file.info(file_path)$size
 cat("File Size: ", file_size, "bytes\n")
@@ -110,7 +110,7 @@ dev.off()
 # 4c: Identify the "elbow" (manually inspect the plot)
 # The student should visually determine where the eigenvalues show a marked drop.
 # 4d: Run factor analysis with the chosen number of factors
-num_factors <- 3  # <-- Student should manually enter the chosen number of factors here
+num_factors <- 3  # <-
 fa_result <- fa(cor_matrix, nfactors = num_factors, rotate = "varimax")
 
 

@@ -22,7 +22,7 @@ rm(list=ls())
 
 # Load data
 #df <- read.csv("../../data/probabilities-max-frame.csv")
-df <- read.csv("./data/input_data/probabilities-max-frame.csv")
+df <- read.csv("./data/input_data/probabilities-max-frame.csv.gz")
 
 # Filter to keep rows where expected_phoneme matches phoneme
 df <- df %>%
