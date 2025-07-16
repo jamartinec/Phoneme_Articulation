@@ -9,6 +9,7 @@ lib_bayesian_code_modeling1 <- modules::use("bayesian_code/modeling/fit_bayesian
 lib_bayesian_code_modeling3 <- modules::use("bayesian_code/modeling/models_to_fit.R")
 
 lib_bayesian_code_visuals1 <- modules::use("bayesian_code/visuals/run_visuals.R")
+lib_bayesian_code_visuals2 <- modules::use("bayesian_code/visuals/models_to_viz.R")
 lib_bayesian_code_model_validation1 <- modules::use("bayesian_code/model_validation/model_validation.R")
 lib_bayesian_code_model_validation2 <- modules::use("bayesian_code/model_validation/models_to_validate.R")
 ###############################################################################
@@ -60,15 +61,21 @@ lib_bayesian_code_modeling1$iterate_run_bayesian_modeling(list_to_fit)
 #######################################################################################################
 # Visuals
 ################################################################################
-lib_bayesian_code_visuals1$run_visuals(category, levels, prefix)
+#visualize a single model:
+#lib_bayesian_code_visuals1$run_visuals(category, levels, prefix)
 # Specify models you want to generate visualizations for:
+##########################################################################
+## in case you prefer to specify the models to visualize using the yaml file
+###########################################################################
+# raw_list_visuals <- read_yaml("bayesian_code/visuals/models_to_visualize.yaml")
+# list_to_visualize <- lapply(raw_list_visuals, function(entry) {
+#   entry$levels <- as.character(entry$levels)
+#   entry
+# })
 
-raw_list_visuals <- read_yaml("bayesian_code/visuals/models_to_visualize.yaml")
-list_to_visualize <- lapply(raw_list_visuals, function(entry) {
-  entry$levels <- as.character(entry$levels)
-  entry
-})
-
+## in case you prefer to specify the models to visualize using the R file
+list_to_visualize <- lib_bayesian_code_visuals2$return_dict_exp()
+print(list_to_visualize)
 lib_bayesian_code_visuals1$iterate_run_visuals(list_to_visualize)
 ##############################################################################
 # MODEL VALIDATION
@@ -90,6 +97,6 @@ lib_bayesian_code_visuals1$iterate_run_visuals(list_to_visualize)
 ## in case you prefer to specify the models to validate using the R file
 list_to_validate <- lib_bayesian_code_model_validation2$return_dict_exp()
 print(list_to_validate)
-results_filename <- "model_validation_resultsTRIQUIS"
+results_filename <- "model_validation_results_july16"
 ###########################################################################
 results <- lib_bayesian_code_model_validation1$iterate_model_validation(list_to_validate,results_filename)

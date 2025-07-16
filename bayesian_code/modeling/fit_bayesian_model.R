@@ -28,7 +28,7 @@ fit_bayesian_model_funct <- function(model_specific,
   # (para la funcion brm), que contiene la formula, data, prior, filename.
   
   #model_name = paste0("model_", phoneme_group_str,".RData")
-  model_name = paste0("model_TRIQUISX", phoneme_group_str)
+  model_name = paste0("model_", phoneme_group_str)
   model_place <- file.path(prefix, model_name)
   #print(model_name)
   
@@ -54,12 +54,15 @@ fit_bayesian_model_funct <- function(model_specific,
                    file_refit = "always", 
                    seed = 20250625,
                    chains = 4,
-                   iter  = 400,#4000,
+                   iter  = 4000,
                    cores = 4#,
                    #...
                    )
+  args$backend <- "cmdstanr"
+  cat("  → Fitting model: ", model_name, "\n")
   model <- do.call(brm, args)
   # Add the validation criteria and save a file with same name.
+  cat("  → Adding validation criteria (loo, waic)...\n")
   model <- brms_help$add_validation_criterion(
     model, 
     val_list=c("loo","waic"), 
@@ -67,6 +70,7 @@ fit_bayesian_model_funct <- function(model_specific,
   saveRDS(model, file = paste0(model_place,".rds"))
   rm(model)
   gc()
+  
 }
 
 ##########################################################################
@@ -148,11 +152,13 @@ run_bayesian_modeling <- function(category,
                            phoneme_group_str
                            )
   rm(df_filtered)
-  gc()
+  invisible(gc())
   }
 
 export("iterate_run_bayesian_modeling")
 iterate_run_bayesian_modeling <- function(list_to_fit){
+  #rstan::rstan_options(auto_write = TRUE)
+  #options(mc.cores = parallel::detectCores())
   
   # Llamar desde utils.
   #folder_path = "./data/processed_data/"
@@ -172,21 +178,70 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
   loaded_data_objects_2 <- load(file.path(folder_path,"phoneme_levels.RData"),
                                 envir = tmp_env_data)
   phoneme_levels <- tmp_env_data[[loaded_data_objects_2[1]]]
-  
+  failures <- list()
   
   for (item in list_to_fit){
     
     #prefix <- paste(folder_path, item["model_opt"], "/", sep="")
     prefix <- file.path(folder_path,item["model_opt"])
-    print(prefix)
+    cat("\n--- Running:", item[["model_opt"]], item[["category"]], paste(item[["levels"]], collapse = "_"), "\n")
     
-    run_bayesian_modeling(item[["category"]], 
-                          item[["levels"]], 
-                          prefix, 
-                          item[["model_specific"]],
-                          item[["prior_specific"]],
-                          df_final_data,
-                          phoneme_levels
-                          )
+    tryCatch(
+      { 
+        run_bayesian_modeling(item[["category"]], 
+                              item[["levels"]], 
+                              prefix, 
+                              item[["model_specific"]],
+                              item[["prior_specific"]],
+                              df_final_data,
+                              phoneme_levels
+                              )
+        
+        },
+        error = function(e) {
+          warning(sprintf(
+          "Error fitting model: %s | Category: %s | Levels: %s\nMessage: %s",
+          item[["model_opt"]],
+          item[["category"]],
+          paste(item[["levels"]], collapse = "_"),
+          e$message
+        ))
+          failures[[length(failures) + 1]] <<- list(
+            model_opt = item[["model_opt"]],
+            category = item[["category"]],
+            levels = item[["levels"]],
+            error_message = e$message
+          )
+        }
+    )
   }
+  if (length(failures) > 0) {
+    cat("\n--- The following model/data combinations failed:\n")
+    print(failures)
+    failure_df <- do.call(rbind, lapply(failures, as.data.frame))
+    failure_df$timestamp <- Sys.time()
+    if (!file.exists(log_path)) {
+    write.table(
+      failure_df,
+      file = file.path(Paths$modeling_dir, "failed_models_log.txt"),
+      row.names = FALSE,
+      quote = FALSE,
+      sep = "\t"
+    )
+    } else {
+      write.table(
+        failure_df,
+        file = log_path,
+        row.names = FALSE,
+        quote = FALSE,
+        sep = "\t",
+        col.names = FALSE,
+        append = TRUE
+      )
+    }
+  } else {
+    cat("\n All models ran successfully.\n")
+  }
+  
+  invisible(failures)
 }

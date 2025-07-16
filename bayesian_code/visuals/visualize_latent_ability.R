@@ -28,9 +28,10 @@ visualize_latent_ability_funct <- function(model_name, phoneme_group_str, df_fin
   #extract the fixed effect coefficient (posterior draws) for the variable age_months
   #in the linear predictor eta. b_eta_age_X is the name used by brms when modeling
   #hierarchical predictors. pulls() turns the one column into a plain numerical vector
-  
+  print(names(posterior_samples))
   fixed_effect_age <- posterior_samples %>%
-    select(b_eta_age_months) %>% 
+    #select(b_eta_age_months) %>%
+    #select(b_eta_nsage_months) %>% 
     pull()
   
   # Step 2: Prepare speaker data with their ages (grouped) from df_final

@@ -61,7 +61,8 @@ visualize_curves_funct <- function(model_name, phoneme_group_str,reference_col_s
   
   # Extract posterior samples for beta (difficulty), excluding `b_eta_age_months`
   beta_samples <- posterior_samples %>%
-    select(starts_with("b_eta"), -matches("b_eta_age_months"))
+    #select(starts_with("b_eta"), -matches("b_eta_age_months"))
+    select(starts_with("b_eta"), -matches("b_eta_nsage_months"))
   
   # Rename the intercept column to "AO"
   colnames(beta_samples)[1] <- reference_col_str

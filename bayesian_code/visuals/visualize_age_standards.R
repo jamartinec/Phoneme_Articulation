@@ -5,7 +5,7 @@ import("ggplot2")
 
 
 visualize_age_standards_funct <- function(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples) {
-
+  
   # Create a grid of new data
   ages <- seq(0, 90, by = 1)
   newdata <- expand.grid(
@@ -35,7 +35,7 @@ visualize_age_standards_funct <- function(model_name, model, phonemes, phoneme_g
     add_dummies("logalpha_", "expected_phoneme", nonref_phonemes) %>%
     add_dummies("phi_", "expected_phoneme", nonref_phonemes)
   
-
+  
   # Posterior predictive draws
   predicted <- posterior_predict(
     model,
@@ -79,7 +79,7 @@ visualize_age_standards_funct <- function(model_name, model, phonemes, phoneme_g
     facet_wrap(~ expected_phoneme) +
     labs(
       x = "Age (years)",
-      y = "Predicted articulation accuracy"
+      y = "Phoneme goodness score"
     ) +
     theme_minimal(base_size = 14) +
     theme(

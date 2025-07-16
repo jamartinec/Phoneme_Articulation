@@ -96,7 +96,7 @@ model10 <- bf( # apply inverse logit function to asymptote, for constraing the v
   family = Beta(link = "identity"),
   nl = TRUE)  # Non-linear model
 
-model10 <- bf( # apply inverse logit function to asymptote, for constraing the values
+model11 <- bf( # apply inverse logit function to asymptote, for constraing the values
   mean_prob ~  inv_logit(asymptote)/ (1+  exp(-exp(logalpha) * eta)),
   asymptote ~ (1 + expected_phoneme),
   eta ~ 1 + expected_phoneme +  ns(age_months,4) + (1 | speaker),
@@ -106,8 +106,8 @@ model10 <- bf( # apply inverse logit function to asymptote, for constraing the v
   nl = TRUE)  # Non-linear model
 
 model_list <- list(
-  model0 = list(name = "model0", object = model0),
-  model1 = list(name = "model1", object = model1)#,
+  #model0 = list(name = "model0", object = model0),
+  #model1 = list(name = "model1", object = model1),
   #model2 = list(name = "model2", object = model2),
   #model3 = list(name = "model3", object = model3),
   #model4 = list(name = "model4", object = model4),
@@ -115,8 +115,8 @@ model_list <- list(
   #model6 = list(name = "model6", object = model6),
   #model7 = list(name = "model7", object = model7),
   #model8 = list(name = "model8", object = model8),
-  #model9 = list(name = "model9", object = model9),
-  #model10 =list(name = "model10", object = model10),
+  model9 = list(name = "model9", object = model9)#,
+  #model10 =list(name = "model10", object = model10)
 )
 
 #model_list <- list(
@@ -154,7 +154,18 @@ prior1 = c(
   prior(normal(0, 1), class = "b", dpar = "phi")
 )
 
-all_models <- c("model0", "model1", "model2", "model3", "model4", "model5", "model6")
+all_models <- c("model0",
+                "model1",
+                "model2",
+                "model3",
+                "model4",
+                "model5",
+                "model6",
+                "model7",
+                "model8",
+                "model9",
+                "model10"
+                )
 
 prior_list_fit <- list(
   prior0 = list(name = "prior0", object = prior0, valid_models = all_models )#,
@@ -198,11 +209,13 @@ data7<-list(
 )
 ########################################################################
 data_list_fit <- list(
-  data1#, 
-  #data2#, data3, 
-  #data4, 
-  #data5, data6, 
-  #data7
+  data1, 
+  data2, 
+  data3, 
+  data4, 
+  data5,
+  data6, 
+  data7
 )
 
 ####################################################################

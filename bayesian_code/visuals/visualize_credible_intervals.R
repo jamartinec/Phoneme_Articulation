@@ -1,3 +1,6 @@
+# Load file path
+Paths <- modules::use("./bayesian_code/utils/file_paths.R")
+
 save_all_credible_intervals_and_plot_forest <- function(
     categories, levels_list, data_dir, output_dir
 ) {
@@ -52,7 +55,8 @@ save_all_credible_intervals_and_plot_forest <- function(
     group_str <- paste(c(category, levels), collapse = "_")
     
     load(file.path(data_dir, "df_final.RData"))
-    load(file.path(data_dir, paste0("model_", group_str, ".RData")))
+    #load(file.path(data_dir,"model5", paste0("model_", group_str, ".RData")))
+    model <- readRDS(file.path(data_dir,"model5", paste0("model_", group_str, ".rds")))
     posterior_samples <- as_draws_df(model)
     
     rename_logalpha <- function(x) str_remove(x, "b_logalpha_expected_phoneme")
@@ -139,7 +143,8 @@ save_all_credible_intervals_and_plot_forest <- function(
 }
 
 save_all_credible_intervals_and_plot_forest(
-  categories = c("Consonants", "Consonants", "Consonants", "Consonants", "Vowels", "Vowels", "Vowels"),
+  categories = c("Consonants", 
+    "Consonants", "Consonants", "Consonants", "Vowels", "Vowels", "Vowels"),
   levels_list = list(
     c("Level6"),
     c("Level5"),
@@ -149,6 +154,6 @@ save_all_credible_intervals_and_plot_forest(
     c("Level1", "Level2"),
     c("Level4", "Level5")
   ),
-  data_dir = "../data/processed_data/",
-  output_dir = "./output/bayesian_model/"
+  data_dir = Paths$processed_data_dir ,#"../data/processed_data",
+  output_dir = file.path(Paths$output_bayesian_dir,"model5")#"./output/bayesian_model"
 )

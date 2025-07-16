@@ -1,6 +1,33 @@
 library(tidyverse)
 Paths <- modules::use("./bayesian_code/utils/file_paths.R")
 
+extract_estimates <- function(criterion, key = "") {
+  if (is.null(criterion)) {
+    message(sprintf("[%s] criterion is NULL", key))
+    return(NULL)
+  }
+  
+  if (identical(criterion, NA)) {
+    message(sprintf("[%s] criterion is NA", key))
+    return(NULL)
+  }
+  
+  # If already a waic/loo object with $estimates
+  if (is.list(criterion) && !is.null(criterion$estimates)) {
+    return(criterion$estimates)
+  }
+  
+  # If somehow a list wrapping another list
+  if (is.list(criterion) && length(criterion) == 1 && is.list(criterion[[1]]) && !is.null(criterion[[1]]$estimates)) {
+    return(criterion[[1]]$estimates)
+  }
+  
+  # If something else unexpected
+  message(sprintf("[%s] Unknown criterion type: class=%s typeof=%s", key, paste(class(criterion), collapse=", "), typeof(criterion)))
+  return(NULL)
+}
+
+
 #' extract_validation_results
 #'
 #' Load the validation results for a list of models saved as Rds file and 
@@ -9,6 +36,7 @@ Paths <- modules::use("./bayesian_code/utils/file_paths.R")
 #' @param filename Name of the Rds file that contains the validation results
 #' @return dataframe which contains the wac and loo scores for each model in the list loaded
 #' @export
+
 extract_validation_results <- function(filename){
   folder_path <- Paths$model_valresults_dir
   filename <- paste0(filename,".rds")
@@ -18,26 +46,44 @@ extract_validation_results <- function(filename){
   rows <- list()
   for (key in names(model_validation_results)){
     subdict <- model_validation_results[[key]]
-    waic_table <- subdict["waic"]$waic$estimates
-    elpd_waic <- waic_table["elpd_waic","Estimate"]
-    p_waic <- waic_table["p_waic","Estimate"]
-    waic <- waic_table["waic","Estimate"]
-    loo_table2 <- subdict["loo"]$loo$estimates
-    elpd_loo <- loo_table2["elpd_loo","Estimate"]
-    p_loo <- loo_table2["p_loo","Estimate"]
-    looic <- loo_table2["looic","Estimate"]
+    if (is.null(subdict) || !is.list(subdict)) {
+      next
+    }
+    # print(subdict["waic"])
+    # waic_table <- subdict[["waic"]]$waic$estimates
+    # elpd_waic <- waic_table["elpd_waic","Estimate"]
+    # p_waic <- waic_table["p_waic","Estimate"]
+    # waic <- waic_table["waic","Estimate"]
+    # loo_table2 <- subdict[["loo"]]$loo$estimates
+    # elpd_loo <- loo_table2["elpd_loo","Estimate"]
+    # p_loo <- loo_table2["p_loo","Estimate"]
+    # looic <- loo_table2["looic","Estimate"]
     
+    waic_table <- extract_estimates(subdict[["waic"]], key = paste0(key, "/waic"))
+    loo_table  <- extract_estimates(subdict[["loo"]], key = paste0(key, "/loo"))
+    
+    # extracted <- list(
+    #   model_opt = subdict["model_opt"],
+    #   phoneme_group = subdict["phoneme_group_str"],
+    #   elpd_waic = elpd_waic,
+    #   p_waic = p_waic,
+    #   waic = waic,
+    #   elpd_loo = elpd_loo,
+    #   p_loo = p_loo,
+    #   looic = looic
+    # )
     extracted <- list(
-      model_opt = subdict["model_opt"],
-      phoneme_group = subdict["phoneme_group_str"],
-      elpd_waic = elpd_waic,
-      p_waic = p_waic,
-      waic = waic,
-      elpd_loo = elpd_loo,
-      p_loo = p_loo,
-      looic = looic
+      model_opt = subdict[["model_opt"]],
+      phoneme_group = subdict[["phoneme_group_str"]],
+      elpd_waic = if (!is.null(waic_table)) waic_table["elpd_waic", "Estimate"] else NA,
+      p_waic    = if (!is.null(waic_table)) waic_table["p_waic", "Estimate"] else NA,
+      waic      = if (!is.null(waic_table)) waic_table["waic", "Estimate"] else NA,
+      elpd_loo  = if (!is.null(loo_table)) loo_table["elpd_loo", "Estimate"] else NA,
+      p_loo     = if (!is.null(loo_table)) loo_table["p_loo", "Estimate"] else NA,
+      looic     = if (!is.null(loo_table)) loo_table["looic", "Estimate"] else NA
     )
     rows[[length(rows) + 1]] <- extracted
+    
   }
   result_df <- do.call(rbind, lapply(rows, as.data.frame))
   rownames(result_df) <- NULL 
@@ -57,16 +103,16 @@ extract_validation_results <- function(filename){
 stack_validation_results <- function (result_df,output_filename){
   # Pivot for elpd_waic
   waic_pivot <- result_df %>%
-    select(phoneme_group_str, model_opt, elpd_waic) %>%
+    select(phoneme_group, model_opt, elpd_waic) %>%
     pivot_wider(names_from = model_opt, values_from = elpd_waic, names_prefix = "waic_")
   
   # Pivot for elpd_loo
   loo_pivot <- result_df %>%
-    select(phoneme_group_str, model_opt, elpd_loo) %>%
+    select(phoneme_group, model_opt, elpd_loo) %>%
     pivot_wider(names_from = model_opt, values_from = elpd_loo, names_prefix = "loo_")
   
   
-  pivot_combined <- left_join(waic_pivot, loo_pivot, by = "phoneme_group_str")
+  pivot_combined <- left_join(waic_pivot, loo_pivot, by = "phoneme_group")
   print(pivot_combined)
 }
 
@@ -132,4 +178,4 @@ build_validation <- function(input_filename, output_filename){
   write.csv(pivot_combined, file = pivot_file_path, row.names = FALSE)
 }
 
-build_validation( "model_validation_resultsTRIQUIS","pivot_combinedTRIQUIS")
+build_validation( "model_validation_results_july16","pivot_combined_july16")
