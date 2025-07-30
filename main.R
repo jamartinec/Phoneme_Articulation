@@ -7,7 +7,6 @@ library(yaml)
 
 lib_bayesian_code_modeling1 <- modules::use("bayesian_code/modeling/fit_bayesian_model.R")
 lib_bayesian_code_modeling3 <- modules::use("bayesian_code/modeling/models_to_fit.R")
-
 lib_bayesian_code_visuals1 <- modules::use("bayesian_code/visuals/run_visuals.R")
 lib_bayesian_code_visuals2 <- modules::use("bayesian_code/visuals/models_to_viz.R")
 lib_bayesian_code_model_validation1 <- modules::use("bayesian_code/model_validation/model_validation.R")
@@ -56,7 +55,6 @@ model_specific <- list(
 #source("./bayesian_code/modeling/models_to_fit.R")
 list_to_fit<-lib_bayesian_code_modeling3$return_dict_exp()
 print(list_to_fit)
-
 lib_bayesian_code_modeling1$iterate_run_bayesian_modeling(list_to_fit)
 #######################################################################################################
 # Visuals

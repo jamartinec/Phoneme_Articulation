@@ -1,1 +1,17 @@
 
+model0_Version2	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-07-29 00:03:18.056855
+model_binomial	Vowels	Levelphoneme1	The following variables can neither be found in 'data' nor in 'data2':
+'sum_score', 'num_score'	2025-07-29 13:36:56.692115
+model_binomial	Vowels	Levelphoneme1	The following variables can neither be found in 'data' nor in 'data2':
+'sum_score', 'num_score'	2025-07-29 13:40:04.179931
+model_binomial	Vowels	Levelphoneme1	The following variables can neither be found in 'data' nor in 'data2':
+'sum_score', 'num_score'	2025-07-29 13:43:17.789836
+model_binomial	Vowels	Levelphoneme1	cannot open the connection	2025-07-29 13:46:01.796125
+model_binomial	Vowels	Levelphoneme9	Argument 'data' does not contain observations.	2025-07-29 15:36:05.657416
+model_binomial	Vowels	Levelphoneme10	Argument 'data' does not contain observations.	2025-07-29 15:36:05.657416
+model_binomial	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-07-29 15:36:05.657416
+model_binomial_Probability	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-07-29 18:10:30.938271
+model_binomial_AAPS	Vowels	Levelphoneme9	Argument 'data' does not contain observations.	2025-07-29 19:28:13.82034
+model_binomial_AAPS	Vowels	Levelphoneme10	Argument 'data' does not contain observations.	2025-07-29 19:28:13.82034
+model_binomial_AAPS	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-07-29 19:28:13.82034
+model_binomial_Probability	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-07-29 20:12:27.220178

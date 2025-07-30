@@ -169,15 +169,42 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
   tmp_env_data <- new.env()
   #loaded_data_objects_1 <- load(paste(data_place,"df_final.RData", sep = ""),
                                 #envir = tmp_env_data)
-  loaded_data_objects_1 <- load(file.path(folder_path, "df_final.RData"),
+  # loaded_data_objects_1 <- load(file.path(folder_path, "df_final.RData"),
+  #                               envir = tmp_env_data)
+  # loaded_data_objects_1 <- load(file.path(folder_path, "df_finalVersion2.RData"),
+  #                               envir = tmp_env_data)
+  # df_final_data <- tmp_env_data[[loaded_data_objects_1[1]]] 
+  
+  # loaded_data_objects_1 <- load(file.path(folder_path, "df_final_AAPS.RData"),
+  #                               envir = tmp_env_data)
+  # df_final_data <- tmp_env_data[[loaded_data_objects_1[1]]]
+  
+  
+  loaded_data_objects_1 <- load(file.path(folder_path, "df_final_binomialxphoneme_Prob.RData"),
                                 envir = tmp_env_data)
-  df_final_data <- tmp_env_data[[loaded_data_objects_1[1]]] 
+  df_final_data <- tmp_env_data[[loaded_data_objects_1[1]]]
+  
+  
   
   #loaded_data_objects_2 <- load(paste(data_place,"phoneme_levels.RData", sep = ""),
                                 #envir = tmp_env_data)
-  loaded_data_objects_2 <- load(file.path(folder_path,"phoneme_levels.RData"),
+  # loaded_data_objects_2 <- load(file.path(folder_path,"phoneme_levels.RData"),
+  #                               envir = tmp_env_data)
+  # loaded_data_objects_2 <- load(file.path(folder_path,"phoneme_levelsVersion2.RData"),
+  #                               envir = tmp_env_data)
+  # phoneme_levels <- tmp_env_data[[loaded_data_objects_2[1]]]
+  
+  # loaded_data_objects_2 <- load(file.path(folder_path,"phoneme_levels_AAPS.RData"),
+  #                               envir = tmp_env_data)
+  # phoneme_levels <- tmp_env_data[[loaded_data_objects_2[1]]]
+  
+  loaded_data_objects_2 <- load(file.path(folder_path,"phoneme_levels_binomialxphoneme_Prob.RData"),
                                 envir = tmp_env_data)
   phoneme_levels <- tmp_env_data[[loaded_data_objects_2[1]]]
+  
+  #
+  #
+  
   failures <- list()
   
   for (item in list_to_fit){
@@ -220,6 +247,7 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
     print(failures)
     failure_df <- do.call(rbind, lapply(failures, as.data.frame))
     failure_df$timestamp <- Sys.time()
+    log_path <- file.path(Paths$modeling_dir, "failed_models_log.txt")
     if (!file.exists(log_path)) {
     write.table(
       failure_df,

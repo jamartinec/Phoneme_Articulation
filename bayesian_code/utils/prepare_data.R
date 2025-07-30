@@ -33,6 +33,11 @@ geometric_mean <- function(x) {
   exp(mean(log(x)))  # Geometric mean, avoiding log(0)
 }
 
+df <- df %>% mutate(
+  phoneme_match = if_else(expected_phoneme==most_likely_phoneme, 1L, 0L)
+  
+)
+
 # Aggregate over instances of phoneme, using geometric mean
 df_summary <- df %>%
   group_by(speaker, expected_phoneme) %>%
