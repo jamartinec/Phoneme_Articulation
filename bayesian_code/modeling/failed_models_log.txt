@@ -15,3 +15,9 @@ model_binomial_AAPS	Vowels	Levelphoneme9	Argument 'data' does not contain observ
 model_binomial_AAPS	Vowels	Levelphoneme10	Argument 'data' does not contain observations.	2025-07-29 19:28:13.82034
 model_binomial_AAPS	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-07-29 19:28:13.82034
 model_binomial_Probability	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-07-29 20:12:27.220178
+model_binomial_Probability_singleWords	Vowels	Levelphoneme15	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636
+model_binomial_Probability_singleWords	Consonants	Levelphoneme30	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636
+model_binomial_Probability_singleWords	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636
+model_binomial_Probability_singleWords	Consonants	Levelphoneme37	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636
+model_binomial_Probability_singleWords	Consonants	Levelphoneme38	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636
+model_binomial_Probability_singleWords	Consonants	Levelphoneme39	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636

@@ -137,7 +137,10 @@ model_list <- list(
   #model10 =list(name = "model10", object = model10)
   #model0_Version2 = list(name = "model0_Version2", object = model0_Version2)
   #model_binomial_AAPS = list(name="model_binomial_AAPS", object = model_binomial)#,
-  model_binomial_Probability = list(name="model_binomial_Probability", object = model_binomial )
+  #model_binomial_Probability = list(name="model_binomial_Probability", object = model_binomial )
+  
+  #model_binomial_Probability_singleWords = list(name="model_binomial_Probability_singleWords", object = model_binomial)
+  model_binomial_dummytest = list(name="model_binomial_dummytest", object = model_binomial)
 )
 
 #model_list <- list(
@@ -204,7 +207,7 @@ prior_list_fit <- list(
   #prior0 = list(name = "prior0", object = prior0, valid_models = all_models )#,
   #prior1 = list(name = "prior1", object = prior1, valid_models = all_models ),
   #prior0_Version2 = list(name = "prior0_Version2", object = prior0_Version2, valid_models = c("model0_Version2") )
-  prior_binomial = list(name = "prior_binomial", object = prior_binomial, valid_models = c("model_binomial_AAPS", "model_binomial_Probability") )
+  prior_binomial = list(name = "prior_binomial", object = prior_binomial, valid_models = c("model_binomial_AAPS", "model_binomial_Probability", "model_binomial_Probability_singleWords") )
 )
 ################################################################################
 data1<-list(category = "Vowels",levels = c("Level1", "Level2"))

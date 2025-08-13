@@ -1,0 +1,6 @@
+raw_data: probabilities-max-frame_W.csv.gz
+predicted_variable: mean_prob
+# Formula for compute it ???
+data_levels: by_phoneme
+models_to_fit: models_to_fit
+

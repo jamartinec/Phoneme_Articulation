@@ -9,9 +9,10 @@ lib_visuals4 <- modules::use("bayesian_code/visuals/visualize_age_standards.R")
 #lib_visuals5 <- modules::use("bayesian_code/visuals/visualize_age_standards_andraw.R")
 #lib_visuals6 <- modules::use("bayesian_code/visuals/visualize_age_standardsraw_splines.R")
 #lib_visuals7 <- modules::use("bayesian_code/visuals/visualize_age_standardsraw_splinesV2.R")
-lib_visuals8<- modules::use("bayesian_code/visuals/visualize_age_standards_and_AAPS_splines.R")
+#lib_visuals8<- modules::use("bayesian_code/visuals/visualize_age_standards_and_AAPS_splines.R")
 #lib_visuals9 <- modules::use("bayesian_code/visuals/visualize_age_standardsraw_splines_BINOMIAL_AAPS.R")
 #lib_visuals10 <- modules::use("bayesian_code/visuals/visualize_age_standardsraw_splines_BINOMIAL_Probability.R")
+lib_visuals11 <- modules::use("bayesian_code/visuals/visualize_age_standardsraw_splines_BINOMIAL_Probability_singleWords.R")
 
 export("run_visuals")
 export("iterate_run_visuals")
@@ -27,7 +28,9 @@ run_visuals <- function(category, levels, prefix) {
   tmp_env <- new.env()
   # loaded_data_objects_1 <- load(paste0(data_place, "phoneme_levels.RData"),
   #                               envir = tmp_env)
-  loaded_data_objects_1 <- load(paste0(data_place, "phoneme_levelsVersion2.RData"),
+  # loaded_data_objects_1 <- load(paste0(data_place, "phoneme_levelsVersion2.RData"),
+  #                               envir = tmp_env)
+  loaded_data_objects_1 <- load(paste0(data_place, "phoneme_levels_binomialxphoneme_Prob_singleWords.RData"),
                                 envir = tmp_env)
   phoneme_levels <- tmp_env[[loaded_data_objects_1[1]]]
   phonemes <- unlist(phoneme_levels[[category]][levels])
@@ -40,7 +43,9 @@ run_visuals <- function(category, levels, prefix) {
   # Load data and model directly into current environment
   # loaded_data_objects_2 <- load(paste0(data_place, "df_final.RData"),
   #                               envir = tmp_env)
-  loaded_data_objects_2 <- load(paste0(data_place, "df_finalVersion2.RData"),
+  # loaded_data_objects_2 <- load(paste0(data_place, "df_finalVersion2.RData"),
+  #                               envir = tmp_env)
+  loaded_data_objects_2 <- load(paste0(data_place, "df_final_binomialxphoneme_Prob_singleWords.RData"),
                                 envir = tmp_env)  
   df_final <- tmp_env[[loaded_data_objects_2[1]]]
   
@@ -61,9 +66,10 @@ run_visuals <- function(category, levels, prefix) {
   #lib_visuals5$visualize_age_standards_funct(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
   #lib_visuals6$visualize_age_standards_funct(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
   #lib_visuals7$visualize_age_standards_funct(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
-  lib_visuals8$visualize_age_standards_funct(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
+  #lib_visuals8$visualize_age_standards_funct(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
   #lib_visuals9$visualize_age_standards_funct(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
   #lib_visuals10$visualize_age_standards_funct(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
+  lib_visuals11$visualize_age_standards_funct(model_name, model, phonemes, phoneme_group_str, reference_col_str, posterior_samples)
   }
 
 iterate_run_visuals <- function(list_to_visualize){

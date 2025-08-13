@@ -22,7 +22,7 @@ fit_bayesian_model_funct <- function(model_specific,
                                      #target_phonemes,# creo que esto no se esta usando, revisar
                                      prefix,
                                      phoneme_group_str
-                                     ){
+){
   
   # En este punto lo que vamos a hacer es crear un objeto de tipo argumento
   # (para la funcion brm), que contiene la formula, data, prior, filename.
@@ -57,7 +57,7 @@ fit_bayesian_model_funct <- function(model_specific,
                    iter  = 4000,
                    cores = 4#,
                    #...
-                   )
+  )
   args$backend <- "cmdstanr"
   cat("  → Fitting model: ", model_name, "\n")
   model <- do.call(brm, args)
@@ -89,7 +89,7 @@ load_or_create_filtered_data <- function(phoneme_group_str,
                                          filtered_file_path, 
                                          df_final_data,
                                          target_phonemes
-                                         ) {
+) {
   tryCatch({
     message("Trying to load filtered data...")
     df_filtered <- load_from_rdata(filtered_file_path, "df_filtered")
@@ -117,7 +117,7 @@ run_bayesian_modeling <- function(category,
                                   prior_specific,
                                   df_final_data,
                                   phoneme_levels
-                                  ){
+){
   
   # Open the filtered files if already exists, otherwise open raw data files, 
   # apply the filter and save filtered objects for next time.
@@ -135,10 +135,10 @@ run_bayesian_modeling <- function(category,
   filtered_file_path <- file.path(folder_path,filename)
   print(filtered_file_path)###################################
   df_filtered <- load_or_create_filtered_data(phoneme_group_str,
-                               filtered_file_path,
-                               df_final_data,
-                               target_phonemes
-                               )
+                                              filtered_file_path,
+                                              df_final_data,
+                                              target_phonemes
+  )
   
   # Filter data to include only those phonemes
   # df_filtered <- df_final_data %>%
@@ -150,10 +150,10 @@ run_bayesian_modeling <- function(category,
                            #target_phonemes, #parece que no se usa este arg#
                            prefix,
                            phoneme_group_str
-                           )
+  )
   rm(df_filtered)
   invisible(gc())
-  }
+}
 
 export("iterate_run_bayesian_modeling")
 iterate_run_bayesian_modeling <- function(list_to_fit){
@@ -168,7 +168,7 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
   # Load data
   tmp_env_data <- new.env()
   #loaded_data_objects_1 <- load(paste(data_place,"df_final.RData", sep = ""),
-                                #envir = tmp_env_data)
+  #envir = tmp_env_data)
   # loaded_data_objects_1 <- load(file.path(folder_path, "df_final.RData"),
   #                               envir = tmp_env_data)
   # loaded_data_objects_1 <- load(file.path(folder_path, "df_finalVersion2.RData"),
@@ -191,7 +191,7 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
   
   
   #loaded_data_objects_2 <- load(paste(data_place,"phoneme_levels.RData", sep = ""),
-                                #envir = tmp_env_data)
+  #envir = tmp_env_data)
   # loaded_data_objects_2 <- load(file.path(folder_path,"phoneme_levels.RData"),
   #                               envir = tmp_env_data)
   # loaded_data_objects_2 <- load(file.path(folder_path,"phoneme_levelsVersion2.RData"),
@@ -230,24 +230,24 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
                               item[["prior_specific"]],
                               df_final_data,
                               phoneme_levels
-                              )
+        )
         
-        },
-        error = function(e) {
-          warning(sprintf(
+      },
+      error = function(e) {
+        warning(sprintf(
           "Error fitting model: %s | Category: %s | Levels: %s\nMessage: %s",
           item[["model_opt"]],
           item[["category"]],
           paste(item[["levels"]], collapse = "_"),
           e$message
         ))
-          failures[[length(failures) + 1]] <<- list(
-            model_opt = item[["model_opt"]],
-            category = item[["category"]],
-            levels = item[["levels"]],
-            error_message = e$message
-          )
-        }
+        failures[[length(failures) + 1]] <<- list(
+          model_opt = item[["model_opt"]],
+          category = item[["category"]],
+          levels = item[["levels"]],
+          error_message = e$message
+        )
+      }
     )
   }
   if (length(failures) > 0) {
@@ -257,13 +257,13 @@ iterate_run_bayesian_modeling <- function(list_to_fit){
     failure_df$timestamp <- Sys.time()
     log_path <- file.path(Paths$modeling_dir, "failed_models_log.txt")
     if (!file.exists(log_path)) {
-    write.table(
-      failure_df,
-      file = file.path(Paths$modeling_dir, "failed_models_log.txt"),
-      row.names = FALSE,
-      quote = FALSE,
-      sep = "\t"
-    )
+      write.table(
+        failure_df,
+        file = file.path(Paths$modeling_dir, "failed_models_log.txt"),
+        row.names = FALSE,
+        quote = FALSE,
+        sep = "\t"
+      )
     } else {
       write.table(
         failure_df,

@@ -3,6 +3,8 @@ base_data_dir <- "./data"
 processed_data_dir <- file.path(base_data_dir,"processed_data")
 input_data_dir <- file.path(base_data_dir,"input_data")
 filtered_data_dir <-  file.path(processed_data_dir,"filtered_data")
+filtered_data_phoneme_binomial_probability_singleWords_dir <- file.path(filtered_data_dir,"filtered_data_phoneme_binomial_probability_singleWords" )
+
 
 bayesian_code_dir <- "./bayesian_code"
 modeling_dir <- file.path(bayesian_code_dir, "modeling")

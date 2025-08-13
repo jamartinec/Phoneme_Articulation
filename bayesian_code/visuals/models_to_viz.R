@@ -47,10 +47,11 @@ model_list <- list(
   #model3 = list(name = "model3", object = model3),
   #model5 = list(name = "model5", object = model5)
   #model9 = list(name = "model9", object = model9),
-   model0_Version2 = list(name="model0_Version2", object = model0_Version2)
+   #model0_Version2 = list(name="model0_Version2", object = model0_Version2)
   #model_binomial = list(name="model_binomial", object = model_binomial)
   #model_binomial_AAPS = list(name="model_binomial_AAPS", object = model_binomial)#,
   #model_binomial_Probability = list(name="model_binomial_Probability", object = model_binomial)
+  model_binomial_Probability_singleWords = list(name="model_binomial_Probability_singleWords", object = model_binomial)
 )
 #----------------------------------------------------------------------------
 data1<-list(category = "Vowels",levels = c("Level1", "Level2"))

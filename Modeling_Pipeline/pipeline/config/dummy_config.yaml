@@ -1,0 +1,16 @@
+dataset: AAPS
+data_type: binary
+modeling_level: by_phoneme
+model_formula: model0_version2 # como hacer si quiero correr mas de un modelo
+priors: prior_binomial
+splines: true
+n_splines: 3
+input_file: data/raw/aaps_data.csv
+preprocess_script: scripts/preprocess/prepare_data_binomialxphoneme_AAPS.R
+fit_script: scripts/train/fit_model_binomial.R
+visualize_script: scripts/visualize/visualize_age_standardsraw_splines_BINOMIAL_AAPS.R
+output_dir: outputs/plots/aaps_binomial/
+
+# Basicamente la dependencia es:
+
+ 1) Archivo de entrada
