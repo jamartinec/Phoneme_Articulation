@@ -24,6 +24,8 @@ visualize_age_standards_funct <- function(model_name, model, phonemes, phoneme_g
   phoneme_numscore_mode_file_path <- file.path(folder_path,filename)
   phoneme_numscore_mode <-load_from_rdata(phoneme_numscore_mode_file_path,"phoneme_numscore_mode")
   
+  #temporal!!, quemar phonemes para debugging
+  phonemes <- c("AA", "AH")
   # Create a grid of new data
   ages <- seq(0, 90, by = 1) #coherent with the range of raw data
   newdata <- expand.grid(
@@ -44,6 +46,9 @@ visualize_age_standards_funct <- function(model_name, model, phonemes, phoneme_g
   colnames(splines_basis) <-paste0("ns(age_months, 4)",1:4)
   newdata <- bind_cols(newdata,as.data.frame(splines_basis))
   
+  print(newdata)
+  # 182 filas (91*2) es decir cada fila corresponde a una edad y un phoneme.
+  
   # Posterior predictive draws
   predicted <- posterior_predict(
     model,
@@ -53,12 +58,23 @@ visualize_age_standards_funct <- function(model_name, model, phonemes, phoneme_g
     draws = 2000
   )
   
+  print(class(predicted))
+  print(dim(predicted))
+  print(predicted)
+  
+  # predicted es una matriz de 8000 filas y 182 columnas, no se porque tenemos 8000 filas.
+  
+  
   # Add row index to newdata
   newdata$row_id <- 1:nrow(newdata)
   
   # Convert predicted draws to long format
+  #for reshaping the data into long format later, where each row will represent 
+  #a single (draw, observation) pair — so you can compute credible intervals, 
+  #means, or plot full posterior trajectories.
   pred_df <- as.data.frame(predicted)
   pred_df$draw <- 1:nrow(pred_df)
+  
   long_preds <- pred_df %>%
     pivot_longer(
       cols = -draw,
@@ -71,6 +87,12 @@ visualize_age_standards_funct <- function(model_name, model, phonemes, phoneme_g
       
     ) %>%
     left_join(newdata, by = "row_id")
+  
+  print("pred_df:\n")
+  print(pred_df)
+  
+  print(long_preds)
+  
   
   # Load filtered data for plot overlay
   #folder_path <- Paths$filtered_data_dir

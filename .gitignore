@@ -4,6 +4,8 @@
 .RData
 .Rprofile
 *.Rproj
+*.rds
+
 renv/
 #!renv.lock
 

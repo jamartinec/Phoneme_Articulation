@@ -126,31 +126,10 @@ model_binomial <- bf(
   family = binomial(link = "logit")
 )
 
-#-------------------------------------------------------------------------------
-
-# model_list <- list(
-#   #model0 = list(name = "model0", object = model0),
-#   #model1 = list(name = "model1", object = model1),
-#   #model2 = list(name = "model2", object = model2),
-#   #model3 = list(name = "model3", object = model3),
-#   #model4 = list(name = "model4", object = model4),
-#   #model5 = list(name = "model5", object = model5),
-#   #model6 = list(name = "model6", object = model6),
-#   #model7 = list(name = "model7", object = model7),
-#   #model8 = list(name = "model8", object = model8),
-#   #model9 = list(name = "model9", object = model9)#,
-#   #model10 =list(name = "model10", object = model10)
-#   model0_Version2 = list(name = "model0_Version2", object = model0_Version2),
-#   #model_binomial_AAPS = list(name="model_binomial_AAPS", object = model_binomial),
-#   #model_binomial_Probability = list(name="model_binomial_Probability", object = model_binomial )
-#   #model_binomial_Probability_singleWords = list(name="model_binomial_Probability_singleWords", object = model_binomial)
-#   model_binomial_dummytest = list(name="model_binomial_dummytest", object = model_binomial)
-# )
-
-
 model_list <- list(
   "model0_Version2"              = model0_Version2,
-  "model_binomial_dummytest"     = model_binomial
+  "model_binomial_dummytest"     = model_binomial,
+  "model_binomial_Probability"   = model_binomial
 )
 
 ################################################################################
@@ -191,26 +170,6 @@ prior0_Version2 = c(
 
 
 
-# all_models <- c("model0",
-#                 "model1",
-#                 "model2",
-#                 "model3",
-#                 "model4",
-#                 "model5",
-#                 "model6",
-#                 "model7",
-#                 "model8",
-#                 "model9",
-#                 "model10"
-# )
-
-# prior_list <- list(
-#   #prior0 = list(name = "prior0", object = prior0, valid_models = all_models )#,
-#   #prior1 = list(name = "prior1", object = prior1, valid_models = all_models ),
-#   prior0_Version2 = list(name = "prior0_Version2", object = prior0_Version2, valid_models = c("model0_Version2") ),
-#   prior_binomial = list(name = "prior_binomial", object = prior_binomial, valid_models = c("model_binomial_dummytest","model_binomial_AAPS", "model_binomial_Probability", "model_binomial_Probability_singleWords") )
-#   
-#   )
 
 
 prior_list <- list(
@@ -221,117 +180,7 @@ prior_list <- list(
                                                                        "model_binomial_Probability_singleWords")
                              )
 )
-################################################################################
-# data1<-list(category = "Vowels",levels = c("Level1", "Level2"))
-# data2<-list(category = "Vowels",levels = c("Level4", "Level5"))
-# data3<-list(category = "Vowels",levels = c("Level3"))
-# data4<-list(category = "Consonants",levels = c("Level3"))
-# data5<-list(category = "Consonants",levels = c("Level4"))
-# data6<-list(category = "Consonants",levels = c("Level5"))
-# data7<-list(category = "Consonants",levels = c("Level6"))
-# #------------------------------------------------------------------------------
-# 
-# dataPhoneme1<-list(category = "Vowels",levels = c("Levelphoneme1"))
-# dataPhoneme2<-list(category = "Vowels",levels = c("Levelphoneme2"))
-# dataPhoneme3<-list(category = "Vowels",levels = c("Levelphoneme3"))
-# dataPhoneme4<-list(category = "Vowels",levels = c("Levelphoneme4"))
-# dataPhoneme5<-list(category = "Vowels",levels = c("Levelphoneme5"))
-# dataPhoneme6<-list(category = "Vowels",levels = c("Levelphoneme6"))
-# dataPhoneme7<-list(category = "Vowels",levels = c("Levelphoneme7"))
-# dataPhoneme8<-list(category = "Vowels",levels = c("Levelphoneme8"))
-# dataPhoneme9<-list(category = "Vowels",levels = c("Levelphoneme9"))
-# dataPhoneme10<-list(category = "Vowels",levels = c("Levelphoneme10"))
-# dataPhoneme11<-list(category = "Vowels",levels = c("Levelphoneme11"))
-# dataPhoneme12<-list(category = "Vowels",levels = c("Levelphoneme12"))
-# dataPhoneme13<-list(category = "Vowels",levels = c("Levelphoneme13"))
-# dataPhoneme14<-list(category = "Vowels",levels = c("Levelphoneme14"))
-# dataPhoneme15<-list(category = "Vowels",levels = c("Levelphoneme15"))
-# dataPhoneme16<-list(category = "Consonants",levels = c("Levelphoneme16"))
-# dataPhoneme17<-list(category = "Consonants",levels = c("Levelphoneme17"))
-# dataPhoneme18<-list(category = "Consonants",levels = c("Levelphoneme18"))
-# dataPhoneme19<-list(category = "Consonants",levels = c("Levelphoneme19"))
-# dataPhoneme20<-list(category = "Consonants",levels = c("Levelphoneme20"))
-# dataPhoneme21<-list(category = "Consonants",levels = c("Levelphoneme21"))
-# dataPhoneme22<-list(category = "Consonants",levels = c("Levelphoneme22"))
-# dataPhoneme23<-list(category = "Consonants",levels = c("Levelphoneme23"))
-# dataPhoneme24<-list(category = "Consonants",levels = c("Levelphoneme24"))
-# dataPhoneme25<-list(category = "Consonants",levels = c("Levelphoneme25"))
-# dataPhoneme26<-list(category = "Consonants",levels = c("Levelphoneme26"))
-# dataPhoneme27<-list(category = "Consonants",levels = c("Levelphoneme27"))
-# dataPhoneme28<-list(category = "Consonants",levels = c("Levelphoneme28"))
-# dataPhoneme29<-list(category = "Consonants",levels = c("Levelphoneme29"))
-# dataPhoneme30<-list(category = "Consonants",levels = c("Levelphoneme30"))
-# dataPhoneme31<-list(category = "Consonants",levels = c("Levelphoneme31"))
-# dataPhoneme32<-list(category = "Consonants",levels = c("Levelphoneme32"))
-# dataPhoneme33<-list(category = "Consonants",levels = c("Levelphoneme33"))
-# dataPhoneme34<-list(category = "Consonants",levels = c("Levelphoneme34"))
-# dataPhoneme35<-list(category = "Consonants",levels = c("Levelphoneme35"))
-# dataPhoneme36<-list(category = "Consonants",levels = c("Levelphoneme36"))
-# dataPhoneme37<-list(category = "Consonants",levels = c("Levelphoneme37"))
-# dataPhoneme38<-list(category = "Consonants",levels = c("Levelphoneme38"))
-# dataPhoneme39<-list(category = "Consonants",levels = c("Levelphoneme39"))
-# ########################################################################
-# data_list_fit <- list(
-#   #data1, #data2, #data3, #data4, #data5,#data6, #data7
-#   dataPhoneme1,dataPhoneme2,dataPhoneme3,dataPhoneme4,dataPhoneme5,
-#   dataPhoneme6,dataPhoneme7,dataPhoneme8,dataPhoneme9,
-#   dataPhoneme10,dataPhoneme11,dataPhoneme12,dataPhoneme13,dataPhoneme14,
-#   dataPhoneme15,dataPhoneme16,dataPhoneme17,dataPhoneme18,dataPhoneme19,
-#   dataPhoneme20,dataPhoneme21,dataPhoneme22,dataPhoneme23,dataPhoneme24,
-#   dataPhoneme25,dataPhoneme26,dataPhoneme27,dataPhoneme28,dataPhoneme29,
-#   dataPhoneme30,dataPhoneme31,dataPhoneme32,dataPhoneme33,dataPhoneme34,
-#   dataPhoneme35,dataPhoneme36,dataPhoneme37,dataPhoneme38,dataPhoneme39
-# )
 
-####################################################################
-# Create the Cartesian product (including also the priors)
-# combined_model_data_list <- expand.grid(
-#   model_opt = names(model_list),
-#   data_index = seq_along(data_list_fit),
-#   #prior_index = seq_along(prior_list_fit)
-#   stringsAsFactors = FALSE
-# )
-# 
-# # Build the combined list
-# list_to_fit <- apply(combined_model_data_list, 1, function(row) {
-#   model_name <- row[["model_opt"]]
-#   data_index <- as.integer(row[["data_index"]])
-#   data_entry <- data_list_fit[[data_index]]
-#   #prior_entry
-#   
-#   list(
-#     model_opt = model_name,
-#     category = data_entry$category,
-#     levels = data_entry$levels,
-#     model_specific = model_list[[model_name]]#,
-#     #prior_specific = prior_list[[prior_entry]]
-#   
-#   )
-# })
-###############################################################################
-# list_to_fit <- list()
-# counter <- 1
-# 
-# for (model_entry in model_list) {
-#   for (d_idx in seq_along(data_list_fit)) {
-#     for (prior_entry in prior_list_fit) {
-#       if (model_entry$name %in% prior_entry$valid_models) {
-#         list_to_fit[[counter]] <- list(
-#           model_opt = model_entry$name,
-#           category = data_list_fit[[d_idx]]$category,
-#           levels = data_list_fit[[d_idx]]$levels,
-#           model_specific = model_entry$object,
-#           prior_name = prior_entry$name,
-#           prior_specific = prior_entry$object
-#         )
-#         counter <- counter + 1
-#       }
-#     }
-#   }
-# }
-
-
-###############################################################################
 export("return_lists")
 return_lists = function(){
   return(list(model_list = model_list, prior_list = prior_list))

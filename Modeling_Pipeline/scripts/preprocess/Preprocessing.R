@@ -2,30 +2,63 @@
 # Prepare data for Bayesian analysis
 #-------------------------------------
 # Load packages
-library(dplyr)
-library(tidyr)
-library(psych)    # For factor analysis and scree plot
-library(readr)   
-library(brms)     # For Bayesian analysis
-library(splines)  # For natural splines
-library(tidyverse)
+import("dplyr")
+import("tidyr")
+import("psych")    # For factor analysis and scree plot
+import("readr")   
+import("brms")     # For Bayesian analysis
+import("splines")  # For natural splines
+import("tidyverse")
+import("utils")
+import("glue")
 #-------------------------------------------------------------------------------
+Paths <- modules::use("./bayesian_code/utils/file_paths.R")
+# raw_data_path <- "./Modeling_Pipeline/data/raw/probabilities-max-frame_W.csv.gz"
+# phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping1.csv"
 
-raw_data_path <- "./Modeling_Pipeline/data/raw/probabilities-max-frame_W.csv.gz"
-phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping1.csv"
 # Define geometric mean
 geometric_mean <- function(x) {
   exp(mean(log(x[x > 0]), na.rm = TRUE))  # Avoid log(0) or negative probs
 }
 
+# Helper function to compute the statistical mode
+get_mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
 export("create_preprocessed_df")
-create_preprocessed_df <- function(raw_data_type,model_type, raw_data_path,phoneme_grouping_data_path){
+create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path){
   df <- read.csv(raw_data_path)
   phoneme_df <- read.csv(phoneme_grouping_data_path)
   df_summary <- create_summary(df,raw_data_type, model_type)
   df_final <- df_summary %>%
   left_join(phoneme_df, by = "expected_phoneme")
-  phoneme_numscore_mode <- compute_num_score_mode()
+ 
+  # save df_final # considerar definir una funcion que verifique si el archivo ya existe
+  # y leer en tal caso?
+  
+  folder_path <- Paths$Pipeline_preprocesseddata_dir
+  prefix_name <- glue("preprocessed_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
+  file_name   <- glue("{prefix_name}.rds")
+  df_final_file_path <- file.path(folder_path, file_name)
+  #ensure_dir(subfolder_path)  # <<< create the directory tree here
+  #ensure_parent_dir(df_final_file_path)  # <<< make sure parent exists before save
+  saveRDS(df_final, df_final_file_path)
+  message(glue(
+    "preprocessed data (df_final: {raw_data_type}, {model_type}, {phoneme_grouping_type}) created and saved."
+  ))
+  
+  #save compute_num_score_mode?
+  phoneme_numscore_mode <- compute_num_score_mode(df_summary,model_type)
+  
+  prefix_name <- glue("phoneme_num_score_mode_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
+  file_name   <- glue("{prefix_name}.rds")
+  phoneme_numscore_mode_file_path <- file.path(folder_path, file_name)
+  saveRDS(phoneme_numscore_mode, phoneme_numscore_mode_file_path)
+  message(glue(
+    "preprocessed data (phoneme_numscore_mode: {raw_data_type}, {model_type}, {phoneme_grouping_type}) created and saved."
+  ))
   result_list <- list(df_final = df_final, phoneme_numscore_mode = phoneme_numscore_mode)
   return(result_list)
 }
@@ -43,7 +76,7 @@ compute_num_score_mode<- function(df_summary,model_type = c("beta", "binomial"))
       )
   
   
-  return(phoneme_num_score)
+  return(phoneme_numscore_mode)
   }
 
 # preprocessing function
@@ -63,6 +96,9 @@ create_summary <- function(df, raw_data_type = c("pllr", "aaps"), model_type = c
           .groups = "drop"
         )
     } else if (model_type == "binomial") {
+      df <- df %>% mutate(
+        phoneme_match = if_else(expected_phoneme==most_likely_phoneme, 1L, 0L)
+        )
       df_summary <- df %>%
         group_by(speaker, expected_phoneme) %>%
         summarize(

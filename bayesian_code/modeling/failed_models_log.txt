@@ -21,3 +21,9 @@ model_binomial_Probability_singleWords	Consonants	Levelphoneme34	Argument 'data'
 model_binomial_Probability_singleWords	Consonants	Levelphoneme37	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636
 model_binomial_Probability_singleWords	Consonants	Levelphoneme38	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636
 model_binomial_Probability_singleWords	Consonants	Levelphoneme39	Argument 'data' does not contain observations.	2025-08-05 10:02:44.257636
+model0_Version2	Consonants	Level4	object 'fitted_model_file_path' not found	2025-08-18 15:47:26.903301
+model_binomial_dummytest	Consonants	Level3	object 'fitted_model_file_path' not found	2025-08-18 15:47:26.903301
+model0_Version2	Consonants	Level4	object 'model_name' not found	2025-08-18 15:51:03.024772
+model_binomial_dummytest	Consonants	Level3	object 'model_name' not found	2025-08-18 15:51:03.024772
+model0_Version2	Consonants	Level4	The following variables can neither be found in 'data' nor in 'data2':
+'mean_prob'	2025-08-18 15:56:56.103883

@@ -111,15 +111,16 @@ data_list_viz <- list(
   #data5, 
   #data6, 
   #data7
-  dataPhoneme1,dataPhoneme2,dataPhoneme3,dataPhoneme4,dataPhoneme5,
-   dataPhoneme6,dataPhoneme7
-  ,dataPhoneme8,dataPhoneme9,
-   dataPhoneme10,dataPhoneme11,dataPhoneme12,dataPhoneme13,dataPhoneme14,
-   dataPhoneme15,dataPhoneme16,dataPhoneme17,dataPhoneme18,dataPhoneme19,
-   dataPhoneme20,dataPhoneme21,dataPhoneme22,dataPhoneme23,dataPhoneme24,
-   dataPhoneme25,dataPhoneme26,dataPhoneme27,dataPhoneme28,dataPhoneme29,
-   dataPhoneme30,dataPhoneme31,dataPhoneme32,dataPhoneme33,dataPhoneme34,
-   dataPhoneme35,dataPhoneme36,dataPhoneme37,dataPhoneme38,dataPhoneme39
+  dataPhoneme1#,
+  # dataPhoneme2,dataPhoneme3,dataPhoneme4,dataPhoneme5,
+  #  dataPhoneme6,dataPhoneme7
+  # ,dataPhoneme8,dataPhoneme9,
+  #  dataPhoneme10,dataPhoneme11,dataPhoneme12,dataPhoneme13,dataPhoneme14,
+  #  dataPhoneme15,dataPhoneme16,dataPhoneme17,dataPhoneme18,dataPhoneme19,
+  #  dataPhoneme20,dataPhoneme21,dataPhoneme22,dataPhoneme23,dataPhoneme24,
+  #  dataPhoneme25,dataPhoneme26,dataPhoneme27,dataPhoneme28,dataPhoneme29,
+  #  dataPhoneme30,dataPhoneme31,dataPhoneme32,dataPhoneme33,dataPhoneme34,
+  #  dataPhoneme35,dataPhoneme36,dataPhoneme37,dataPhoneme38,dataPhoneme39
 )
 
 list_to_viz <- list()
