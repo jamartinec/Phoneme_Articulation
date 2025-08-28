@@ -27,3 +27,10 @@ model0_Version2	Consonants	Level4	object 'model_name' not found	2025-08-18 15:51
 model_binomial_dummytest	Consonants	Level3	object 'model_name' not found	2025-08-18 15:51:03.024772
 model0_Version2	Consonants	Level4	The following variables can neither be found in 'data' nor in 'data2':
 'mean_prob'	2025-08-18 15:56:56.103883
+model0_Version2	Consonants	Level4	The following variables can neither be found in 'data' nor in 'data2':
+'mean_prob'	2025-08-25T17:16:03Z
+model0_Version2	Consonants	Level4	cannot open the connection	2025-08-25T17:20:41Z
+model0_Version2	Consonants	Level3	cannot open the connection	2025-08-25T17:20:41Z
+model_binomial_Probability	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-08-26T14:51:16Z
+model0_Version2	Consonants	Levelphoneme30	Argument 'data' does not contain observations.	2025-08-26T15:01:57Z
+model0_Version2	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-08-26T15:01:57Z

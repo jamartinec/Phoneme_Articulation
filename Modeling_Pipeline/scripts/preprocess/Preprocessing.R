@@ -29,11 +29,19 @@ get_mode <- function(x) {
 
 export("create_preprocessed_df")
 create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path){
-  df <- read.csv(raw_data_path)
+  df <- read.csv(raw_data_path)%>%
+    { if (raw_data_type == "aaps")
+      dplyr::rename(., expected_phoneme = Phoneme)
+      else
+        .
+    }
   phoneme_df <- read.csv(phoneme_grouping_data_path)
+  
   df_summary <- create_summary(df,raw_data_type, model_type)
   df_final <- df_summary %>%
   left_join(phoneme_df, by = "expected_phoneme")
+  
+  print(df)
  
   # save df_final # considerar definir una funcion que verifique si el archivo ya existe
   # y leer en tal caso?

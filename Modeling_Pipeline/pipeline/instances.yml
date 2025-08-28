@@ -1,0 +1,31 @@
+# instances.yml
+instances:
+  - raw_data_type: pllr
+    phoneme_grouping_type: grouping2
+    variables:
+      - model_type: beta
+        models:
+          - name: model0_Version2
+            priors: [prior0_Version2, prior1]
+            subsets: [dataPhoneme27, dataPhoneme28]
+          - name: model5
+            priors: [prior0_Version2, prior1]
+            subsets: [dataPhoneme27, dataPhoneme28]
+
+      - model_type: binomial
+        models:
+          - name: model_binomial_dummytest
+            priors: [prior_binomial]
+            subsets: [dataPhoneme27, dataPhoneme28]
+          - name: model_binomial_Probability
+            priors: [prior_binomial]
+            subsets: [dataPhoneme27, dataPhoneme28]
+
+  - raw_data_type: aaps
+    phoneme_grouping_type: grouping2
+    variables:
+      - model_type: binomial
+        models:
+          - name: model_binomial_Probability
+            priors: [prior_binomial]
+            subsets: [dataPhoneme27, dataPhoneme28]

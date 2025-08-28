@@ -4,13 +4,14 @@ library(dplyr)
 library(posterior)
 library(yaml)
 library(purrr)
-
+library(glue)
+Paths <- modules::use("./bayesian_code/utils/file_paths.R")
 read_instances_specifications_lib <- modules::use("./Modeling_Pipeline/scripts/preprocess/read_instance_specification.R")
 preprocessing_lib                 <- modules::use("./Modeling_Pipeline/scripts/preprocess/Preprocessing.R")
 filtering_lib                     <- modules::use("./Modeling_Pipeline/scripts/preprocess/filtering_data_instances.R")
 fit_models_lib                    <- modules::use("./Modeling_Pipeline/scripts/train/fit_models.R")
-visualize_models_lib              <- modules::use("./Modeling_Pipeline/scripts/visualize/visualize_age_standards_binomial.R")
-
+visualize_models_lib0             <- modules::use("./Modeling_Pipeline/scripts/visualize/visualize_age_standards.R")
+visualize_models_lib1             <- modules::use("Modeling_Pipeline/scripts/visualize/run_visuals.R")
 # Recordemos los inputs que necesita read_instance specification
 # Debemos leer el archivo que contiene los agrupamientos de los fonemas en 
 # data levels que queremos modelar. Recordar: hay clasificaciones de fonemas 
@@ -62,17 +63,23 @@ read_preprocessed_files <- function(raw_data_type,
   prefix_name <- glue("preprocessed_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
   file_name   <- glue("{prefix_name}.rds")
   df_final_file_path <- file.path(folder_path, file_name)
-  df_final_data  <- readRDS(df_final_file_path)
+  df_final  <- readRDS(df_final_file_path)
   
-  # READ ALSO phoneme_num_score_mode.
+  prefix_name <- glue("phoneme_num_score_mode_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
+  file_name   <- glue("{prefix_name}.rds")
+  phoneme_numscore_mode_file_path <- file.path(folder_path, file_name)
+  phoneme_numscore_mode <- readRDS(phoneme_numscore_mode_file_path)
+  
+  preprocessed_result_list <- list(df_final=df_final,phoneme_numscore_mode=phoneme_numscore_mode)
   
   
-  return(df_final_data)
+  
+  return(preprocessed_result_list)
   
 }
-# df_final_data <- read_preprocessed_files(raw_data_type,
-#                                               model_type,
-#                                               phoneme_grouping_type)
+preprocessed_result_list <-read_preprocessed_files(raw_data_type,model_type,phoneme_grouping_type)
+df_final <- preprocessed_result_list$df_final
+phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
 
 
 # filtering_data_instances
@@ -108,20 +115,162 @@ fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_gr
 # model<-readRDS(model_path_file)
 
 
-
-visualize_models_lib$visualize_age_standards_funct(
-  phoneme_num_score_mode_file_path,# asumiendo que vamos a correr binomial
-  agerange,
-  instance,
-  fitted_model)
-
-
+# borrar este llamado, vamos a usar la funcion de run_visuals (itera sobre las instancias)
+# visualize_models_lib0$visualize_age_standards_funct(
+#   phoneme_num_score_mode_file_path,# asumiendo que vamos a correr binomial
+#   agerange,
+#   instance,
+#   fitted_model)
 
 
-
-
-
-
+visualize_models_lib1$iterate_plots(model_type,
+                                    df_final,
+                                    phoneme_numscore_mode,
+                                    list_of_instances)
 
 
 
+###############################################################
+# Vamos a correr el pipeline pero ahora suponiendo que vamos a modelar
+# la variable mean_prob, la cual puede ser modelado mediante una regresion Beta
+raw_data_path <- "./Modeling_Pipeline/data/raw/probabilities-max-frame_W.csv.gz"
+phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping1.csv"
+subset_data_grouping_path <- "./Modeling_Pipeline/instance_specification/subset_data_grouping1.csv"
+instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit2.csv"
+
+
+raw_data_type <- "pllr" # coherente con raw_data_path
+phoneme_grouping_type <- "grouping1" # coherente con phoneme_grouping_data_path y con subset_data_grouping_path
+model_type  <- "beta" # debemos hablar mejor de response variable, porque esto detemrina el tipo de preprocesamiento 
+# y el tipo de modelos que podemos usar. model_type debe ser el mismo que aparece en la columna model_type para todas las filas
+# de instance_to_fit.csv!!
+
+
+list_of_instances <- read_instances_specifications_lib$read_instances_specifications(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path)
+
+preprocessed_result_list <- preprocessing_lib$create_preprocessed_df(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path)
+df_final <- preprocessed_result_list$df_final
+phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
+phoneme_df <- read.csv(phoneme_grouping_data_path)
+
+list_of_df_filters_file_paths <- purrr::map(list_of_instances,
+                                            ~ filtering_lib$filtering_data(.x,df_final,phoneme_df))
+
+fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_grouping_type,list_of_instances)
+
+
+visualize_models_lib1$iterate_plots(model_type,
+                                    df_final,
+                                    phoneme_numscore_mode,
+                                    list_of_instances)
+
+
+
+#############################################################
+# Let's analyze the pipeline but now using the aaps data + binomial model
+
+
+raw_data_path <- "./Modeling_Pipeline/data/raw/AAPS Score Data (Long Version).csv"
+phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping1.csv"
+subset_data_grouping_path <- "./Modeling_Pipeline/instance_specification/subset_data_grouping1.csv"
+instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit3.csv"
+
+
+raw_data_type <- "aaps" # coherente con raw_data_path
+phoneme_grouping_type <- "grouping1" # coherente con phoneme_grouping_data_path y con subset_data_grouping_path
+model_type  <- "binomial" # debemos hablar mejor de response variable, porque esto detemrina el tipo de preprocesamiento 
+# y el tipo de modelos que podemos usar. model_type debe ser el mismo que aparece en la columna model_type para todas las filas
+# de instance_to_fit.csv!!
+
+
+list_of_instances <- read_instances_specifications_lib$read_instances_specifications(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path)
+
+preprocessed_result_list <- preprocessing_lib$create_preprocessed_df(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path)
+df_final <- preprocessed_result_list$df_final
+phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
+phoneme_df <- read.csv(phoneme_grouping_data_path)
+
+list_of_df_filters_file_paths <- purrr::map(list_of_instances,
+                                            ~ filtering_lib$filtering_data(.x,df_final,phoneme_df))
+
+fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_grouping_type,list_of_instances)
+
+
+visualize_models_lib1$iterate_plots(model_type,
+                                    df_final,
+                                    phoneme_numscore_mode,
+                                    list_of_instances)
+
+
+
+#############################################################
+# PUNTOS DE CORTE!
+###########################################################
+# Run pipeline provisional para mirar puntos de corte de algunos
+# phonemas de interes, especificados en instance_to_fit_cp1.csv e
+# instance_to_fit_cp2.csv.
+
+raw_data_path <- "./Modeling_Pipeline/data/raw/AAPS Score Data (Long Version).csv"
+phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping2.csv"
+subset_data_grouping_path <- "./Modeling_Pipeline/instance_specification/subset_data_grouping2.csv"
+instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp1.csv"
+
+
+raw_data_type <- "aaps" # coherente con raw_data_path
+phoneme_grouping_type <- "grouping2" # coherente con phoneme_grouping_data_path y con subset_data_grouping_path
+model_type  <- "binomial" # debemos hablar mejor de response variable, porque esto detemrina el tipo de preprocesamiento 
+# y el tipo de modelos que podemos usar. model_type debe ser el mismo que aparece en la columna model_type para todas las filas
+# de instance_to_fit.csv!!
+
+
+list_of_instances <- read_instances_specifications_lib$read_instances_specifications(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path)
+
+# Preprocessing
+preprocessed_result_list <- preprocessing_lib$create_preprocessed_df(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path)
+df_final <- preprocessed_result_list$df_final
+phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
+
+# filtering_data_instances
+phoneme_df <- read.csv(phoneme_grouping_data_path)
+
+list_of_df_filters_file_paths <- purrr::map(list_of_instances,
+                                            ~ filtering_lib$filtering_data(.x,df_final,phoneme_df))
+fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_grouping_type,list_of_instances)
+
+visualize_models_lib1$iterate_plots(model_type,
+                                    df_final,
+                                    phoneme_numscore_mode,
+                                    list_of_instances)
+
+# ahora instance_to_fit_cp2.csv:########################
+raw_data_path <- "./Modeling_Pipeline/data/raw/probabilities-max-frame_W.csv.gz"
+phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping2.csv"
+subset_data_grouping_path <- "./Modeling_Pipeline/instance_specification/subset_data_grouping2.csv"
+instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp2.csv"
+
+
+raw_data_type <- "pllr" # coherente con raw_data_path
+phoneme_grouping_type <- "grouping2" # coherente con phoneme_grouping_data_path y con subset_data_grouping_path
+model_type  <- "beta" # debemos hablar mejor de response variable, porque esto detemrina el tipo de preprocesamiento 
+# y el tipo de modelos que podemos usar. model_type debe ser el mismo que aparece en la columna model_type para todas las filas
+# de instance_to_fit.csv!!
+
+
+list_of_instances <- read_instances_specifications_lib$read_instances_specifications(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path)
+
+# Preprocessing
+preprocessed_result_list <- preprocessing_lib$create_preprocessed_df(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path)
+df_final <- preprocessed_result_list$df_final
+phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
+
+# filtering_data_instances
+phoneme_df <- read.csv(phoneme_grouping_data_path)
+
+list_of_df_filters_file_paths <- purrr::map(list_of_instances,
+                                            ~ filtering_lib$filtering_data(.x,df_final,phoneme_df))
+fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_grouping_type,list_of_instances)
+
+visualize_models_lib1$iterate_plots(model_type,
+                                    df_final,
+                                    phoneme_numscore_mode,
+                                    list_of_instances)
