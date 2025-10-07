@@ -213,7 +213,7 @@ visualize_models_lib1$iterate_plots(model_type,
 raw_data_path <- "./Modeling_Pipeline/data/raw/AAPS Score Data (Long Version).csv"
 phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping2.csv"
 subset_data_grouping_path <- "./Modeling_Pipeline/instance_specification/subset_data_grouping2.csv"
-instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp1.csv"
+instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp1V2.csv"
 
 
 raw_data_type <- "aaps" # coherente con raw_data_path
@@ -252,6 +252,47 @@ instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_
 raw_data_type <- "pllr" # coherente con raw_data_path
 phoneme_grouping_type <- "grouping2" # coherente con phoneme_grouping_data_path y con subset_data_grouping_path
 model_type  <- "beta" # debemos hablar mejor de response variable, porque esto detemrina el tipo de preprocesamiento 
+# y el tipo de modelos que podemos usar. model_type debe ser el mismo que aparece en la columna model_type para todas las filas
+# de instance_to_fit.csv!!
+
+
+list_of_instances <- read_instances_specifications_lib$read_instances_specifications(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path)
+
+# Preprocessing
+preprocessed_result_list <- preprocessing_lib$create_preprocessed_df(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path)
+df_final <- preprocessed_result_list$df_final
+phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
+
+# filtering_data_instances
+phoneme_df <- read.csv(phoneme_grouping_data_path)
+
+list_of_df_filters_file_paths <- purrr::map(list_of_instances,
+                                            ~ filtering_lib$filtering_data(.x,df_final,phoneme_df))
+fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_grouping_type,list_of_instances)
+
+visualize_models_lib1$iterate_plots(model_type,
+                                    df_final,
+                                    phoneme_numscore_mode,
+                                    list_of_instances)
+
+#####################################################################
+#Ahora vamos a calcular puntos de corte pero usando modelos binomial
+#tanto para aaps data como para pllr data. Binomial para aaps data ya
+#se corri'o (usamos binomial v2 la cual contiene 3 splines), ahora corremos
+# binomial con 4 splines para pllr data:
+
+
+# ahora instance_to_fit_cp2V2.csv:###################################
+
+raw_data_path <- "./Modeling_Pipeline/data/raw/probabilities-max-frame_W.csv.gz"
+phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping2.csv"
+subset_data_grouping_path <- "./Modeling_Pipeline/instance_specification/subset_data_grouping2.csv"
+instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp2V2.csv"
+
+
+raw_data_type <- "pllr" # coherente con raw_data_path
+phoneme_grouping_type <- "grouping2" # coherente con phoneme_grouping_data_path y con subset_data_grouping_path
+model_type  <- "binomial" # debemos hablar mejor de response variable, porque esto detemrina el tipo de preprocesamiento 
 # y el tipo de modelos que podemos usar. model_type debe ser el mismo que aparece en la columna model_type para todas las filas
 # de instance_to_fit.csv!!
 

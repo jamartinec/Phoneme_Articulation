@@ -263,14 +263,14 @@ visualize_age_standards_funct <- function(model_type=c("binomial","beta"),
   # }
   
   # single plotting block
-  age_plot <- ggplot(plot_data, aes(x = (age_months + 30) / 12, y = q50, color = expected_phoneme)) +
+  age_plot <- ggplot(plot_data, aes(x = (age_months) / 12, y = q50, color = expected_phoneme)) +
     geom_line(linewidth = 1.1, color = "steelblue") +
     geom_ribbon(aes(ymin = q025, ymax = q975, fill = expected_phoneme), alpha = 0.2, color = NA) +
     geom_ribbon(aes(ymin = q25,  ymax = q75,  fill = expected_phoneme), alpha = 0.4, color = NA) +
     facet_wrap(~ expected_phoneme) +
     geom_point(
       data = df_points,
-      aes(x = (age_months + 30) / 12, y = y_obs, color = expected_phoneme),
+      aes(x = (age_months) / 12, y = y_obs, color = expected_phoneme),
       inherit.aes = FALSE, alpha = 0.5, size = 1.5
     ) +
     labs(x = "Age (years)", y = y_label) +

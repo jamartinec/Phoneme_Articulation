@@ -29,12 +29,23 @@ get_mode <- function(x) {
 
 export("create_preprocessed_df")
 create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path){
+  dftest <-read.csv(raw_data_path)
+  message("colnames")
+  print(colnames(dftest))
   df <- read.csv(raw_data_path)%>%
     { if (raw_data_type == "aaps")
       dplyr::rename(., expected_phoneme = Phoneme)
       else
         .
     }
+  
+  print(colnames(df))
+  if (raw_data_type== "pllr"){
+    df <- df%>%
+      dplyr::filter(expected_phoneme == phoneme)
+  }
+  
+  
   phoneme_df <- read.csv(phoneme_grouping_data_path)
   
   df_summary <- create_summary(df,raw_data_type, model_type)
@@ -100,7 +111,8 @@ create_summary <- function(df, raw_data_type = c("pllr", "aaps"), model_type = c
         group_by(speaker, expected_phoneme) %>%
         summarize(
           mean_prob = geometric_mean(prob),
-          age_months = first(age_months - 30),
+          age_months = first(age_months),
+          age_months_shifted = first(age_months - 30),
           .groups = "drop"
         )
     } else if (model_type == "binomial") {
@@ -112,7 +124,8 @@ create_summary <- function(df, raw_data_type = c("pllr", "aaps"), model_type = c
         summarize(
           sum_score = sum(phoneme_match),
           num_score = sum(phoneme_match >= 0),
-          age_months = first(age_months - 30),
+          age_months = first(age_months),
+          age_months_shifted = first(age_months - 30),
           .groups = "drop"
         )
     }

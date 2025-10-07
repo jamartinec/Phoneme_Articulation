@@ -126,10 +126,16 @@ model_binomial <- bf(
   family = binomial(link = "logit")
 )
 
+model_binomialv2 <- bf(
+  sum_score | trials(num_score) ~ 1 + ns(age_months, 3),
+  family = binomial(link = "logit")
+)
+
 model_list <- list(
   "model0_Version2"              = model0_Version2,
-  "model_binomial_dummytest"     = model_binomial,
-  "model_binomial_Probability"   = model_binomial
+  #"model_binomial_dummytest"     = model_binomial,
+  "model_binomial_Probability"   = model_binomial,
+  "model_binomialv2"             = model_binomialv2
 )
 
 ################################################################################
@@ -177,7 +183,10 @@ prior_list <- list(
   "prior_binomial"    = list(object = prior_binomial, valid_models = c("model_binomial_dummytest",
                                                                        "model_binomial_AAPS", 
                                                                        "model_binomial_Probability", 
-                                                                       "model_binomial_Probability_singleWords")
+                                                                       "model_binomial_Probability_singleWords",
+                                                                       "model_binomialv2"
+                                                                       
+                                                                       )
                              )
 )
 
