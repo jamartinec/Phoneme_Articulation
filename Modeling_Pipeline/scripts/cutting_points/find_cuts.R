@@ -244,7 +244,9 @@ read_crow_mcleod <- function(){
     dplyr::mutate(age_months_m1sd = age_months-age_months_sd,
                   age_months_p1sd = age_months+age_months_sd,
                   age_months_m2sd = age_months -2*age_months_sd,
-                  age_months_p2sd = age_months +2*age_months_sd
+                  age_months_p2sd = age_months +2*age_months_sd,
+                  age_months_m3sd = age_months -3*age_months_sd,
+                  age_months_p3sd = age_months +3*age_months_sd
                   )
   
   
@@ -269,12 +271,20 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   resp_col   <- if (model_type == "binomial") "proportion" else if (model_type == "beta") "mean_prob"
   y_label    <- if (model_type == "binomial") "Probability of success" else if (model_type == "beta")  "Phoneme goodness score"
   
+  age_lower_bound <- max(min(crow_joined$age_months_m3sd, agerange[1]), 4)
+  message("this is age_lower bound")
+  print(age_lower_bound)
+  
   newdata <- tidyr::crossing(
-    age_months       = seq(agerange[1], agerange[2], by = 1), # RANGE!#seq(0, 90, by = 1), # RANGE!
+    #age_months       = seq(agerange[1], agerange[2], by = 1), # RANGE!#seq(0, 90, by = 1), # RANGE!
+    age_months       = seq(age_lower_bound, agerange[2], by = 1),
     expected_phoneme = instance$target_phonemes,#phonemes,
     speaker          = "fake" # Tristan's recommendation.
     
   )
+  
+  message("newdata")
+  print(newdata,width=Inf)
   
   # Use the mode across participants for that particular phoneme.
   # binomial-only: attach mode num_score
@@ -394,12 +404,21 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   message("this is q_crowp1sd")
   print(q_crowp1sd)
   
+  q_crowm3sd<- crow_joined %>%
+    dplyr::select(expected_phoneme, age_months = age_months_m3sd, q_age_crow = prob_x_eq_1_hat)
+  
+  message("this is q_crowm3sd")
+  print(q_crowm3sd)
+  
+  q_crowp3sd<- crow_joined %>%
+    dplyr::select(expected_phoneme, age_months = age_months_p3sd, q_age_crow = prob_x_eq_1_hat)
+  message("this is q_crowp3sd")
+  print(q_crowp3sd)
+  
 
   #############################################################################
   
-  
-  
-  preds_with_q <- predicted %>%
+    preds_with_q <- predicted %>%
     dplyr::inner_join(q_beta_join, by = c("expected_phoneme","age_months")) %>%
     dplyr::mutate(p_quant = pmax(0, pmin(1, 1 - q_age)))  # convert tail prob to CDF prob
   
@@ -417,6 +436,15 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   dplyr::mutate(p_quant_crowp1 = pmax(0, pmin(1, 1 - q_age_crow)))  # convert tail prob to CDF prob
   
   
+  preds_with_q_crowm3 <- predicted %>%
+    dplyr::inner_join(q_crowm3sd, by = c("expected_phoneme","age_months"))%>%
+    dplyr::mutate(p_quant_crowm3 = pmax(0, pmin(1, 1 - q_age_crow)))  # convert tail prob to CDF prob
+  
+  preds_with_q_crowp3 <- predicted %>%
+    dplyr::inner_join(q_crowp3sd, by = c("expected_phoneme","age_months"))%>%
+    dplyr::mutate(p_quant_crowp3 = pmax(0, pmin(1, 1 - q_age_crow)))  # convert tail prob to CDF prob
+  
+  
   ########################################################
   message("preds_with_q:")
   print(preds_with_q, width = Inf)
@@ -431,14 +459,20 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   
   message("preds_with_q_crowp1")
   print(preds_with_q_crowp1, width = Inf)
+  
+  message("preds_with_q_crowm3")
+  print(preds_with_q_crowm3, width = Inf)
+  
+  message("preds_with_q_crowp3")
+  print(preds_with_q_crowp3, width = Inf)
   #####################################################
   
   xq_predictive <- preds_with_q %>%
     dplyr::group_by(expected_phoneme, age_months, q_age) %>%
     dplyr::summarise(
       ### PILAS CAMBIAR SEGUN SE ESTE USANDO BETA O BINOMIAL PARA PLRR
-      #x_q = stats::quantile(.prediction, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
-      x_q = stats::quantile(proportion, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
+      x_q = stats::quantile(.prediction, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
+      #x_q = stats::quantile(proportion, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
       #x_q = stats::quantile(.resp, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
       .groups = "drop"
     )
@@ -447,8 +481,8 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
     dplyr::group_by(expected_phoneme, age_months, q_age_crow) %>%
     dplyr::summarise(
       ### PILAS CAMBIAR SEGUN SE ESTE USANDO BETA O BINOMIAL PARA PLLR
-      #x_q = stats::quantile(.prediction, probs = unique(p_quant_crow), names = FALSE, na.rm = TRUE),
-      x_q = stats::quantile(proportion, probs = unique(p_quant_crow), names = FALSE, na.rm = TRUE),
+      x_q = stats::quantile(.prediction, probs = unique(p_quant_crow), names = FALSE, na.rm = TRUE),
+      #x_q = stats::quantile(proportion, probs = unique(p_quant_crow), names = FALSE, na.rm = TRUE),
       #x_q = stats::quantile(.resp, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
       .groups = "drop"
     )
@@ -456,8 +490,8 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   xq_predictive_crowm1 <- preds_with_q_crowm1 %>%
     dplyr::group_by(expected_phoneme, age_months, q_age_crow) %>%
     dplyr::summarise(
-      #x_q = stats::quantile(.prediction, probs = unique(p_quant_crowm1), names = FALSE, na.rm = TRUE),
-      x_q = stats::quantile(proportion, probs = unique(p_quant_crowm1), names = FALSE, na.rm = TRUE),
+      x_q = stats::quantile(.prediction, probs = unique(p_quant_crowm1), names = FALSE, na.rm = TRUE),
+      #x_q = stats::quantile(proportion, probs = unique(p_quant_crowm1), names = FALSE, na.rm = TRUE),
       #x_q = stats::quantile(.resp, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
       .groups = "drop"
     )
@@ -465,8 +499,26 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   xq_predictive_crowp1 <- preds_with_q_crowp1 %>%
     dplyr::group_by(expected_phoneme, age_months, q_age_crow) %>%
     dplyr::summarise(
-      #x_q = stats::quantile(.prediction, probs = unique(p_quant_crowp1), names = FALSE, na.rm = TRUE),
-      x_q = stats::quantile(proportion, probs = unique(p_quant_crowp1), names = FALSE, na.rm = TRUE),
+      x_q = stats::quantile(.prediction, probs = unique(p_quant_crowp1), names = FALSE, na.rm = TRUE),
+      #x_q = stats::quantile(proportion, probs = unique(p_quant_crowp1), names = FALSE, na.rm = TRUE),
+      #x_q = stats::quantile(.resp, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
+      .groups = "drop"
+    )
+  
+  xq_predictive_crowm3 <- preds_with_q_crowm3 %>%
+    dplyr::group_by(expected_phoneme, age_months, q_age_crow) %>%
+    dplyr::summarise(
+      x_q = stats::quantile(.prediction, probs = unique(p_quant_crowm3), names = FALSE, na.rm = TRUE),
+      #x_q = stats::quantile(proportion, probs = unique(p_quant_crowm3), names = FALSE, na.rm = TRUE),
+      #x_q = stats::quantile(.resp, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
+      .groups = "drop"
+    )
+  
+  xq_predictive_crowp3 <- preds_with_q_crowp3 %>%
+    dplyr::group_by(expected_phoneme, age_months, q_age_crow) %>%
+    dplyr::summarise(
+      x_q = stats::quantile(.prediction, probs = unique(p_quant_crowp3), names = FALSE, na.rm = TRUE),
+      #x_q = stats::quantile(proportion, probs = unique(p_quant_crowp3), names = FALSE, na.rm = TRUE),
       #x_q = stats::quantile(.resp, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
       .groups = "drop"
     )
@@ -474,32 +526,44 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   #############################################################
   message("this is xq_predictive")
   print(xq_predictive)
-  
   ############################################################
   message("this is xq_predictive_crow")
   print(xq_predictive_crow)
-  
+  ############################################################
+  message("this is xq_predictive_crowm1")
+  print(xq_predictive_crowm1)
+  ############################################################
+  message("this is xq_predictive_crowp1")
+  print(xq_predictive_crowp1)
+  ############################################################
+  message("this is xq_predictive_crowm3")
+  print(xq_predictive_crowm3)
+  ############################################################
+  message("this is xq_predictive_crowp3")
+  print(xq_predictive_crowp3)
   ############################################################
   
+  #We are not using this threshold definition.
   mu_draws <- tidybayes::add_epred_draws(
     newdata = newdata,
     object  = fitted_model,
     re_formula = NULL
-  )  
-  
+  )
+
+
   mu_with_q <- mu_draws %>%
     dplyr::inner_join(q_beta_join, by = c("expected_phoneme","age_months")) %>%
     dplyr::mutate(p_quant = pmax(0, pmin(1, 1 - q_age)))
-  
+
   xq_mu <- mu_with_q %>%
     dplyr::group_by(expected_phoneme, age_months, q_age) %>%
     dplyr::summarise(
       x_q_mu = stats::quantile(.epred, probs = unique(p_quant), names = FALSE, na.rm = TRUE),
       .groups = "drop"
     )
-  
-  message("this is xq_mu")
-  print(xq_mu)
+  # 
+  # message("this is xq_mu")
+  # print(xq_mu)
   
   # single plotting block
   # #age_plot <- ggplot(plot_data, aes(x = (age_months + 30) / 12, y = q50, color = expected_phoneme)) +
@@ -748,6 +812,7 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
       
       
     ))
+  age_plot_crow
   
   age_plot_crow2 <- ggplot(plot_data, aes(x = age_months, y = q50, color = expected_phoneme)) +
     geom_line(aes(linetype = "Posterior median"), linewidth = 1.1) +
@@ -759,19 +824,43 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
       aes(x = age_months, y = y_obs, color = expected_phoneme),
       inherit.aes = FALSE, alpha = 0.5, size = 1.5
     ) +
-    labs(x = "Age (months)", y = y_label) +
-    # Primary axis in months; secondary axis (top) in years
+    labs(x = "Age (months)", y = y_label) 
+    
+  # Primary axis in months; secondary axis (top) in years
+    # scale_x_continuous(
+    #   breaks = pretty_breaks(n = 6),
+    #   minor_breaks = pretty_breaks(n = 12),
+    #   sec.axis = sec_axis(
+    #     ~ . / 12,
+    #     name   = "years",
+    #     breaks = pretty_breaks(n = 6),
+    #     labels = number_format(accuracy = 1)
+    #   )
+    # ) +
+    
+  
+  # compute stable limits & ticks from your data
+  xmin <- floor(min(plot_data$age_months, na.rm = TRUE) / 12) * 12
+  xmax <- ceiling(max(plot_data$age_months, na.rm = TRUE) / 12) * 12
+  if (!is.finite(xmin) || !is.finite(xmax) || xmin == xmax) { xmin <- 0; xmax <- 12 }  # fallback
+  
+  month_major <- seq(xmin, xmax, by = 12)   # ticks every 12 months
+  month_minor <- seq(xmin, xmax, by = 6)    # minor ticks every 6 months (optional)
+  year_major  <- seq(xmin/12, xmax/12, by = 1)
+  
+  age_plot_crow2 <- age_plot_crow2 +
     scale_x_continuous(
-      breaks = pretty_breaks(n = 6),
-      minor_breaks = pretty_breaks(n = 12),
+      name   = "Age (months)",
+      limits = c(xmin, xmax),
+      breaks = month_major,
+      minor_breaks = month_minor,
       sec.axis = sec_axis(
         ~ . / 12,
         name   = "years",
-        breaks = pretty_breaks(n = 6),
-        labels = number_format(accuracy = 1)
+        breaks = year_major,
+        labels = scales::number_format(accuracy = 1)
       )
-    ) +
-    theme_minimal(base_size = 14) +
+    ) + theme_minimal(base_size = 14) +
     theme(
       axis.title       = element_text(size = 16, face = "bold"),
       axis.text        = element_text(size = 14),
@@ -802,7 +891,7 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
         
         coord_lab = sprintf("(%dm, %.2f)", round(age_months), x_q)
       )
-    
+    xrange <- diff(range(plot_data$age_months, na.rm = TRUE))
     age_plot_crow2 <- age_plot_crow2 +
       geom_line(
         data = xq_extended,
@@ -820,10 +909,11 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
         inherit.aes = FALSE,
         size = 3,
         color = "black",
-        direction = "y",        # spread labels vertically
-        nudge_y = 0.05,         # gentle lift
-        box.padding = 0.2,
-        point.padding = 0.15,
+        direction = "both",        # spread labels vertically
+        nudge_y = 0.08,         # gentle lift
+        nudge_x = 0.02 * xrange,
+        box.padding = 0.3,
+        point.padding = 0.20,
         min.segment.length = 0, # always draw a leader line
         max.overlaps = Inf
       ) +
@@ -841,10 +931,216 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   
   age_plot_crow2
   
+  ####### new plot adding deviations for the cut points definitions#############
+  
+  age_plot_crow3 <- ggplot(plot_data, aes(x = age_months, y = q50, color = expected_phoneme)) +
+    geom_line(aes(linetype = "Posterior median"), linewidth = 1.1) +
+    geom_ribbon(aes(ymin = q025, ymax = q975, fill = expected_phoneme), alpha = 0.2, color = NA) +
+    geom_ribbon(aes(ymin = q25,  ymax = q75,  fill = expected_phoneme), alpha = 0.4, color = NA) +
+    facet_wrap(~ expected_phoneme) +
+    geom_point(
+      data = df_points,
+      aes(x = age_months, y = y_obs, color = expected_phoneme),
+      inherit.aes = FALSE, alpha = 0.5, size = 1.5
+    ) +
+    labs(x = "Age (months)", y = y_label) 
+    
+    # Primary axis in months; secondary axis (top) in years
+    # scale_x_continuous(
+    #   breaks = pretty_breaks(n = 6),
+    #   minor_breaks = pretty_breaks(n = 12),
+    #   sec.axis = sec_axis(
+    #     ~ . / 12,
+    #     name   = "years",
+    #     breaks = pretty_breaks(n = 6),
+    #     labels = number_format(accuracy = 1)
+    #   )
+    # ) +
+  
+  xmin <- floor(min(plot_data$age_months, na.rm = TRUE) / 12) * 12
+  xmax <- ceiling(max(plot_data$age_months, na.rm = TRUE) / 12) * 12
+  if (!is.finite(xmin) || !is.finite(xmax) || xmin == xmax) { xmin <- 0; xmax <- 12 }  # fallback
+  
+  month_major <- seq(xmin, xmax, by = 12)   # ticks every 12 months
+  month_minor <- seq(xmin, xmax, by = 6)    # minor ticks every 6 months (optional)
+  year_major  <- seq(xmin/12, xmax/12, by = 1)
+  
+  age_plot_crow3 <- age_plot_crow3 +
+    scale_x_continuous(
+      name   = "Age (months)",
+      limits = c(xmin, xmax),
+      breaks = month_major,
+      minor_breaks = month_minor,
+      sec.axis = sec_axis(
+        ~ . / 12,
+        name   = "years",
+        breaks = year_major,
+        labels = scales::number_format(accuracy = 1)
+      )
+    ) + theme_minimal(base_size = 14) +
+    theme(
+      axis.title       = element_text(size = 16, face = "bold"),
+      axis.text        = element_text(size = 14),
+      strip.text       = element_text(size = 14, face = "bold"),
+      legend.title     = element_blank(),
+      legend.position  = "bottom",
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(color = "gray90"),
+      # style the secondary (top) axis in a subtle grey
+      axis.title.x.top = element_text(color = "grey30", face = "bold"),
+      axis.text.x.top  = element_text(color = "grey40"),
+      axis.ticks.x.top = element_line(color = "grey60")
+    )
+  
+  ## Overlay: extend x_q series and map x in MONTHS
+  if (!is.null(xq_predictive_crow)) {
+    x_max_months <- max(plot_data$age_months, na.rm = TRUE)
+    
+    xq_extended <- xq_predictive_crow %>%
+      arrange(age_months) %>%
+      {
+        last_row <- slice_tail(., n = 1) %>%
+          mutate(age_months = x_max_months)
+        bind_rows(., last_row)
+      } %>%
+      mutate(
+        age_years = age_months / 12,
+        
+        coord_lab = sprintf("(%dm, %.2f)", round(age_months), x_q)
+      )
+    xrange <- diff(range(plot_data$age_months, na.rm = TRUE))
+    
+    age_plot_crow3 <- age_plot_crow3 +
+      geom_line(
+        data = xq_extended,
+        aes(x = age_months, y = x_q, linetype = "x_q C&M"),
+        color = "black", linewidth = 0.9, inherit.aes = FALSE
+      ) +
+      geom_point(
+        data = xq_extended,
+        aes(x = age_months, y = x_q),
+        color = "black", size = 2.2, inherit.aes = FALSE
+      ) +
+      geom_text_repel(
+        data = xq_extended,
+        aes(x = age_months, y = x_q, label = coord_lab),
+        inherit.aes = FALSE,
+        size = 3,
+        color = "black",
+        direction = "both",        # spread labels vertically
+        nudge_y = 0.08,         # gentle lift
+        nudge_x = 0.02 * xrange,
+        box.padding = 0.3,
+        point.padding = 0.20,
+        min.segment.length = 0, # always draw a leader line
+        max.overlaps = Inf
+      ) +
+      theme(plot.margin = margin(5.5, 30, 5.5, 5.5))  # extra right margin if needed
+  }
   
   
+  if (!is.null(xq_predictive_crowm3)) {
+    x_max_months <- max(plot_data$age_months, na.rm = TRUE)
+    
+    xq_extended <- xq_predictive_crowm3 %>%
+      arrange(age_months) %>%
+      {
+        last_row <- slice_tail(., n = 1) %>%
+          mutate(age_months = x_max_months)
+        bind_rows(., last_row)
+      } %>%
+      mutate(
+        age_years = age_months / 12,
+        
+        coord_lab = sprintf("(%dm, %.2f)", round(age_months), x_q)
+      )
+    
+    age_plot_crow3 <- age_plot_crow3 +
+      geom_line(
+        data = xq_extended,
+        aes(x = age_months, y = x_q, linetype = "x_q C&M -3sd"),
+        color = "blue", linewidth = 0.9, inherit.aes = FALSE
+      ) +
+      geom_point(
+        data = xq_extended,
+        aes(x = age_months, y = x_q),
+        color = "blue", size = 2.2, inherit.aes = FALSE
+      ) +
+      geom_text_repel(
+        data = xq_extended,
+        aes(x = age_months, y = x_q, label = coord_lab),
+        inherit.aes = FALSE,
+        size = 3,
+        color = "black",
+        direction = "both",        # spread labels vertically
+        nudge_y = 0.08,         # gentle lift
+        nudge_x = 0.02 * xrange,
+        box.padding = 0.3,
+        point.padding = 0.20,
+        min.segment.length = 0, # always draw a leader line
+        max.overlaps = Inf
+      ) +
+      theme(plot.margin = margin(5.5, 30, 5.5, 5.5))  # extra right margin if needed
+  }
   
-  return(list(xq_predictive=xq_predictive,xq_mu=xq_mu, age_plot= age_plot, xq_predictive_crow=xq_predictive_crow, age_plot_crow=age_plot_crow, age_plot_crow2=age_plot_crow2))
+  if (!is.null(xq_predictive_crowp3)) {
+    x_max_months <- max(plot_data$age_months, na.rm = TRUE)
+    
+    xq_extended <- xq_predictive_crowp3 %>%
+      arrange(age_months) %>%
+      {
+        last_row <- slice_tail(., n = 1) %>%
+          mutate(age_months = x_max_months)
+        bind_rows(., last_row)
+      } %>%
+      mutate(
+        age_years = age_months / 12,
+        
+        coord_lab = sprintf("(%dm, %.2f)", round(age_months), x_q)
+      )
+    
+    age_plot_crow3 <- age_plot_crow3 +
+      geom_line(
+        data = xq_extended,
+        aes(x = age_months, y = x_q, linetype = "x_q C&M +3sd"),
+        color = "blue", linewidth = 0.9, inherit.aes = FALSE
+      ) +
+      geom_point(
+        data = xq_extended,
+        aes(x = age_months, y = x_q),
+        color = "blue", size = 2.2, inherit.aes = FALSE
+      ) +
+      geom_text_repel(
+        data = xq_extended,
+        aes(x = age_months, y = x_q, label = coord_lab),
+        inherit.aes = FALSE,
+        size = 3,
+        color = "black",
+        direction = "both",        # spread labels vertically
+        nudge_y = 0.08,         # gentle lift
+        nudge_x = 0.02 * xrange,
+        box.padding = 0.3,
+        point.padding = 0.20,
+        min.segment.length = 0, # always draw a leader line
+        max.overlaps = Inf
+      ) +
+      theme(plot.margin = margin(5.5, 30, 5.5, 5.5))  # extra right margin if needed
+  }
+  
+  
+  ## 3) Keep your linetype legend mapping
+  age_plot_crow3 <- age_plot_crow3 +
+    scale_linetype_manual(values = c(
+      "Posterior median"             = "solid",
+      "x_q C&M" = "longdash",
+      "x_q C&M -3sd"                 = "longdash",
+      "x_q C&M +3sd"                 = "longdash"
+    ))
+  
+  
+  age_plot_crow3
+  
+  return(list(xq_predictive=xq_predictive,xq_mu=xq_mu, age_plot= age_plot, xq_predictive_crow=xq_predictive_crow, age_plot_crow=age_plot_crow, age_plot_crow2=age_plot_crow2, age_plot_crow3=age_plot_crow3))
 }
 
 ################################################################
@@ -877,13 +1173,14 @@ raw_data_path <- "./Modeling_Pipeline/data/raw/probabilities-max-frame_W.csv.gz"
 phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping2.csv"
 subset_data_grouping_path <- "./Modeling_Pipeline/instance_specification/subset_data_grouping2.csv"
 #instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit2.csv" #---> pilas usar con grouping1
-#instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp2.csv"
-instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp2V2.csv"
+#dependiendo de si beta o binomial para pllr
+instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp2.csv"
+#instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit_cp2V2.csv"
 
 raw_data_type <- "pllr" # coherente con raw_data_path
 phoneme_grouping_type <- "grouping2" # coherente con phoneme_grouping_data_path y con subset_data_grouping_path
-#model_type  <- "beta" 
-model_type  <- "binomial"
+model_type  <- "beta" 
+#model_type  <- "binomial"
 # debemos hablar mejor de response variable, porque esto detemrina el tipo de preprocesamiento 
 # y el tipo de modelos que podemos usar. model_type debe ser el mismo que aparece en la columna model_type para todas las filas
 # de instance_to_fit.csv!!
@@ -902,7 +1199,7 @@ agerange <- c(agerangeA[1],agerangeB[2])
 
 # Probemos con
 # no 8, no 4
-k<- 1
+k<- 10
 instancia_pruebaA <- list_of_instancesA[[k]]
 
 message("agerangeA (aaps): ")
@@ -933,8 +1230,8 @@ instancia_pruebaB <- list_of_instancesB[[k]]
 agerangeB <- range(df_finalB$age_months)
 message("agerangeB (pllr): ")
 print(agerangeB)
-#model_typeB<- "beta"
-model_typeB<- "binomial"
+model_typeB<- "beta"
+#model_typeB<- "binomial"
 fitted_modelB <- readRDS(paste0(instancia_pruebaB$fitted_model_file_path,".rds"))
 
 crow_joined <- read_crow_mcleod()
@@ -958,16 +1255,18 @@ xq_mu <- list_extracted_x$xq_mu
 age_plot <- list_extracted_x$age_plot
 age_plot_crow <-list_extracted_x$age_plot_crow
 age_plot_crow2 <-list_extracted_x$age_plot_crow2
+age_plot_crow3<-list_extracted_x$age_plot_crow3
 xq_predictive_crow<- list_extracted_x$xq_predictive_crow
 
 message("xq_predictive:")
 print(xq_predictive)
-message("xq_mu:")
-print(xq_mu)
+#message("xq_mu:")
+#print(xq_mu)
 age_plot
 plot_post_mean
 age_plot_crow
 age_plot_crow2
+age_plot_crow3
 
 ########################################################################
 ########################################################################
