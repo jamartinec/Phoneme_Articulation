@@ -1,5 +1,5 @@
 ---
-title: "Defining age-dependent PLLR cut points"
+title: "Defining Age-Dependent Threshold Curves"
 format:
   revealjs:
     slide-number: true
@@ -11,15 +11,18 @@ execute:
   message: false
 ---
 
-## 1. Background: PLLR growth curves
+## Background: Phoneme Goodness Score curves <span class="subtitle-small">(1/2)</span>
 
-- Our data consist of **PLLR scores** produced by the PyPLLRComputer (Wav2Vec2 model) applied to child speech recordings. 
-- PLLR reflects how close each phoneme production is to its expected acoustic target.
-- For each phoneme we model a **growth curve** of Phoneme Goodness Score (function of PLLR) vs. age using a **Bayesian Beta regression**.
+
+- Our primary input is a set of likelihood values assigned by a Wav2Vec2-based acoustic model (PyPLLRComputer software), to each target phoneme in speech recordings obtained from typically developing children.
+
+- We define Phoneme Goodness Score as the geometric mean of the likelihood assigned to the target phoneme.
+
+- For each phoneme we model a **growth curve** of Phoneme Goodness Score  vs. age using a **Bayesian Beta regression**.
 
 ---
 
-## 1. Background: PLLR growth curves
+## Background: Phoneme Goodness Score curves <span class="subtitle-small">(2/2)</span>
 
 ::: {.center}
 ![<span style="font-size:0.8em;">Growth curve for /R/. Posterior median, 50% and 95% centered credible bands.](./pictures/beta_age_plot_R.png){width=60%}
@@ -27,10 +30,10 @@ execute:
 
 ---
 
-## 2. What does the growth curve mean?
+## What does the growth curve mean?
 
-- For most phonemes, the **PLLR goodness score increases with age**.
-- This increase has two components:
+- For most phonemes, the **goodness score increases with age**.
+- This increase might involve:
 
   - **Linguistic component**  
     - improved articulation / acquisition
@@ -41,30 +44,59 @@ execute:
 
 ---
 
-## 3. Main Question
 
-- For each **phoneme** and **age**, we want to find a **cut point** in the goodness score that marks the transition between:
+## How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(1/3)</span>
 
-- **Improving articulation / acquisition**  , and  **Mainly physiological maturation**
+We aim to establish **age-dependent threshold curves** on the Phoneme Goodness Score trajectories such that:
 
-(score improves because the child grows, not because the phoneme is correctly produced).
+- For each age, the value in the threshold curve represents the **cutpoint** or  minimum score consistent with **mastery of articulation**, and  
 
+- Values **below** this cut-point indicate **insufficient mastery** or incomplete phonological acquisition.
 
 ---
 
-## 4. Crowe & McLeod (2020): normative acquisition curves
+## How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(2/3)</span>
+<div class="supersmall-slide">
 
-Crowe & McLeod analyzed data from 15 studies (Approx. 18,900 children) and reported,
-for each English consonant:
+::: {.center}
+![<span style="font-size:0.8em;">A hypothetical age-invariant mastery threshold.](./pictures/beta_age_plot_R_corte1.png){width=55%}
+:::
+
+If a **constant (age-invariant) threshold line** were sufficient,
+we could hypothesize that **the phoneme goodness score mainly reflects articulation mastery**, with minimal influence from physiological maturation.
+
+</div>
+
+---
+
+
+## How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(3/3)</span>
+<div class="supersmall-slide">
+
+::: {.center}
+![<span style="font-size:0.8em;">A hypothetical age-dependent threshold.](./pictures/beta_age_plot_R_corte2.png){width=55%}
+:::
+
+If the required threshold **increases substantially with age**,
+then the goodness score is, to some extent, **reflecting physiological maturation rather than pure articulatory mastery**.
+
+</div>
+
+---
+
+
+## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(1/2)</span>
+
+Crowe & McLeod (2020) analyzed data from 15 studies (Approx. 18,900 children) and reported, for each English consonant,:
 
 - The **mean age** at which children reach  
   **50%, 75%, and 90% accuracy** in producing that phoneme, and the corresponding **standard deviations** across studies.
 
-- 90% criterion indicates that 90% of the participants produced the consonant correctly.  
+- $x\%$ criterion indicates that $x\%$ of the participants produced the consonant correctly.  
 
 ---
 
-## 4. Crowe & McLeod (2020): normative acquisition curves
+## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(2/2)</span>
 ::: {.center}
 ![](./pictures/C&M.png){width=70%}
 :::
@@ -72,31 +104,30 @@ We are using these normative values as **reference anchors** for the  cut-point 
 
 ---
 
-## 5. AAPS: probability of success vs. age
+## AAPS: probability of success vs. age <span class="subtitle-small">(1/2)</span>
 
 - **Arizona Articulation and Phonology Scale (AAPS)**: standardized
 assessment that evaluates whether a child correctly produces a target phoneme in a structured elicitation task. 
 
-- We use AAPS scoring data from the same participants for whom PLLR values were computed.
+- We use AAPS scoring data from the same participants for whom Phoneme Goodness values were computed.
 
 - From these binary (0/1) outcomes we fit a **Bayesian Binomial model** to estimate, for each phoneme, the **probability of correct production** as a function of age.
 
 ---
 
-## 5. AAPS: probability of success vs. age.
+## AAPS: probability of success vs. age <span class="subtitle-small">(2/2)</span>
 
 
 ::: {.center}
-![<span style="font-size:0.8em;">Growth curve for /R/. Posterior median, 50% and 95% centered credible bands.](./pictures/binomial_age_plot_R.png){width=60%}
+![<span style="font-size:0.8em;">Growth curve for R. Posterior median, 50% and 95% centered credible bands.](./pictures/binomial_age_plot_R.png){width=60%}
 :::
 
 ---
 
-## 6. Integrating normative and model-based information
+## Integrating normative and model-based information
 <div class="small-slide">
 
-Our goal is to define, for each phoneme and age,  a **Phoneme Goodness cutpoint** marking the transition between  
-**linguistic acquisition** and **physiological maturation**.
+Our goal is to define, for each phoneme and age,  a **Phoneme Goodness threshold** indicating mastery of articulation.
 
 We integrate three components:
 
@@ -108,16 +139,14 @@ We integrate three components:
 3. **Goodness score (Y) - Bayesian Beta model:**  We find $\color{red}{x_q(\text{age})}$ such that  $P\big(Y \ge \color{red}{x_q(\text{age})} \mid \text{age}\big)
      = \color{blue}{q(\text{age})}$.
 
-This yields an **age-dependent PLLR cutpoint** per phoneme.
+$\color{red}{x_q(\text{age})}$ is the proposed  **age-dependent Phoneme Goodness Score Threshold**.
 
 </div>
 
  
 ---
 
-
-
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts.png){width=80%}
@@ -125,20 +154,37 @@ This yields an **age-dependent PLLR cutpoint** per phoneme.
 
 --- 
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts2.png){width=80%}
+:::
+
+--- 
+
+## Phoneme Goodness Threshold 
+
+
+::: {.center}
+
+![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts3.png){width=90%}
+:::
+
+--- 
+
+## Phoneme Goodness Threshold 
 
 This figure combines:
 
 1. The **Bayesian Goodness score growth curve** (posterior median and 50% and 95% credible band),
 2. The **raw Goodness scores** (grey points),
-3. And the **Crowe & McLeod age criteria** (50%, 75%, 90% acquisition).
+3. And the **Crowe & McLeod age criteria** (50%, 75%, 90% acquisition),
 4. For each C&M age point, we compute the corresponding  
-**age-dependent Goodness score threshold** $\color{red}{x_q(\text{age})}$ that matches the  
-probability of mastery predicted by the binomial model over AAPS data.
+**age-dependent Goodness score threshold** $\color{red}{x_q(\text{age})}$ that matches the probability of mastery predicted by the binomial model over AAPS data.
 
 ---
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/S_age_plot5_cuts.png){width=80%}
@@ -146,7 +192,7 @@ probability of mastery predicted by the binomial model over AAPS data.
 
 ---
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts.png){width=80%}
@@ -154,7 +200,7 @@ probability of mastery predicted by the binomial model over AAPS data.
 
 ---
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/T_age_plot5_cuts.png){width=80%}
@@ -162,7 +208,7 @@ probability of mastery predicted by the binomial model over AAPS data.
 
 ---
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/CH_age_plot5_cuts.png){width=80%}
@@ -170,7 +216,7 @@ probability of mastery predicted by the binomial model over AAPS data.
 
 ---
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/JH_age_plot5_cuts.png){width=80%}
@@ -178,7 +224,7 @@ probability of mastery predicted by the binomial model over AAPS data.
 
 ---
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/L_age_plot5_cuts.png){width=80%}
@@ -186,7 +232,7 @@ probability of mastery predicted by the binomial model over AAPS data.
 
 ---
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/SH_age_plot5_cuts.png){width=80%}
@@ -194,7 +240,7 @@ probability of mastery predicted by the binomial model over AAPS data.
 
 ---
 
-## 7. Phoneme Goodness  Cutpoints 
+## Phoneme Goodness Threshold 
 
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/Z_age_plot5_cuts.png){width=80%}

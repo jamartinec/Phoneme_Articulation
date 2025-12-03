@@ -6,10 +6,10 @@
 <script src="CutPoints_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="CutPoints_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="CutPoints_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="CutPoints_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="CutPoints_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.8.26">
 
-  <title>Defining age-dependent PLLR cut points</title>
+  <title>Defining Age-Dependent Threshold Curves</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -28,7 +28,7 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="CutPoints_files/libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="CutPoints_files/libs/revealjs/dist/theme/quarto-0fde88a82f0356838740f155f1088782.css">
   <link rel="stylesheet" href="slides.css">
   <link href="CutPoints_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="CutPoints_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
@@ -127,22 +127,22 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Defining age-dependent PLLR cut points</h1>
+  <h1 class="title">Defining Age-Dependent Threshold Curves</h1>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
-<section id="background-pllr-growth-curves" class="slide level2">
-<h2>1. Background: PLLR growth curves</h2>
+<section id="background-phoneme-goodness-score-curves-12" class="slide level2">
+<h2>Background: Phoneme Goodness Score curves <span class="subtitle-small">(1/2)</span></h2>
 <ul>
-<li>Our data consist of <strong>PLLR scores</strong> produced by the PyPLLRComputer (Wav2Vec2 model) applied to child speech recordings.</li>
-<li>PLLR reflects how close each phoneme production is to its expected acoustic target.</li>
-<li>For each phoneme we model a <strong>growth curve</strong> of Phoneme Goodness Score (function of PLLR) vs.&nbsp;age using a <strong>Bayesian Beta regression</strong>.</li>
+<li><p>Our primary input is a set of likelihood values assigned by a Wav2Vec2-based acoustic model (PyPLLRComputer software), to each target phoneme in speech recordings obtained from typically developing children.</p></li>
+<li><p>We define Phoneme Goodness Score as the geometric mean of the likelihood assigned to the target phoneme.</p></li>
+<li><p>For each phoneme we model a <strong>growth curve</strong> of Phoneme Goodness Score vs.&nbsp;age using a <strong>Bayesian Beta regression</strong>.</p></li>
 </ul>
 </section>
-<section id="background-pllr-growth-curves-1" class="slide level2">
-<h2>1. Background: PLLR growth curves</h2>
+<section id="background-phoneme-goodness-score-curves-22" class="slide level2">
+<h2>Background: Phoneme Goodness Score curves <span class="subtitle-small">(2/2)</span></h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -153,10 +153,10 @@
 </div>
 </section>
 <section id="what-does-the-growth-curve-mean" class="slide level2">
-<h2>2. What does the growth curve mean?</h2>
+<h2>What does the growth curve mean?</h2>
 <ul>
-<li><p>For most phonemes, the <strong>PLLR goodness score increases with age</strong>.</p></li>
-<li><p>This increase has two components:</p>
+<li><p>For most phonemes, the <strong>goodness score increases with age</strong>.</p></li>
+<li><p>This increase might involve:</p>
 <ul>
 <li><strong>Linguistic component</strong>
 <ul>
@@ -169,54 +169,81 @@
 </ul></li>
 </ul>
 </section>
-<section id="main-question" class="slide level2">
-<h2>3. Main Question</h2>
+<section id="how-can-growth-curves-inform-phoneme-articulation-mastery-13" class="slide level2">
+<h2>How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(1/3)</span></h2>
+<p>We aim to establish <strong>age-dependent threshold curves</strong> on the Phoneme Goodness Score trajectories such that:</p>
 <ul>
-<li><p>For each <strong>phoneme</strong> and <strong>age</strong>, we want to find a <strong>cut point</strong> in the goodness score that marks the transition between:</p></li>
-<li><p><strong>Improving articulation / acquisition</strong> , and <strong>Mainly physiological maturation</strong></p></li>
+<li><p>For each age, the value in the threshold curve represents the <strong>cutpoint</strong> or minimum score consistent with <strong>mastery of articulation</strong>, and</p></li>
+<li><p>Values <strong>below</strong> this cut-point indicate <strong>insufficient mastery</strong> or incomplete phonological acquisition.</p></li>
 </ul>
-<p>(score improves because the child grows, not because the phoneme is correctly produced).</p>
 </section>
-<section id="crowe-mcleod-2020-normative-acquisition-curves" class="slide level2">
-<h2>4. Crowe &amp; McLeod (2020): normative acquisition curves</h2>
-<p>Crowe &amp; McLeod analyzed data from 15 studies (Approx. 18,900 children) and reported, for each English consonant:</p>
+<section id="how-can-growth-curves-inform-phoneme-articulation-mastery-23" class="slide level2">
+<h2>How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(2/3)</span></h2>
+<div class="supersmall-slide">
+<div class="center">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="./pictures/beta_age_plot_R_corte1.png" style="width:55.0%"></p>
+<figcaption><span style="font-size:0.8em;">A hypothetical age-invariant mastery threshold.</span></figcaption>
+</figure>
+</div>
+</div>
+<p>If a <strong>constant (age-invariant) threshold line</strong> were sufficient, we could hypothesize that <strong>the phoneme goodness score mainly reflects articulation mastery</strong>, with minimal influence from physiological maturation.</p>
+</div>
+</section>
+<section id="how-can-growth-curves-inform-phoneme-articulation-mastery-33" class="slide level2">
+<h2>How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(3/3)</span></h2>
+<div class="supersmall-slide">
+<div class="center">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="./pictures/beta_age_plot_R_corte2.png" style="width:55.0%"></p>
+<figcaption><span style="font-size:0.8em;">A hypothetical age-dependent threshold.</span></figcaption>
+</figure>
+</div>
+</div>
+<p>If the required threshold <strong>increases substantially with age</strong>, then the goodness score is, to some extent, <strong>reflecting physiological maturation rather than pure articulatory mastery</strong>.</p>
+</div>
+</section>
+<section id="crowe-mcleod-normative-acquisition-curves.-12" class="slide level2">
+<h2>Crowe &amp; McLeod: normative acquisition curves. <span class="subtitle-small">(1/2)</span></h2>
+<p>Crowe &amp; McLeod (2020) analyzed data from 15 studies (Approx. 18,900 children) and reported, for each English consonant,:</p>
 <ul>
 <li><p>The <strong>mean age</strong> at which children reach<br>
 <strong>50%, 75%, and 90% accuracy</strong> in producing that phoneme, and the corresponding <strong>standard deviations</strong> across studies.</p></li>
-<li><p>90% criterion indicates that 90% of the participants produced the consonant correctly.</p></li>
+<li><p><span class="math inline">\(x\%\)</span> criterion indicates that <span class="math inline">\(x\%\)</span> of the participants produced the consonant correctly.</p></li>
 </ul>
 </section>
-<section id="crowe-mcleod-2020-normative-acquisition-curves-1" class="slide level2">
-<h2>4. Crowe &amp; McLeod (2020): normative acquisition curves</h2>
+<section id="crowe-mcleod-normative-acquisition-curves.-22" class="slide level2">
+<h2>Crowe &amp; McLeod: normative acquisition curves. <span class="subtitle-small">(2/2)</span></h2>
 <div class="center">
 <p><img data-src="./pictures/C&amp;M.png" style="width:70.0%"></p>
 </div>
 <p>We are using these normative values as <strong>reference anchors</strong> for the cut-point definition.</p>
 </section>
-<section id="aaps-probability-of-success-vs.-age" class="slide level2">
-<h2>5. AAPS: probability of success vs.&nbsp;age</h2>
+<section id="aaps-probability-of-success-vs.-age-12" class="slide level2">
+<h2>AAPS: probability of success vs.&nbsp;age <span class="subtitle-small">(1/2)</span></h2>
 <ul>
 <li><p><strong>Arizona Articulation and Phonology Scale (AAPS)</strong>: standardized assessment that evaluates whether a child correctly produces a target phoneme in a structured elicitation task.</p></li>
-<li><p>We use AAPS scoring data from the same participants for whom PLLR values were computed.</p></li>
+<li><p>We use AAPS scoring data from the same participants for whom Phoneme Goodness values were computed.</p></li>
 <li><p>From these binary (0/1) outcomes we fit a <strong>Bayesian Binomial model</strong> to estimate, for each phoneme, the <strong>probability of correct production</strong> as a function of age.</p></li>
 </ul>
 </section>
-<section id="aaps-probability-of-success-vs.-age." class="slide level2">
-<h2>5. AAPS: probability of success vs.&nbsp;age.</h2>
+<section id="aaps-probability-of-success-vs.-age-22" class="slide level2">
+<h2>AAPS: probability of success vs.&nbsp;age <span class="subtitle-small">(2/2)</span></h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="./pictures/binomial_age_plot_R.png" style="width:60.0%"></p>
-<figcaption><span style="font-size:0.8em;">Growth curve for /R/. Posterior median, 50% and 95% centered credible bands.</span></figcaption>
+<figcaption><span style="font-size:0.8em;">Growth curve for R. Posterior median, 50% and 95% centered credible bands.</span></figcaption>
 </figure>
 </div>
 </div>
 </section>
 <section id="integrating-normative-and-model-based-information" class="slide level2">
-<h2>6. Integrating normative and model-based information</h2>
+<h2>Integrating normative and model-based information</h2>
 <div class="small-slide">
-<p>Our goal is to define, for each phoneme and age, a <strong>Phoneme Goodness cutpoint</strong> marking the transition between<br>
-<strong>linguistic acquisition</strong> and <strong>physiological maturation</strong>.</p>
+<p>Our goal is to define, for each phoneme and age, a <strong>Phoneme Goodness threshold</strong> indicating mastery of articulation.</p>
 <p>We integrate three components:</p>
 <ol type="1">
 <li><p><strong>Crowe &amp; McLeod (2020):</strong> Normative ages for <strong>50%, 75%, and 90% accuracy</strong>.</p></li>
@@ -225,11 +252,11 @@
 <li><p><strong>Goodness score (Y) - Bayesian Beta model:</strong> We find <span class="math inline">\(\color{red}{x_q(\text{age})}\)</span> such that <span class="math inline">\(P\big(Y \ge \color{red}{x_q(\text{age})} \mid \text{age}\big)
   = \color{blue}{q(\text{age})}\)</span>.</p></li>
 </ol>
-<p>This yields an <strong>age-dependent PLLR cutpoint</strong> per phoneme.</p>
+<p><span class="math inline">\(\color{red}{x_q(\text{age})}\)</span> is the proposed <strong>age-dependent Phoneme Goodness Score Threshold</strong>.</p>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -239,20 +266,41 @@
 </div>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints-1" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-1" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
+<div class="center">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="./pictures/R_age_plot5_cuts2.png" style="width:80.0%"></p>
+<figcaption><span style="font-size:0.8em;"></span></figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section id="phoneme-goodness-threshold-2" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
+<div class="center">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="./pictures/R_age_plot5_cuts3.png" style="width:90.0%"></p>
+<figcaption><span style="font-size:0.8em;"></span></figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section id="phoneme-goodness-threshold-3" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <p>This figure combines:</p>
 <ol type="1">
 <li>The <strong>Bayesian Goodness score growth curve</strong> (posterior median and 50% and 95% credible band),</li>
 <li>The <strong>raw Goodness scores</strong> (grey points),</li>
-<li>And the <strong>Crowe &amp; McLeod age criteria</strong> (50%, 75%, 90% acquisition).</li>
+<li>And the <strong>Crowe &amp; McLeod age criteria</strong> (50%, 75%, 90% acquisition),</li>
 <li>For each C&amp;M age point, we compute the corresponding<br>
-<strong>age-dependent Goodness score threshold</strong> <span class="math inline">\(\color{red}{x_q(\text{age})}\)</span> that matches the<br>
-probability of mastery predicted by the binomial model over AAPS data.</li>
+<strong>age-dependent Goodness score threshold</strong> <span class="math inline">\(\color{red}{x_q(\text{age})}\)</span> that matches the probability of mastery predicted by the binomial model over AAPS data.</li>
 </ol>
 </section>
-<section id="phoneme-goodness-cutpoints-2" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-4" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -262,8 +310,8 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
 </div>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints-3" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-5" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -273,8 +321,8 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
 </div>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints-4" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-6" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -284,8 +332,8 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
 </div>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints-5" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-7" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -295,8 +343,8 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
 </div>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints-6" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-8" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -306,8 +354,8 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
 </div>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints-7" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-9" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -317,8 +365,8 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
 </div>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints-8" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-10" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -328,8 +376,8 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
 </div>
 </div>
 </section>
-<section id="phoneme-goodness-cutpoints-9" class="slide level2">
-<h2>7. Phoneme Goodness Cutpoints</h2>
+<section id="phoneme-goodness-threshold-11" class="slide level2">
+<h2>Phoneme Goodness Threshold</h2>
 <div class="center">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -529,7 +577,7 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -603,13 +651,14 @@ probability of mastery predicted by the binomial model over AAPS data.</li>
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

@@ -26,3 +26,14 @@
   font-size: 0.80em;   /* adjust: 0.90, 0.85, 0.80 */
   line-height: 1.25;
 }
+
+.supersmall-slide {
+  font-size: 0.60em;   /* adjust: 0.90, 0.85, 0.80 */
+  line-height: 1.20;
+}
+
+.subtitle-small {
+  font-size: 0.6em;   /* adjust as needed */
+  font-weight: normal;
+  opacity: 0.8;       /* optional */
+}
