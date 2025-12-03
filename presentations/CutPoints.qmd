@@ -5,6 +5,7 @@ format:
     slide-number: true
     theme: simple
     css: slides.css
+    pdf-export: true
 execute:
   echo: false
   warning: false
@@ -25,7 +26,7 @@ execute:
 ## Background: Phoneme Goodness Score curves <span class="subtitle-small">(2/2)</span>
 
 ::: {.center}
-![<span style="font-size:0.8em;">Growth curve for /R/. Posterior median, 50% and 95% centered credible bands.](./pictures/beta_age_plot_R.png){width=60%}
+![<span style="font-size:0.8em;">Growth curve for R. Posterior median, 50% and 95% centered credible bands.](./pictures/beta_age_plot_R.png){width=60%}
 :::
 
 ---
@@ -87,7 +88,7 @@ then the goodness score is, to some extent, **reflecting physiological maturatio
 
 ## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(1/2)</span>
 
-Crowe & McLeod (2020) analyzed data from 15 studies (Approx. 18,900 children) and reported, for each English consonant,:
+Crowe & McLeod (2020) analyzed data from 15 studies (Approx. 18,900 children) and reported, for each English consonant:
 
 - The **mean age** at which children reach  
   **50%, 75%, and 90% accuracy** in producing that phoneme, and the corresponding **standard deviations** across studies.
@@ -163,26 +164,29 @@ $\color{red}{x_q(\text{age})}$ is the proposed  **age-dependent Phoneme Goodness
 --- 
 
 ## Phoneme Goodness Threshold 
+<div class="supersmall-slide">
 
+<br><br>
 
 ::: {.center}
 
-![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts3.png){width=90%}
+![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts3.png){width=100%}
 :::
+
+- **Red line:** Mean acquisition age = **35 months** (Crowe & McLeod).  
+  Projecting the red segment onto the **x-axis** gives the **±2 SD age range** around this mean.  
+  Threshold at this age: **0.06** (Score ≥ 0.06 → likely mastered).
+
+- **Green line:** Threshold at **48 months** = **0.02**.
+
+- **Purple line:** Threshold at **67 months** = **0.02**.
+
+- **Black curve:** Connects these three values → **age-dependent Goodness Score threshold**.
+
+</div>
 
 --- 
 
-## Phoneme Goodness Threshold 
-
-This figure combines:
-
-1. The **Bayesian Goodness score growth curve** (posterior median and 50% and 95% credible band),
-2. The **raw Goodness scores** (grey points),
-3. And the **Crowe & McLeod age criteria** (50%, 75%, 90% acquisition),
-4. For each C&M age point, we compute the corresponding  
-**age-dependent Goodness score threshold** $\color{red}{x_q(\text{age})}$ that matches the probability of mastery predicted by the binomial model over AAPS data.
-
----
 
 ## Phoneme Goodness Threshold 
 
