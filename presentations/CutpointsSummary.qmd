@@ -86,8 +86,7 @@ then the goodness score is, to some extent, **reflecting physiological maturatio
 ---
 
 
-## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(1/2)</span>
-
+## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(1/2)</span> {data-visibility="hidden"}
 Crowe & McLeod (2020) analyzed data from 15 studies (Approx. 18,900 children) and reported, for each English consonant:
 
 - The **mean age** at which children reach  
@@ -97,7 +96,7 @@ Crowe & McLeod (2020) analyzed data from 15 studies (Approx. 18,900 children) an
 
 ---
 
-## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(2/2)</span>
+## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(2/2)</span> {data-visibility="hidden"}
 ::: {.center}
 ![](./pictures/C&M.png){width=70%}
 :::
@@ -105,8 +104,7 @@ We are using these normative values as **reference anchors** for the  cut-point 
 
 ---
 
-## AAPS: probability of success vs. age <span class="subtitle-small">(1/2)</span>
-
+## AAPS: probability of success vs. age <span class="subtitle-small">(1/2)</span> {data-visibility="hidden"}
 - **Arizona Articulation and Phonology Scale (AAPS)**: standardized
 assessment that evaluates whether a child correctly produces a target phoneme in a structured elicitation task. 
 
@@ -116,8 +114,7 @@ assessment that evaluates whether a child correctly produces a target phoneme in
 
 ---
 
-## AAPS: probability of success vs. age <span class="subtitle-small">(2/2)</span>
-
+## AAPS: probability of success vs. age <span class="subtitle-small">(2/2)</span> {data-visibility="hidden"}
 
 ::: {.center}
 ![<span style="font-size:0.8em;">Growth curve for R. Posterior median, 50% and 95% centered credible bands.](./pictures/binomial_age_plot_R.png){width=60%}
@@ -249,4 +246,3 @@ $\color{red}{x_q(\text{age})}$ is the proposed  **age-dependent Phoneme Goodness
 ::: {.center}
 ![<span style="font-size:0.8em;">](./pictures/Z_age_plot5_cuts.png){width=80%}
 :::
-

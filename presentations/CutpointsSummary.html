@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<script src="CutPoints_files/libs/clipboard/clipboard.min.js"></script>
-<script src="CutPoints_files/libs/quarto-html/tabby.min.js"></script>
-<script src="CutPoints_files/libs/quarto-html/popper.min.js"></script>
-<script src="CutPoints_files/libs/quarto-html/tippy.umd.min.js"></script>
-<link href="CutPoints_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="CutPoints_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="CutPoints_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+<script src="CutpointsSummary_files/libs/clipboard/clipboard.min.js"></script>
+<script src="CutpointsSummary_files/libs/quarto-html/tabby.min.js"></script>
+<script src="CutpointsSummary_files/libs/quarto-html/popper.min.js"></script>
+<script src="CutpointsSummary_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="CutpointsSummary_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="CutpointsSummary_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="CutpointsSummary_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.8.26">
 
   <title>Defining Age-Dependent Threshold Curves</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-  <link rel="stylesheet" href="CutPoints_files/libs/revealjs/dist/reset.css">
-  <link rel="stylesheet" href="CutPoints_files/libs/revealjs/dist/reveal.css">
+  <link rel="stylesheet" href="CutpointsSummary_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="CutpointsSummary_files/libs/revealjs/dist/reveal.css">
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -28,12 +28,12 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="CutPoints_files/libs/revealjs/dist/theme/quarto-0fde88a82f0356838740f155f1088782.css">
+  <link rel="stylesheet" href="CutpointsSummary_files/libs/revealjs/dist/theme/quarto-0fde88a82f0356838740f155f1088782.css">
   <link rel="stylesheet" href="slides.css">
-  <link href="CutPoints_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
-  <link href="CutPoints_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
-  <link href="CutPoints_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
-  <link href="CutPoints_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <link href="CutpointsSummary_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="CutpointsSummary_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="CutpointsSummary_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="CutpointsSummary_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
       margin: 0;
@@ -205,41 +205,10 @@
 <p>If the required threshold <strong>increases substantially with age</strong>, then the goodness score is, to some extent, <strong>reflecting physiological maturation rather than pure articulatory mastery</strong>.</p>
 </div>
 </section>
-<section id="crowe-mcleod-normative-acquisition-curves.-12" class="slide level2">
-<h2>Crowe &amp; McLeod: normative acquisition curves. <span class="subtitle-small">(1/2)</span></h2>
-<p>Crowe &amp; McLeod (2020) analyzed data from 15 studies (Approx. 18,900 children) and reported, for each English consonant:</p>
-<ul>
-<li><p>The <strong>mean age</strong> at which children reach<br>
-<strong>50%, 75%, and 90% accuracy</strong> in producing that phoneme, and the corresponding <strong>standard deviations</strong> across studies.</p></li>
-<li><p><span class="math inline">\(x\%\)</span> criterion indicates that <span class="math inline">\(x\%\)</span> of the participants produced the consonant correctly.</p></li>
-</ul>
-</section>
-<section id="crowe-mcleod-normative-acquisition-curves.-22" class="slide level2">
-<h2>Crowe &amp; McLeod: normative acquisition curves. <span class="subtitle-small">(2/2)</span></h2>
-<div class="center">
-<p><img data-src="./pictures/C&amp;M.png" style="width:70.0%"></p>
-</div>
-<p>We are using these normative values as <strong>reference anchors</strong> for the cut-point definition.</p>
-</section>
-<section id="aaps-probability-of-success-vs.-age-12" class="slide level2">
-<h2>AAPS: probability of success vs.&nbsp;age <span class="subtitle-small">(1/2)</span></h2>
-<ul>
-<li><p><strong>Arizona Articulation and Phonology Scale (AAPS)</strong>: standardized assessment that evaluates whether a child correctly produces a target phoneme in a structured elicitation task.</p></li>
-<li><p>We use AAPS scoring data from the same participants for whom Phoneme Goodness values were computed.</p></li>
-<li><p>From these binary (0/1) outcomes we fit a <strong>Bayesian Binomial model</strong> to estimate, for each phoneme, the <strong>probability of correct production</strong> as a function of age.</p></li>
-</ul>
-</section>
-<section id="aaps-probability-of-success-vs.-age-22" class="slide level2">
-<h2>AAPS: probability of success vs.&nbsp;age <span class="subtitle-small">(2/2)</span></h2>
-<div class="center">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="./pictures/binomial_age_plot_R.png" style="width:60.0%"></p>
-<figcaption><span style="font-size:0.8em;">Growth curve for R. Posterior median, 50% and 95% centered credible bands.</span></figcaption>
-</figure>
-</div>
-</div>
-</section>
+
+
+
+
 <section id="integrating-normative-and-model-based-information" class="slide level2">
 <h2>Integrating normative and model-based information</h2>
 <div class="small-slide">
@@ -396,19 +365,19 @@ Threshold at this age: <strong>0.06</strong> (Score ≥ 0.06 → likely mastered
 </div></div>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script>
-  <script src="CutPoints_files/libs/revealjs/dist/reveal.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/dist/reveal.js"></script>
   <!-- reveal.js plugins -->
-  <script src="CutPoints_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
-  <script src="CutPoints_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
-  <script src="CutPoints_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
-  <script src="CutPoints_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
-  <script src="CutPoints_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
-  <script src="CutPoints_files/libs/revealjs/plugin/notes/notes.js"></script>
-  <script src="CutPoints_files/libs/revealjs/plugin/search/search.js"></script>
-  <script src="CutPoints_files/libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="CutPoints_files/libs/revealjs/plugin/math/math.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="CutpointsSummary_files/libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>

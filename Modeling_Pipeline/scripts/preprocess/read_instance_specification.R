@@ -13,7 +13,7 @@ import("readr")
 Paths <- modules::use("./bayesian_code/utils/file_paths.R")
 model_definitions_lib <- modules::use("./Modeling_Pipeline/models/models_definition/models_definition.R")
 
-# ---------- helper ----------
+#  helper
 .get_target_phonemes <- function(phoneme_df, category, levels) {
   # expects columns: category, level, phoneme
   if (all(c("Type","Level","expected_phoneme") %in% names(phoneme_df))) {
@@ -135,10 +135,9 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
   # Future work: validity check for the path passed (be sure that it belongs to 
   # the correct folder, otherwise stop and return a warning).
   #-----------------------------------------------------------------------------
-  
-  
   # en el siguiente agrupamiento estamos suponiendo que en un "subdata" (digamos data1)
   # solo tenemos fonemas de la misma categoria y  diferentes niveles.
+  
   df_subdata_grouping_list <- subsetdata_grouping |>
     dplyr::arrange(subdata, level) |>
     dplyr::group_by(subdata) |>

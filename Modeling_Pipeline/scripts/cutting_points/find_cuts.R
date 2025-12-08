@@ -145,7 +145,7 @@ extract_q_aaps_binomial <- function(model_type=c("binomial"),
   print(q_atleast1_ppc)
   
   
-  # --- New stricter threshold using k = target_successes ---
+  # stricter threshold using k = target_successes
   q_exact_k_ppc <- preds %>%
     dplyr::group_by(expected_phoneme, age_months) %>%
     dplyr::summarise(
@@ -262,10 +262,10 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
                                 instance,
                                 fitted_model,
                                 q_atleast1_ppc,
-                                crow_joined # modification 09/22
+                                crow_joined 
 ){
   
-  # esperamos usar beta, pero mantenemos lo sgt para reciclar codigo
+ 
   model_type <- match.arg(model_type)
   resp_col   <- if (model_type == "binomial") "proportion" else if (model_type == "beta") "mean_prob"
   y_label    <- if (model_type == "binomial") "Probability of success" else if (model_type == "beta")  "Phoneme goodness score"
@@ -278,7 +278,7 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
     #age_months       = seq(agerange[1], agerange[2], by = 1), # RANGE!#seq(0, 90, by = 1), # RANGE!
     age_months       = seq(age_lower_bound, agerange[2], by = 1),
     expected_phoneme = instance$target_phonemes,#phonemes,
-    speaker          = "fake" # Tristan's recommendation.
+    speaker          = "fake" 
   )
   
   message("newdata")
