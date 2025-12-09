@@ -172,7 +172,7 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
     pr  <- prior_list[[row$prior]]
     if (is.null(pr)) stop("Unknown prior: ", row$prior, call. = FALSE)
     
-    # Optional compatibility check:
+    # compatibility check:
     if (!row$model %in% pr$valid_models) {
       stop("Prior '", row$prior, "' is not valid for model '", row$model, "'.", call. = FALSE)}
     
@@ -223,4 +223,147 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
   return(list_of_instances)
 }
 
+export("read_instances_specifications_modified")
+read_instances_specifications_modified <- function(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path){
+  
+  # Leer el archivo csv el cual contiene el agrupamiento de fonemas en "subdata" por ejemplo,
+  # para el primer ejercicio habiamos agrupado  data1. data 1 incluye vowels level 1 y level 2.
+  # es decir, este archivo contiene la definicion de agrupamientos entre fonemas de diferentes niveles 
+  # que queramos hacer, basta con especificar el mismo label en la columna subdata.
+  
+  #subsetdata_grouping <- read.csv("./Modeling_Pipeline/instance_specification/subset_data_grouping1.csv")
+  #instance_to_fit_df <- read.csv("./Modeling_Pipeline/instance_specification/instance_to_fit.csv")
+  # Ya no tengo que crear las instancias como un producto cartesiano de tres listas
+  # modelos, prior, data, si no que las tripletas se leen directamente del csv.
+  
+  # 1. Define the paths to the grouping files
+  grouping_paths <- list(
+    grouping2 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping2.csv"),
+    grouping1 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping1.csv")
+  )
+  
+  setdatafiles_paths <- list(
+    subset_data_grouping2 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping2.csv"),
+    subset_data_grouping1 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping1.csv")
+  )
+  
+ 
+  instance_to_fit_df <- readr::read_csv(instance_to_fit_path, show_col_types = FALSE)
+  
+ 
+  unique_groupings <- unique(instance_to_fit_df$phoneme_grouping_type)
+  unique_setdatafiles <- unique(instance_to_fit_df$set_data_file)
+  
+  grouping_dfs <- map(unique_groupings, ~ readr::read_csv2(grouping_paths[[.x]], show_col_types = FALSE)) |>
+    set_names(unique_groupings)
+  
+  setdatafiles_dfs <- map(unique_setdatafiles, ~ readr::read_csv2(setdatafiles_paths[[.x]], show_col_types = FALSE)) |>
+    set_names(unique_setdatafiles)
+  
+  
+  #subsetdata_grouping <- readr::read_csv(subset_data_grouping_path,show_col_types = FALSE)
+  #subsetdata_grouping < setdatafiles_dfs[["subset_data_grouping2"]]
+  
+  #phoneme_df <- readr::read_csv(phoneme_grouping_data_path,show_col_types = FALSE)
+  #phoneme_df <- grouping_dfs[["grouping2"]]
+  
+  #-----------------------------------------------------------------------------
+  # Future work: validity check for the path passed (be sure that it belongs to 
+  # the correct folder, otherwise stop and return a warning).
+  #-----------------------------------------------------------------------------
+  # en el siguiente agrupamiento estamos suponiendo que en un "subdata" (digamos data1)
+  # solo tenemos fonemas de la misma categoria y  diferentes niveles.
+  
+  transform_funct <- function(df) {
+    df |>
+      dplyr::arrange(subdata, level) |>
+      dplyr::group_by(subdata) |>
+      dplyr::summarise(
+        category = dplyr::first(category),
+        levels   = list(unique(level)),
+        .groups  = "drop"
+      ) |>
+      dplyr::transmute(
+        subdata,
+        value = purrr::map2(category, levels, ~ list(category = .x, levels = .y))
+      ) |>
+      tibble::deframe()
+  }
+  
+  list_list_subdata <- purrr::map(setdatafiles_dfs, transform_funct) # this is a named list of lists :)
+  
+  
+  
+  # Leemos la lista de definiciones de modelos y de priors 
+  defs <- model_definitions_lib$return_lists()
+  model_list <- defs$model_list
+  prior_list <- defs$prior_list
+  # esta funcion recibe una fila del data frame que contiene la informacion de la
+  # instancia a fittear  (una instancia por fila) y la organiza en un named list. 
+  
+  extract_one_instance <- function(row) {
+    
+    phoneme_df <- grouping_dfs[[row$phoneme_grouping_type]]
+    
+    list_subdata <- list_list_subdata[[row$set_data_file]]
+    
+    s <- list_subdata[[row$subset_data]]
+    if (is.null(s)) stop("Unknown subdata: ", row$subset_data, call. = FALSE)
+    
+    mdl <- model_list[[row$model]]
+    if (is.null(mdl)) stop("Unknown model: ", row$model, call. = FALSE)
+    
+    pr  <- prior_list[[row$prior]]
+    if (is.null(pr)) stop("Unknown prior: ", row$prior, call. = FALSE)
+    
+    # compatibility check:
+    if (!row$model %in% pr$valid_models) {
+      stop("Prior '", row$prior, "' is not valid for model '", row$model, "'.", call. = FALSE)}
+    
+    
+    category <- s$category
+    levels   <- s$levels
+    
+    
+    #prefix                <- file.path(Paths$processed_data_dir, row$model)
+    
+    phoneme_group_str      <- paste(c(category, levels), collapse = "_")
+    raw_data_type          <- row$raw_data_type
+    model_type             <- row$model_type
+    model_name             <- row$model
+    prior_name             <- row$prior
+    phoneme_grouping_type  <- row$phoneme_grouping_type
+    subset_data            <- row$subset_data
+    filtered_folder_path   <- file.path(Paths$filtered_data_dir, raw_data_type, model_type, phoneme_grouping_type )
+    filtered_file_path     <- file.path(filtered_folder_path, paste0(phoneme_group_str, ".rds"))
+    target_phonemes        <- .get_target_phonemes(phoneme_df, category, levels)
+    fitted_model_dir       <- file.path(Paths$Pipeline_fitted_models_dir,raw_data_type,phoneme_grouping_type,model_type,model_name)
+    fitted_model_file_path <- file.path(fitted_model_dir, paste0("model_", phoneme_group_str)) 
+    plots_folder_path <- file.path(Paths$Pipeline_visualsplots_dir,raw_data_type,phoneme_grouping_type,model_type,model_name,phoneme_group_str)
+    
+    
+    new_model_instance(
+      raw_data_type          = raw_data_type,
+      model_type             = model_type,
+      model_name             = model_name,
+      model_opt              = mdl,
+      prior_name             = prior_name,
+      prior_specific         = pr$object,
+      category               = category,
+      levels                 = levels,
+      phoneme_grouping_type  = phoneme_grouping_type,
+      subset_data            = subset_data,
+      fitted_model_dir       = fitted_model_dir,
+      phoneme_group_str      = phoneme_group_str,
+      filtered_file_path     = filtered_file_path,
+      target_phonemes        = target_phonemes,
+      fitted_model_file_path = fitted_model_file_path,
+      plots_folder_path      = plots_folder_path
+    )
+  }
+  
+  rows   <- purrr::transpose(instance_to_fit_df)
+  list_of_instances <- purrr::map(rows, ~ extract_one_instance(.x, phoneme_df))
+  return(list_of_instances)
+}
 

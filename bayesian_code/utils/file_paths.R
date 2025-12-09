@@ -25,6 +25,10 @@ Pipeline_models_dir <- file.path(Modeling_Pipeline_dir, "models")
 Pipeline_fitted_models_dir <- file.path(Pipeline_models_dir, "fitted_models")
 Pipeline_models_definitions_dir <- file.path(Pipeline_models_dir,"models_definition")
 
+# Grouping files, set_data files
+
+Pipeline_phoneme_grouping_dir <-file.path(Modeling_Pipeline_dir,"phoneme_grouping")
+Pipeline_instance_specification_dir <-file.path(Modeling_Pipeline_dir,"instance_specification")
 
 # Fitting model errors
 Pipeline_pipeline_dir <- file.path(Modeling_Pipeline_dir, "pipeline")
@@ -34,3 +38,5 @@ Pipeline_fittingmodelserrors_dir <- file.path(Pipeline_experiments_dir, "fitting
 Pipeline_outputs_dir <- file.path(Modeling_Pipeline_dir,"outputs")
 Pipeline_visuals_dir <- file.path(Modeling_Pipeline_dir,"visuals")
 Pipeline_visualsplots_dir <- file.path(Pipeline_visuals_dir,"plots")
+
+
