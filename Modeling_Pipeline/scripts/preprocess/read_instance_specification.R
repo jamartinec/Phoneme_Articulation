@@ -5,7 +5,8 @@ import("dplyr")
 import("purrr")
 import("tibble")
 import("utils")
-import("readr")  
+import("readr")
+import("glue")
 
 ## SANITY CHECK: PILAS, debe haber coherencia entre los archivos phoneme_grouping1 y subset data grouping1.
 
@@ -224,7 +225,9 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
 }
 
 export("read_instances_specifications_modified")
-read_instances_specifications_modified <- function(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path){
+read_instances_specifications_modified <- function(instance_to_fit_path 
+                                                   #,subset_data_grouping_path,phoneme_grouping_data_path
+                                                   ){
   
   # Leer el archivo csv el cual contiene el agrupamiento de fonemas en "subdata" por ejemplo,
   # para el primer ejercicio habiamos agrupado  data1. data 1 incluye vowels level 1 y level 2.
@@ -254,11 +257,13 @@ read_instances_specifications_modified <- function(instance_to_fit_path, subset_
   unique_groupings <- unique(instance_to_fit_df$phoneme_grouping_type)
   unique_setdatafiles <- unique(instance_to_fit_df$set_data_file)
   
-  grouping_dfs <- map(unique_groupings, ~ readr::read_csv2(grouping_paths[[.x]], show_col_types = FALSE)) |>
+  grouping_dfs <- map(unique_groupings, ~ readr::read_csv(grouping_paths[[.x]], show_col_types = FALSE)) |>
     set_names(unique_groupings)
   
-  setdatafiles_dfs <- map(unique_setdatafiles, ~ readr::read_csv2(setdatafiles_paths[[.x]], show_col_types = FALSE)) |>
+  setdatafiles_dfs <- map(unique_setdatafiles, ~ readr::read_csv(setdatafiles_paths[[.x]], show_col_types = FALSE)) |>
     set_names(unique_setdatafiles)
+  print("this is setdatafiles_dfs\n" )
+  print(setdatafiles_dfs)
   
   
   #subsetdata_grouping <- readr::read_csv(subset_data_grouping_path,show_col_types = FALSE)
@@ -363,7 +368,51 @@ read_instances_specifications_modified <- function(instance_to_fit_path, subset_
   }
   
   rows   <- purrr::transpose(instance_to_fit_df)
-  list_of_instances <- purrr::map(rows, ~ extract_one_instance(.x, phoneme_df))
+  list_of_instances <- purrr::map(rows, ~ extract_one_instance(.x))
   return(list_of_instances)
+}
+
+read_preprocessed_files <- function(raw_data_type,
+                                    model_type,
+                                    phoneme_grouping_type){
+  
+  
+  folder_path <- Paths$Pipeline_preprocesseddata_dir
+  prefix_name <- glue("preprocessed_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
+  file_name   <- glue("{prefix_name}.rds")
+  df_final_file_path <- file.path(folder_path, file_name)
+  df_final  <- readRDS(df_final_file_path)
+  
+  prefix_name <- glue("phoneme_num_score_mode_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
+  file_name   <- glue("{prefix_name}.rds")
+  phoneme_numscore_mode_file_path <- file.path(folder_path, file_name)
+  phoneme_numscore_mode <- readRDS(phoneme_numscore_mode_file_path)
+  
+  preprocessed_result_list <- list(df_final=df_final,phoneme_numscore_mode=phoneme_numscore_mode)
+  
+  
+  
+  return(preprocessed_result_list)
+  
+}
+
+export("read_preprocessed_files_instances")
+read_preprocessed_files_instances <- function(list_of_instances){
+  
+  
+  df_triplets <- tibble::tibble(
+    raw_data_type = purrr::map_chr(list_of_instances, "raw_data_type"),
+    model_type = purrr::map_chr(list_of_instances, "model_type"),
+    phoneme_grouping_type = purrr::map_chr(list_of_instances, "phoneme_grouping_type")
+  )
+  
+  df_triplets_unique <- distinct(df_triplets)
+  print(df_triplets_unique)
+  triplets_unique <- pmap(df_triplets_unique, list)
+  
+  print(triplets_unique)
+  preprocessed_files_list <- purrr::pmap(df_triplets_unique, read_preprocessed_files)
+ 
+  return(list(triplets_unique = triplets_unique, preprocessed_files_list = preprocessed_files_list))
 }
 
