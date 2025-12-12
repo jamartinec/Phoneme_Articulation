@@ -1671,8 +1671,7 @@ extract_x_q_pllr_beta <- function(model_type=c("binomial","beta"),
   
   age_plot_crow5
   
-  
-  #######################################################################
+#######################################################################
   
   return(list(xq_predictive=xq_predictive,xq_mu=xq_mu, age_plot= age_plot, xq_predictive_crow=xq_predictive_crow, age_plot_crow=age_plot_crow, age_plot_crow2=age_plot_crow2, age_plot_crow3=age_plot_crow3,age_plot_crow4=age_plot_crow4, age_plot_crow5=age_plot_crow5))
 }

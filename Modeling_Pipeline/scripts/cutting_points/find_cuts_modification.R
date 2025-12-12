@@ -8,9 +8,11 @@ library(tidybayes)
 library(scales)
 library(ggrepel)
 
+
 Paths <- modules::use("./bayesian_code/utils/file_paths.R")
 read_instances_specifications_lib <- modules::use("./Modeling_Pipeline/scripts/preprocess/read_instance_specification.R")
-#################################################################
+cutting_points_plots_lib<- modules::use("./Modeling_Pipeline/scripts/cutting_points/plot_cutting_points.R")
+##############################################################################
 
 ###############################################################################
 # Read and format Crow
@@ -436,7 +438,7 @@ extract_x_q_pllr_beta <- function(
   # print(q_crowp2sd)
   
   crow_grouped <- crowe_mcleod %>% 
-    dplyr::rename(q_age_crow = prob_x_eq_1_hat)%>% 
+    dplyr::rename(q_age = prob_x_eq_1_hat)%>% 
     dplyr::group_by(type)
   
   # group_keys() returns a tibble containing one row per group, showing the unique combinations of grouping variables
@@ -446,7 +448,10 @@ extract_x_q_pllr_beta <- function(
     dplyr::group_split() %>%
     purrr::set_names(crow_grouped %>% dplyr::group_keys() %>% dplyr::pull(type))
   
+  message("crow_tables:")
   print(crow_tables)
+  
+  crow_tables[["prediction"]] <- q_beta_join
   
   
 
@@ -487,11 +492,11 @@ extract_x_q_pllr_beta <- function(
   #   dplyr::mutate(p_quant_crowp2 = pmax(0, pmin(1, 1 - q_age_crow)))  # convert tail prob to CDF prob
   # 
   # 
-  # ########################################################
-  # message("preds_with_q:")
-  # print(preds_with_q, width = Inf)
-  # 
-  # ####################################################
+  ########################################################
+  message("preds_with_q:")
+  print(preds_with_q, width = Inf)
+
+  ####################################################
   # 
   # message("preds_with_q_crow")
   # print(preds_with_q_crow, width = Inf)
@@ -530,11 +535,11 @@ extract_x_q_pllr_beta <- function(
     preds_with_q <- predicted %>%
       dplyr::inner_join(crow_tbl, by = c("expected_phoneme", "age_months")) %>%
       dplyr::mutate(
-        p_quant = pmax(0, pmin(1, 1 - q_age_crow))
+        p_quant = pmax(0, pmin(1, 1 - q_age))
       )
     
     xq <- preds_with_q %>%
-      dplyr::group_by(expected_phoneme, age_months, q_age_crow) %>%
+      dplyr::group_by(expected_phoneme, age_months, q_age) %>%
       dplyr::summarise(
         x_q = stats::quantile(.prediction, probs = unique(p_quant),
                               names = FALSE, na.rm = TRUE),
@@ -676,8 +681,23 @@ extract_x_q_pllr_beta <- function(
   # message("this is xq_mu")
   # print(xq_mu)
   
+  age_plot <- cutting_points_plots_lib$plot_cutting_points_v1(plot_data,
+                                                       df_points,
+                                                       y_label,
+                                                       xq_all,
+                                                       label1 = "x_q threshold", 
+                                                       color1 = "black")
   
-  
+  age_plot_crow4 <- cutting_points_plots_lib$plot_cutting_points(plot_data, df_points, y_label, xq_all,
+                                                   c = "mean", 
+                                                   m2 = "m2",
+                                                   p2 = "p2",
+                                                   label1 = "C&M mean",
+                                                   label2 = "C&M -2sd",
+                                                   label3 = "C&M +2sd",
+                                                   color1 = "black",
+                                                   color2 = "blue",
+                                                   color3 = "green")
   
   #######################################################################
   
@@ -692,7 +712,7 @@ extract_x_q_pllr_beta <- function(
   #             age_plot_crow5=age_plot_crow5))
 
   
-  return(list(xq_all=xq_all,crow_tables=crow_tables))
+  return(list(xq_all=xq_all,crow_tables=crow_tables, age_plot=age_plot, age_plot_crow4=age_plot_crow4))
 
 }
 
@@ -882,6 +902,9 @@ list_extracted_x <- extract_x_q_pllr_beta(
 
 crow_tables <- list_extracted_x$crow_tables
 xq_all <- list_extracted_x$xq_all
+
+age_plot <-list_extracted_x$age_plot
+age_plot_crow4 <-list_extracted_x$age_plot_crow4
 
 
 
