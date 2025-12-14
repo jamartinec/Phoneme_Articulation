@@ -13,6 +13,11 @@ import("glue")
 # Call the .R file which contain the models and prior definitions.
 Paths <- modules::use("./bayesian_code/utils/file_paths.R")
 model_definitions_lib <- modules::use("./Modeling_Pipeline/models/models_definition/models_definition.R")
+conventions <- modules::use(
+  "./Modeling_Pipeline/pipeline/config/conventions.R"
+)
+
+
 
 #  helper
 .get_target_phonemes <- function(phoneme_df, category, levels) {
@@ -243,18 +248,19 @@ read_instances_specifications_modified <- function(instance_to_fit_path
   # Ya no tengo que crear las instancias como un producto cartesiano de tres listas
   # modelos, prior, data, si no que las tripletas se leen directamente del csv.
   
-  # 1. Define the paths to the grouping files
-  grouping_paths <- list(
-    grouping2 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping2.csv"),
-    grouping1 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping1.csv")
-  )
+  # # 1. Define the paths to the grouping files
+  # grouping_paths <- list(
+  #   grouping2 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping2.csv"),
+  #   grouping1 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping1.csv")
+  # )
+  # 
+  # setdatafiles_paths <- list(
+  #   subset_data_grouping2 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping2.csv"),
+  #   subset_data_grouping1 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping1.csv")
+  # )
   
-  setdatafiles_paths <- list(
-    subset_data_grouping2 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping2.csv"),
-    subset_data_grouping1 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping1.csv")
-  )
-  
- 
+  grouping_paths <- conventions$grouping_paths
+  setdatafiles_paths <- conventions$setdatafiles_paths
   instance_to_fit_df <- readr::read_csv(instance_to_fit_path, show_col_types = FALSE)
   
  
