@@ -40,7 +40,8 @@ new_model_instance <- function(raw_data_type,
                                filtered_file_path = NULL,
                                target_phonemes = NULL,
                                fitted_model_file_path = NULL,
-                               plots_folder_path = NULL
+                               plots_folder_path = NULL,
+                               key1 = NULL
                                ) {
   x <- list(
     raw_data_type         = raw_data_type,
@@ -58,8 +59,8 @@ new_model_instance <- function(raw_data_type,
     filtered_file_path    = filtered_file_path,
     target_phonemes       = target_phonemes,
     fitted_model_file_path = fitted_model_file_path,
-    plots_folder_path     = plots_folder_path
-    
+    plots_folder_path     = plots_folder_path,
+    key1                  = key1
   )
   validate_model_instance(x)
   class(x) <- "ModelInstance"
@@ -85,7 +86,7 @@ validate_model_instance <- function(x) {
   if (!is.null(x$target_phonemes))    stopifnot(is.character(x$target_phonemes))
   if (!is.null(x$fitted_model_file_path)) stopifnot(is.character(x$fitted_model_file_path), length(x$fitted_model_file_path) == 1)
   if (!is.null(x$plots_folder_path)) stopifnot(is.character(x$plots_folder_path), length(x$plots_folder_path) == 1)
-  # (Opcional) checks de clase:
+  # checks de clase:
   if (!inherits(x$model_opt, c("brmsformula","bf"))) warning("model_opt no parece brms::bf")
   if (!inherits(x$prior_specific, "brmsprior"))       warning("prior_specific no parece brms::prior")
   
@@ -197,6 +198,8 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
     fitted_model_dir       <- file.path(Paths$Pipeline_fitted_models_dir,raw_data_type,phoneme_grouping_type,model_type,model_name)
     fitted_model_file_path <- file.path(fitted_model_dir, paste0("model_", phoneme_group_str)) 
     plots_folder_path <- file.path(Paths$Pipeline_visualsplots_dir,raw_data_type,phoneme_grouping_type,model_type,model_name,phoneme_group_str)
+    #new: dec12
+    key1              <- list(row$raw_data_type,row$model_type,row$phoneme_grouping_type)
     
     
     new_model_instance(
@@ -215,7 +218,8 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
       filtered_file_path     = filtered_file_path,
       target_phonemes        = target_phonemes,
       fitted_model_file_path = fitted_model_file_path,
-      plots_folder_path      = plots_folder_path
+      plots_folder_path      = plots_folder_path,
+      key1                   = key1
     )
   }
   
@@ -345,7 +349,8 @@ read_instances_specifications_modified <- function(instance_to_fit_path
     fitted_model_dir       <- file.path(Paths$Pipeline_fitted_models_dir,raw_data_type,phoneme_grouping_type,model_type,model_name)
     fitted_model_file_path <- file.path(fitted_model_dir, paste0("model_", phoneme_group_str)) 
     plots_folder_path <- file.path(Paths$Pipeline_visualsplots_dir,raw_data_type,phoneme_grouping_type,model_type,model_name,phoneme_group_str)
-    
+    #new: dec12
+    key1              <- list(row$raw_data_type,row$model_type,row$phoneme_grouping_type)
     
     new_model_instance(
       raw_data_type          = raw_data_type,
@@ -363,7 +368,8 @@ read_instances_specifications_modified <- function(instance_to_fit_path
       filtered_file_path     = filtered_file_path,
       target_phonemes        = target_phonemes,
       fitted_model_file_path = fitted_model_file_path,
-      plots_folder_path      = plots_folder_path
+      plots_folder_path      = plots_folder_path,
+      key1                   = key1
     )
   }
   
