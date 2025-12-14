@@ -428,3 +428,24 @@ read_preprocessed_files_instances <- function(list_of_instances){
   return(list(triplets_unique = triplets_unique, preprocessed_files_list = preprocessed_files_list))
 }
 
+export("find_unique_instances_keys")
+find_unique_instances_keys <- function(list_of_instances){
+
+    key1_chr <- list_of_instances |>
+      purrr::map(\(x) paste(x$key1, collapse = "|")) |>
+      unique()
+    
+    unique_keys1 <- strsplit(key1_chr, "\\|")
+    
+    unique_phoneme_grouping_type <- list_of_instances |>
+      purrr::map_chr("phoneme_grouping_type") |>
+      unique()
+    
+    list(
+      unique_keys1 = unique_keys1, # this is just raw_data_type, model_type, phoneme_grouping_type
+      unique_phoneme_grouping_type = unique_phoneme_grouping_type
+    )
+  }
+  
+  
+
