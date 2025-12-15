@@ -1,7 +1,7 @@
 #-------------------------------------
-# Prepare data for Bayesian analysis
+# Prepare data for Bayesian modeling
 #-------------------------------------
-# Load packages
+# Load required packages
 import("dplyr")
 import("tidyr")
 import("psych")    # For factor analysis and scree plot
@@ -13,10 +13,8 @@ import("utils")
 import("glue")
 #-------------------------------------------------------------------------------
 Paths <- modules::use("./bayesian_code/utils/file_paths.R")
-# raw_data_path <- "./Modeling_Pipeline/data/raw/probabilities-max-frame_W.csv.gz"
-# phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping1.csv"
 
-# Define geometric mean
+# Define a geometric mean function
 geometric_mean <- function(x) {
   exp(mean(log(x[x > 0]), na.rm = TRUE))  # Avoid log(0) or negative probs
 }
@@ -30,8 +28,9 @@ get_mode <- function(x) {
 export("create_preprocessed_df")
 create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path){
   dftest <-read.csv(raw_data_path)
-  message("colnames")
-  print(colnames(dftest))
+  
+  #message("colnames")
+  #print(colnames(dftest))
   df <- read.csv(raw_data_path)%>%
     { if (raw_data_type == "aaps")
       dplyr::rename(., expected_phoneme = Phoneme)
@@ -39,7 +38,7 @@ create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_typ
         .
     }
   
-  print(colnames(df))
+  #print(colnames(df))
   if (raw_data_type== "pllr"){
     df <- df%>%
       dplyr::filter(expected_phoneme == phoneme)
@@ -52,10 +51,12 @@ create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_typ
   df_final <- df_summary %>%
   left_join(phoneme_df, by = "expected_phoneme")
   
-  print(df)
+  # print(df)
  
-  # save df_final # considerar definir una funcion que verifique si el archivo ya existe
-  # y leer en tal caso?
+  # Save `df_final`.
+  # Consider defining a function to check whether the file already exists
+  # and load it instead of recomputing.
+  
   
   folder_path <- Paths$Pipeline_preprocesseddata_dir
   prefix_name <- glue("preprocessed_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
@@ -68,7 +69,7 @@ create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_typ
     "preprocessed data (df_final: {raw_data_type}, {model_type}, {phoneme_grouping_type}) created and saved."
   ))
   
-  #save compute_num_score_mode?
+  # Save the computed `phoneme_numscore_mode`
   phoneme_numscore_mode <- compute_num_score_mode(df_summary,model_type)
   
   prefix_name <- glue("phoneme_num_score_mode_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
@@ -98,11 +99,12 @@ compute_num_score_mode<- function(df_summary,model_type = c("beta", "binomial"))
   return(phoneme_numscore_mode)
   }
 
-# preprocessing function
+# Preprocessing function
 create_summary <- function(df, raw_data_type = c("pllr", "aaps"), model_type = c("beta", "binomial")) {
   raw_data_type <- match.arg(raw_data_type)
   model_type <- match.arg(model_type)
-  # try to manage exception
+  
+  # Attempt to handle exceptional cases
   
   if (raw_data_type == "pllr"){
   
