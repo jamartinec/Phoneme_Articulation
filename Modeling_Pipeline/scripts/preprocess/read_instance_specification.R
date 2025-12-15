@@ -8,9 +8,10 @@ import("utils")
 import("readr")
 import("glue")
 
-## SANITY CHECK: PILAS, debe haber coherencia entre los archivos phoneme_grouping1 y subset data grouping1.
+## Sanity Check: Ensure consistency between `phoneme_grouping1` and `subset_data_grouping1`.
 
-# Call the .R file which contain the models and prior definitions.
+
+# Load model and prior definitions
 Paths <- modules::use("./bayesian_code/utils/file_paths.R")
 model_definitions_lib <- modules::use("./Modeling_Pipeline/models/models_definition/models_definition.R")
 conventions <- modules::use(
@@ -19,9 +20,9 @@ conventions <- modules::use(
 
 
 
-#  helper
+# Helper function to extract target phonemes for a given category and level set
 .get_target_phonemes <- function(phoneme_df, category, levels) {
-  # expects columns: category, level, phoneme
+  # Expects columns: Type, Level, expected_phoneme
   if (all(c("Type","Level","expected_phoneme") %in% names(phoneme_df))) {
     phoneme_df |>
       dplyr::filter(.data$Type == !!category,
@@ -34,7 +35,7 @@ conventions <- modules::use(
 }
 
 
-# constructor + validador
+# Constructor and validator for ModelInstance objects
 new_model_instance <- function(raw_data_type,
                                model_type,
                                model_name, model_opt, prior_name, prior_specific,
@@ -52,9 +53,9 @@ new_model_instance <- function(raw_data_type,
     raw_data_type         = raw_data_type,
     model_type            = model_type,
     model_name            = model_name,
-    model_opt             = model_opt,       # p. ej. brms::bf(...)
+    model_opt             = model_opt,       # f. eg. brms::bf(...)
     prior_name            = prior_name,
-    prior_specific        = prior_specific,  # p. ej. brms::prior(...)
+    prior_specific        = prior_specific,  # f. eg. brms::prior(...)
     phoneme_grouping_type = phoneme_grouping_type,
     subset_data           = subset_data,
     category              = category,
@@ -81,7 +82,8 @@ validate_model_instance <- function(x) {
             is.character(x$phoneme_grouping_type), length(x$phoneme_grouping_type) == 1,
             is.character(x$subset_data), length(x$subset_data) == 1,
             is.character(x$category),   length(x$category)   == 1,
-            is.character(x$levels)     # vector de niveles,
+            is.character(x$levels)     # vector of phoneme levels
+
             
             
   )
@@ -91,7 +93,7 @@ validate_model_instance <- function(x) {
   if (!is.null(x$target_phonemes))    stopifnot(is.character(x$target_phonemes))
   if (!is.null(x$fitted_model_file_path)) stopifnot(is.character(x$fitted_model_file_path), length(x$fitted_model_file_path) == 1)
   if (!is.null(x$plots_folder_path)) stopifnot(is.character(x$plots_folder_path), length(x$plots_folder_path) == 1)
-  # checks de clase:
+  # Class compatibility checks
   if (!inherits(x$model_opt, c("brmsformula","bf"))) warning("model_opt no parece brms::bf")
   if (!inherits(x$prior_specific, "brmsprior"))       warning("prior_specific no parece brms::prior")
   
@@ -100,7 +102,7 @@ validate_model_instance <- function(x) {
   
  
 
-# método print # UPDATE THIS
+# Print method for ModelInstance objects
 print.ModelInstance <- function(x, ...) {
   cat(sprintf("<ModelInstance %s | %s | %s | %s[%s]>\n",
               x$model_name, x$prior_name, x$category, paste(x$levels, collapse=",")))
@@ -110,7 +112,8 @@ print.ModelInstance <- function(x, ...) {
 
 
 as_model_instance <- function(x) {
-  # x es una de tus listas [[i]]
+  # `x` is a single list element (e.g., one entry from a list of instances)
+  
   x <- validate_model_instance(x)
   class(x) <- c("ModelInstance", class(x))
   x
@@ -123,27 +126,25 @@ as_model_instance <- function(x) {
 export("read_instances_specifications")
 read_instances_specifications <- function(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path){
 
-  # Leer el archivo csv el cual contiene el agrupamiento de fonemas en "subdata" por ejemplo,
-  # para el primer ejercicio habiamos agrupado  data1. data 1 incluye vowels level 1 y level 2.
-  # es decir, este archivo contiene la definicion de agrupamientos entre fonemas de diferentes niveles 
-  # que queramos hacer, basta con especificar el mismo label en la columna subdata.
+  # Read the CSV file that contains the phoneme groupings under the `subdata` label.
+  # For example, in the first exercise we grouped phonemes under `data1`; `data1`
+  # includes vowels at level 1 and level 2. In other words, this file defines
+  # groupings of phonemes across different levels. To create a grouping, it is
+  # sufficient to assign the same label in the `subdata` column.
   
-  #subsetdata_grouping <- read.csv("./Modeling_Pipeline/instance_specification/subset_data_grouping1.csv")
-  #instance_to_fit_df <- read.csv("./Modeling_Pipeline/instance_specification/instance_to_fit.csv")
-  # Ya no tengo que crear las instancias como un producto cartesiano de tres listas
-  # modelos, prior, data, si no que las tripletas se leen directamente del csv.
+  # Instances are no longer generated via a Cartesian product of models, priors, and data;
+  # instead, each instance is explicitly defined by a row in the CSV file.
   
-
   
   subsetdata_grouping <- readr::read_csv(subset_data_grouping_path,show_col_types = FALSE)
   instance_to_fit_df <- readr::read_csv(instance_to_fit_path,show_col_types = FALSE)
   phoneme_df <- readr::read_csv(phoneme_grouping_data_path,show_col_types = FALSE)
-  #-----------------------------------------------------------------------------
-  # Future work: validity check for the path passed (be sure that it belongs to 
-  # the correct folder, otherwise stop and return a warning).
-  #-----------------------------------------------------------------------------
-  # en el siguiente agrupamiento estamos suponiendo que en un "subdata" (digamos data1)
-  # solo tenemos fonemas de la misma categoria y  diferentes niveles.
+  # Future work: validate that input paths belong to the expected directory structure
+  
+  
+  # Assumption: within each `subdata`, all phonemes belong to the same category
+  # but may span multiple levels.
+  
   
   df_subdata_grouping_list <- subsetdata_grouping |>
     dplyr::arrange(subdata, level) |>
@@ -154,7 +155,7 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
       .groups  = "drop"
     )
   
-  # subdata -> list(category=..., levels=c(...))
+  # Map each `subdata` label to a list containing its category and levels
   list_subdata <- df_subdata_grouping_list |>
     dplyr::transmute(
       subdata,
@@ -162,13 +163,13 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
     ) |>
     tibble::deframe()
   
-  # Leemos la lista de definiciones de modelos y de priors 
+  # Read the lists of models and priors definitions.
   defs <- model_definitions_lib$return_lists()
   model_list <- defs$model_list
   prior_list <- defs$prior_list
-  # esta funcion recibe una fila del data frame que contiene la informacion de la
-  # instancia a fittear  (una instancia por fila) y la organiza en un named list. 
   
+  # This function processes a single row from the instance specification table
+  # (one row per model instance) and converts it into a structured list.
   extract_one_instance <- function(row,phoneme_df) {
     s <- list_subdata[[row$subset_data]]
     if (is.null(s)) stop("Unknown subdata: ", row$subset_data, call. = FALSE)
@@ -179,7 +180,7 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
     pr  <- prior_list[[row$prior]]
     if (is.null(pr)) stop("Unknown prior: ", row$prior, call. = FALSE)
     
-    # compatibility check:
+    # Check compatibility between model and prior
     if (!row$model %in% pr$valid_models) {
       stop("Prior '", row$prior, "' is not valid for model '", row$model, "'.", call. = FALSE)}
     
@@ -188,7 +189,7 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
     levels   <- s$levels
     
     
-    #prefix                <- file.path(Paths$processed_data_dir, row$model)
+    
     
     phoneme_group_str      <- paste(c(category, levels), collapse = "_")
     raw_data_type          <- row$raw_data_type
@@ -203,7 +204,8 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
     fitted_model_dir       <- file.path(Paths$Pipeline_fitted_models_dir,raw_data_type,phoneme_grouping_type,model_type,model_name)
     fitted_model_file_path <- file.path(fitted_model_dir, paste0("model_", phoneme_group_str)) 
     plots_folder_path <- file.path(Paths$Pipeline_visualsplots_dir,raw_data_type,phoneme_grouping_type,model_type,model_name,phoneme_group_str)
-    #new: dec12
+    # Added December 2025: composite key for caching and lookup
+    
     key1 <- c(
       raw_data_type = row$raw_data_type,
       model_type = row$model_type,
@@ -242,27 +244,18 @@ read_instances_specifications_modified <- function(instance_to_fit_path
                                                    #,subset_data_grouping_path,phoneme_grouping_data_path
                                                    ){
   
-  # Leer el archivo csv el cual contiene el agrupamiento de fonemas en "subdata" por ejemplo,
-  # para el primer ejercicio habiamos agrupado  data1. data 1 incluye vowels level 1 y level 2.
-  # es decir, este archivo contiene la definicion de agrupamientos entre fonemas de diferentes niveles 
-  # que queramos hacer, basta con especificar el mismo label en la columna subdata.
+  # Read the CSV file that contains the phoneme groupings under the `subdata` label.
+  # For example, in the first exercise we grouped phonemes under `data1`; `data1`
+  # includes vowels at level 1 and level 2. In other words, this file defines
+  # groupings of phonemes across different levels. To create a grouping, it is
+  # sufficient to assign the same label in the `subdata` column.
   
-  #subsetdata_grouping <- read.csv("./Modeling_Pipeline/instance_specification/subset_data_grouping1.csv")
-  #instance_to_fit_df <- read.csv("./Modeling_Pipeline/instance_specification/instance_to_fit.csv")
-  # Ya no tengo que crear las instancias como un producto cartesiano de tres listas
-  # modelos, prior, data, si no que las tripletas se leen directamente del csv.
+  # Instances are no longer generated via a Cartesian product of models, priors, and data;
+  # instead, each instance is explicitly defined by a row in the CSV file.
   
-  # # 1. Define the paths to the grouping files
-  # grouping_paths <- list(
-  #   grouping2 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping2.csv"),
-  #   grouping1 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping1.csv")
-  # )
-  # 
-  # setdatafiles_paths <- list(
-  #   subset_data_grouping2 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping2.csv"),
-  #   subset_data_grouping1 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping1.csv")
-  # )
   
+  # conventions contains the mapping between key words used in the instance definitions and 
+  # their associated files.
   grouping_paths <- conventions$grouping_paths
   setdatafiles_paths <- conventions$setdatafiles_paths
   instance_to_fit_df <- readr::read_csv(instance_to_fit_path, show_col_types = FALSE)
@@ -282,16 +275,14 @@ read_instances_specifications_modified <- function(instance_to_fit_path
   
   #subsetdata_grouping <- readr::read_csv(subset_data_grouping_path,show_col_types = FALSE)
   #subsetdata_grouping < setdatafiles_dfs[["subset_data_grouping2"]]
-  
   #phoneme_df <- readr::read_csv(phoneme_grouping_data_path,show_col_types = FALSE)
   #phoneme_df <- grouping_dfs[["grouping2"]]
   
-  #-----------------------------------------------------------------------------
-  # Future work: validity check for the path passed (be sure that it belongs to 
-  # the correct folder, otherwise stop and return a warning).
-  #-----------------------------------------------------------------------------
-  # en el siguiente agrupamiento estamos suponiendo que en un "subdata" (digamos data1)
-  # solo tenemos fonemas de la misma categoria y  diferentes niveles.
+  # Future work: validate that input paths belong to the expected directory structure
+  
+  
+  # Assumption: within each `subdata`, all phonemes belong to the same category
+  # but may span multiple levels.
   
   transform_funct <- function(df) {
     df |>
@@ -313,12 +304,12 @@ read_instances_specifications_modified <- function(instance_to_fit_path
   
   
   
-  # Leemos la lista de definiciones de modelos y de priors 
+  # Read the lists of models and priors definitions. 
   defs <- model_definitions_lib$return_lists()
   model_list <- defs$model_list
   prior_list <- defs$prior_list
-  # esta funcion recibe una fila del data frame que contiene la informacion de la
-  # instancia a fittear  (una instancia por fila) y la organiza en un named list. 
+  # This function processes a single row from the instance specification table
+  # (one row per model instance) and converts it into a structured list.
   
   extract_one_instance <- function(row) {
     
@@ -335,7 +326,7 @@ read_instances_specifications_modified <- function(instance_to_fit_path
     pr  <- prior_list[[row$prior]]
     if (is.null(pr)) stop("Unknown prior: ", row$prior, call. = FALSE)
     
-    # compatibility check:
+    # Check compatibility between model and prior
     if (!row$model %in% pr$valid_models) {
       stop("Prior '", row$prior, "' is not valid for model '", row$model, "'.", call. = FALSE)}
     
@@ -344,7 +335,7 @@ read_instances_specifications_modified <- function(instance_to_fit_path
     levels   <- s$levels
     
     
-    #prefix                <- file.path(Paths$processed_data_dir, row$model)
+    
     
     phoneme_group_str      <- paste(c(category, levels), collapse = "_")
     raw_data_type          <- row$raw_data_type
@@ -359,7 +350,7 @@ read_instances_specifications_modified <- function(instance_to_fit_path
     fitted_model_dir       <- file.path(Paths$Pipeline_fitted_models_dir,raw_data_type,phoneme_grouping_type,model_type,model_name)
     fitted_model_file_path <- file.path(fitted_model_dir, paste0("model_", phoneme_group_str)) 
     plots_folder_path <- file.path(Paths$Pipeline_visualsplots_dir,raw_data_type,phoneme_grouping_type,model_type,model_name,phoneme_group_str)
-    #new: dec12
+    # Added December 2025: composite key for caching and lookup
     key1              <- list(row$raw_data_type,row$model_type,row$phoneme_grouping_type)
     
     new_model_instance(
