@@ -204,7 +204,11 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
     fitted_model_file_path <- file.path(fitted_model_dir, paste0("model_", phoneme_group_str)) 
     plots_folder_path <- file.path(Paths$Pipeline_visualsplots_dir,raw_data_type,phoneme_grouping_type,model_type,model_name,phoneme_group_str)
     #new: dec12
-    key1              <- list(row$raw_data_type,row$model_type,row$phoneme_grouping_type)
+    key1 <- c(
+      raw_data_type = row$raw_data_type,
+      model_type = row$model_type,
+      phoneme_grouping_type = row$phoneme_grouping_type
+    )
     
     
     new_model_instance(
@@ -429,23 +433,42 @@ read_preprocessed_files_instances <- function(list_of_instances){
 }
 
 export("find_unique_instances_keys")
-find_unique_instances_keys <- function(list_of_instances){
-
-    key1_chr <- list_of_instances |>
-      purrr::map(\(x) paste(x$key1, collapse = "|")) |>
-      unique()
-    
-    unique_keys1 <- strsplit(key1_chr, "\\|")
-    
-    unique_phoneme_grouping_type <- list_of_instances |>
-      purrr::map_chr("phoneme_grouping_type") |>
-      unique()
-    
-    list(
-      unique_keys1 = unique_keys1, # this is just raw_data_type, model_type, phoneme_grouping_type
-      unique_phoneme_grouping_type = unique_phoneme_grouping_type
-    )
-  }
+find_unique_instances_keys <- function(list_of_instances) {
   
+  key1_chr <- list_of_instances |>
+    purrr::map(\(x) paste(x$key1, collapse = "|")) |>
+    unique()
+  
+  unique_keys1 <- key1_chr |>
+    strsplit("\\|") |>
+    purrr::map(\(k) {
+      setNames(
+        k,
+        names(list_of_instances[[1]]$key1)
+      )
+    })
+  
+  unique_phoneme_grouping_type <- list_of_instances |>
+    purrr::map_chr("phoneme_grouping_type") |>
+    unique()
+  
+  list(
+    unique_keys1 = unique_keys1,
+    unique_phoneme_grouping_type = unique_phoneme_grouping_type
+  )
+}
+
+
+export("get_preprocessed_for_instance")
+get_preprocessed_for_instance <- function(instance, cache) {
+  
+  key <- make_key_string(instance$key1)
+  cache[[key]]
+}
+
+export("make_key_string")
+make_key_string <- function(key1) {
+  paste(key1, collapse = "|")
+}
   
 
