@@ -12,6 +12,11 @@ filtering_lib                     <- modules::use("./Modeling_Pipeline/scripts/p
 fit_models_lib                    <- modules::use("./Modeling_Pipeline/scripts/train/fit_models.R")
 visualize_models_lib0             <- modules::use("./Modeling_Pipeline/scripts/visualize/visualize_age_standards.R")
 visualize_models_lib1             <- modules::use("Modeling_Pipeline/scripts/visualize/run_visuals.R")
+conventions <- modules::use("./Modeling_Pipeline/pipeline/config/conventions.R")
+
+
+
+
 # Recordemos los inputs que necesita read_instance specification
 # Debemos leer el archivo que contiene los agrupamientos de los fonemas en 
 # data levels que queremos modelar. Recordar: hay clasificaciones de fonemas 
@@ -37,22 +42,93 @@ phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grou
 subset_data_grouping_path <- "./Modeling_Pipeline/instance_specification/subset_data_grouping1.csv"
 instance_to_fit_path <- "./Modeling_Pipeline/instance_specification/instance_to_fit.csv"
 
-
-
-
 raw_data_type <- "pllr" # coherente con raw_data_path
 phoneme_grouping_type <- "grouping1" # coherente con phoneme_grouping_data_path y con subset_data_grouping_path
 model_type  <- "binomial" # debemos hablar mejor de response variable, porque esto detemrina el tipo de preprocesamiento 
 # y el tipo de modelos que podemos usar. model_type debe ser el mismo que aparece en la columna model_type para todas las filas
 # de instance_to_fit.csv!!
 
+# dec12: dictionaries with correspondence between keys in instances specification to files.
+rawdata_paths<-conventions$rawdata_paths
+grouping_paths<-conventions$grouping_paths
+setdatafiles_paths<-conventions$setdatafiles_paths
 
 list_of_instances <- read_instances_specifications_lib$read_instances_specifications(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path)
 
-# Preprocessing
-preprocessed_result_list <- preprocessing_lib$create_preprocessed_df(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path)
-df_final <- preprocessed_result_list$df_final
-phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
+# Preprocessing, commented on dec12:
+# preprocessed_result_list <- preprocessing_lib$create_preprocessed_df(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path)
+# df_final <- preprocessed_result_list$df_final
+# phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
+
+# dec12: Preprocessing without assuming all instances have the same: raw_data_type,model_type,phoneme_grouping_type
+
+# fin the list of unique keys in the instances we're considering
+
+unique_keys <- find_unique_instances_keys(list_of_instances)
+unique_keys1 <- unique_keys$unique_keys1# this is just raw_data_type, model_type, phoneme_grouping_type
+unique_phoneme_grouping_type<- unique_keys$unique_phoneme_grouping_type
+# for each 3tuple in unique_keys1 create a 5 tuple of arguments 
+#(raw_data_type, model_type, phoneme_grouping_type)-->(raw_data_type, model_type, phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path)
+#(raw_data_type, model_type, phoneme_grouping_type, rawdata_paths(raw_data_type),grouping_paths(phoneme_grouping_type))
+
+#  I think I can avoid this step by just including this information as instance attribute.
+expand_preprocessing_key <- function(key1,
+                                     rawdata_paths,
+                                     grouping_paths) {
+  
+  raw_data_path <- rawdata_paths[[ key1["raw_data_type"] ]]
+  if (is.null(raw_data_path))
+    stop("Unknown raw_data_type: ", key1["raw_data_type"], call. = FALSE)
+  
+  phoneme_grouping_data_path <- grouping_paths[[ key1["phoneme_grouping_type"] ]]
+  if (is.null(phoneme_grouping_data_path))
+    stop("Unknown phoneme_grouping_type: ", key1["phoneme_grouping_type"], call. = FALSE)
+  
+  c(
+    as.list(key1),
+    list(
+      raw_data_path = raw_data_path,
+      phoneme_grouping_data_path = phoneme_grouping_data_path
+    )
+  )
+}
+
+preprocessing_keys <- purrr::map(
+  unique_keys$unique_keys1,
+  expand_preprocessing_key,
+  rawdata_paths = rawdata_paths,
+  grouping_paths = grouping_paths
+)
+
+# now pass each unique 5-tuple and get in a new list  the preprocessed files for each case
+preprocessed_cache <- purrr::imap(
+  preprocessing_keys,
+  function(args, i) {
+    
+    key_str <- paste(
+      args$raw_data_type,
+      args$model_type,
+      args$phoneme_grouping_type,
+      sep = "|"
+    )
+    
+    message("Preprocessing: ", key_str)
+    
+    preprocessing_lib$create_preprocessed_df(
+      raw_data_type = args$raw_data_type,
+      model_type = args$model_type,
+      phoneme_grouping_type = args$phoneme_grouping_type,
+      raw_data_path = args$raw_data_path,
+      phoneme_grouping_data_path = args$phoneme_grouping_data_path
+    )
+  }
+)
+
+# acces later with:
+#read_instances_specifications_lib$get_preprocessed_for_instance(instance, cache)
+
+
+#read the preprocessed files if they already exist:
 
 read_preprocessed_files <- function(raw_data_type,
                                     model_type,
@@ -77,13 +153,56 @@ read_preprocessed_files <- function(raw_data_type,
   return(preprocessed_result_list)
   
 }
-preprocessed_result_list <-read_preprocessed_files(raw_data_type,model_type,phoneme_grouping_type)
-df_final <- preprocessed_result_list$df_final
-phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
+
+read_preprocessed_from_key <- function(key1) {
+  
+  read_preprocessed_files(
+    raw_data_type = key1["raw_data_type"],
+    model_type = key1["model_type"],
+    phoneme_grouping_type = key1["phoneme_grouping_type"]
+  )
+}
 
 
+
+preprocessed_cache <- purrr::map(
+  unique_keys1,
+  read_preprocessed_from_key
+)
+
+names(preprocessed_cache) <- purrr::map_chr(
+  unique_keys1,
+  read_instances_specifications_lib$make_key_string
+)
+
+
+
+
+# dec12, comentar las siguientes lineas, porque estamos interesados en la forma
+# mas robusta definida arriba
+# preprocessed_result_list <-read_preprocessed_files(raw_data_type,model_type,phoneme_grouping_type)
+# df_final <- preprocessed_result_list$df_final
+# phoneme_numscore_mode <- preprocessed_result_list$phoneme_numscore_mode
 # filtering_data_instances
-phoneme_df <- read.csv(phoneme_grouping_data_path)
+#phoneme_df <- read.csv(phoneme_grouping_data_path)
+
+missing <- setdiff(unique_phoneme_grouping_type, names(grouping_paths))
+if (length(missing) > 0) {
+  stop(
+    "No grouping_paths defined for: ",
+    paste(missing, collapse = ", "),
+    call. = FALSE
+  )
+}
+
+list_df_phonemes <- purrr::imap(
+  grouping_paths[unique_phoneme_grouping_type],
+  function(path, grouping_type) {
+    read.csv(path, stringsAsFactors = FALSE)
+  }
+)
+
+
 
 # la funcion filtering_data recibe una instancia de la lista list_of_intances
 # la pregunta ahora es, debo correr un ciclo for o usar map?
@@ -97,11 +216,43 @@ phoneme_df <- read.csv(phoneme_grouping_data_path)
 
 #no queremos mantener en memoria los objetos (potencialmente consume mucha memoria), pero si las direcciones a los objetos
 
-list_of_df_filters_file_paths <- purrr::map(list_of_instances,
-                                 ~ filtering_lib$filtering_data(.x,df_final,phoneme_df))
+#dec12: comentamos la linea de abajo, para usar mejor opcion mas general
+# list_of_df_filters_file_paths <- purrr::map(list_of_instances,
+#                                  ~ filtering_lib$filtering_data(.x,df_final,phoneme_df))
 
-fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_grouping_type,list_of_instances)
 
+list_of_df_filters_file_paths <- purrr::map(
+  list_of_instances,
+  function(instance) {
+    
+    # lookup preprocessed data
+    prep <- read_instances_specifications_lib$get_preprocessed_for_instance(instance, preprocessed_cache)
+    df_final <- prep$df_final
+    
+    # lookup phoneme grouping df
+    phoneme_df <- list_df_phonemes[[ instance$phoneme_grouping_type ]]
+    
+    if (is.null(phoneme_df)) {
+      stop(
+        "No phoneme_df found for grouping type: ",
+        instance$phoneme_grouping_type,
+        call. = FALSE
+      )
+    }
+    
+    # call existing filtering logic
+    filtering_lib$filtering_data(
+      instance,
+      df_final,
+      phoneme_df
+    )
+  }
+)
+
+
+#dec12: the only argument needed is list_of_instances.
+#fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_grouping_type,list_of_instances)
+fit_models_lib$iterate_run_bayesian_modeling(list_of_instances)
 
 # folder_path <- Paths$processed_data_dir
 # filename <-  paste0("phoneme_numscore_mode_binomialxphoneme_Prob_singleWords", ".RData") 
@@ -122,13 +273,18 @@ fit_models_lib$iterate_run_bayesian_modeling(raw_data_type,model_type,phoneme_gr
 #   instance,
 #   fitted_model)
 
+#dec12: comentamos las sgts lineas para usar version mas general
+# visualize_models_lib1$iterate_plots(model_type,
+#                                     df_final,
+#                                     phoneme_numscore_mode,
+#                                     list_of_instances)
 
-visualize_models_lib1$iterate_plots(model_type,
-                                    df_final,
-                                    phoneme_numscore_mode,
-                                    list_of_instances)
 
-
+visualize_models_lib1$iterate_plots_modified(
+  #model_type,#df_final,#phoneme_numscore_mode,
+  list_of_instances,
+  preprocessed_cache
+)
 
 ###############################################################
 # Vamos a correr el pipeline pero ahora suponiendo que vamos a modelar
