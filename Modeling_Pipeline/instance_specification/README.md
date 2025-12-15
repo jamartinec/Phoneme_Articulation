@@ -1,0 +1,106 @@
+
+``` yaml
+---
+title: "README"
+output: github_document
+---
+```
+
+# Phoneme Subset Grouping Files
+
+## `subset_data_grouping1.csv`
+
+This file contains the following columns:
+
+- **subdata**
+- **category** (type)
+- **level**
+
+`subdata` is simply a label representing each (category, level)
+combination.  
+For example, phonemes in (Vowels, Level 1) are labeled as:
+
+    subdata = "data1"
+
+The categories and levels correspond to those defined in:
+
+    Modeling_Pipeline/phoneme_grouping/phoneme_grouping1.csv
+
+## `subset_data_grouping2.csv`
+
+This file has the same structure:
+
+- **subdata**
+- **category** (type)
+- **level**
+
+Again, `subdata` is a label identifying each (category, level)
+combination.  
+These combinations are defined in:
+
+    Modeling_Pipeline/phoneme_grouping/phoneme_grouping2.csv
+
+# Model Instance Specification Files
+
+The files named `instance_to_fit*.csv` contain specifications for
+model-fitting instances used in preliminary and exploratory analyses.  
+Each row fully defines one modeling instance.
+
+### Required Columns
+
+- **raw_data_type**: “aaps” or “pllr”.
+- **model_type**: describes the predicted variable  
+  (e.g., proportion for Beta or Beta-Binomial; probability of success
+  for Binomial).
+- **model**: name of the model used in the code.
+- **prior**: compatible prior specification.
+- **phoneme_grouping_type**: grouping used  
+  (e.g., grouping1 = Kent’s phoneme complexity levels; grouping2 =
+  phonemes modeled independently).
+- **subset_data**: subset of phonemes to include, consistent with the
+  selected grouping.
+
+### Example
+
+    raw_data_type,model_type,model,prior,phoneme_grouping_type,subset_data
+    aaps,binomial,model_binomial_Probability,prior_binomial,grouping2,dataPhoneme27
+
+This means:
+
+- Fit the model `model_binomial_Probability`
+- using the prior `prior_binomial`
+- on AAPS data
+- under grouping2 (phoneme-level independence)
+- using only the phoneme(s) labeled `dataPhoneme27`  
+  (e.g., the phoneme T modeled independently).
+
+# Cut-Point Instance Files
+
+## AAPS-based analyses
+
+- `instance_to_fit_cp1.csv`
+- `instance_to_fit_cp1V2.csv`
+
+These files contain the model instances used to compute cut points using
+AAPS data.  
+They correspond to two versions of the Binomial model.
+
+## PLLR-based analyses
+
+- `instance_to_fit_cp2.csv`
+- `instance_to_fit_cp2V2.csv`
+
+These files contain the model instances used to compute cut points using
+PLLR data:
+
+- `cp2.csv`: specifies a Beta model  
+- `cp2V2.csv`: specifies a Binomial model
+
+## Additional Instance Files
+
+- `instance_to_fit.csv`
+- `instance_to_fit2.csv`
+- `instance_to_fit3.csv`
+
+These were used in earlier exploratory runs; details are documented in
+each file.
