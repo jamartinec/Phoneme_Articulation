@@ -133,7 +133,7 @@ model_binomialv2 <- bf(
 
 model_list <- list(
   "model0_Version2"              = model0_Version2,
-  #"model_binomial_dummytest"     = model_binomial,
+  "model_binomial_dummytest"     = model_binomial,
   "model_binomial_Probability"   = model_binomial,
   "model_binomialv2"             = model_binomialv2
 )
