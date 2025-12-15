@@ -24,6 +24,6 @@ grouping_paths <- list(
 
 # 3. Define the paths to the subset data files
 setdatafiles_paths <- list(
-  subset_data_grouping2 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping2.csv"),
-  subset_data_grouping1 = file.path(Paths$Pipeline_instance_specification_dir, "subset_data_grouping1.csv")
+  subset_data_grouping2 = file.path(Paths$Pipeline_set_data_files_dir, "subset_data_grouping2.csv"),
+  subset_data_grouping1 = file.path(Paths$Pipeline_set_data_files_dir, "subset_data_grouping1.csv")
 )

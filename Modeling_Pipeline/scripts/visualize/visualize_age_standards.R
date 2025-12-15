@@ -4,7 +4,7 @@ import("tidyr")
 import("ggplot2")
 import("splines")
 import("tidybayes")
-Paths <- modules::use("./bayesian_code/utils/file_paths.R")
+Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
 
 # move to utils
 ensure_dir <- function(path) {

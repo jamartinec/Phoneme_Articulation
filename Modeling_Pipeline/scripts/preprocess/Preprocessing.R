@@ -12,7 +12,7 @@ import("tidyverse")
 import("utils")
 import("glue")
 #-------------------------------------------------------------------------------
-Paths <- modules::use("./bayesian_code/utils/file_paths.R")
+Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
 
 # Define a geometric mean function
 geometric_mean <- function(x) {
@@ -156,4 +156,74 @@ create_summary <- function(df, raw_data_type = c("pllr", "aaps"), model_type = c
 }
 
 
+export("auxiliary_preprocess_cache")
+auxiliary_preprocess_cache<-function(args) {
+  
+  key_str <- paste(
+    args$raw_data_type,
+    args$model_type,
+    args$phoneme_grouping_type,
+    sep = "|"
+  )
+  
+  message("Preprocessing: ", key_str)
+  
+    create_preprocessed_df(
+    raw_data_type = args$raw_data_type,
+    model_type = args$model_type,
+    phoneme_grouping_type = args$phoneme_grouping_type,
+    raw_data_path = args$raw_data_path,
+    phoneme_grouping_data_path = args$phoneme_grouping_data_path
+  )
+}
+
+export("read_preprocessed_files")
+read_preprocessed_files <- function(raw_data_type,
+                                    model_type,
+                                    phoneme_grouping_type){
+  
+  
+  folder_path <- Paths$Pipeline_preprocesseddata_dir
+  prefix_name <- glue("preprocessed_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
+  file_name   <- glue("{prefix_name}.rds")
+  df_final_file_path <- file.path(folder_path, file_name)
+  df_final  <- readRDS(df_final_file_path)
+  
+  prefix_name <- glue("phoneme_num_score_mode_{raw_data_type}_{model_type}_{phoneme_grouping_type}")
+  file_name   <- glue("{prefix_name}.rds")
+  phoneme_numscore_mode_file_path <- file.path(folder_path, file_name)
+  phoneme_numscore_mode <- readRDS(phoneme_numscore_mode_file_path)
+  
+  preprocessed_result_list <- list(df_final=df_final,phoneme_numscore_mode=phoneme_numscore_mode)
+  
+  
+  
+  return(preprocessed_result_list)
+  
+}
+
+export("read_preprocessed_from_key")
+#read the preprocessed files if they already exist:
+read_preprocessed_from_key <- function(key1) {
+  
+    read_preprocessed_files(
+    raw_data_type = key1["raw_data_type"],
+    model_type = key1["model_type"],
+    phoneme_grouping_type = key1["phoneme_grouping_type"]
+  )
+}
+
+
+
+export("get_preprocessed_for_instance")
+get_preprocessed_for_instance <- function(instance, cache) {
+  
+  key <- make_key_string2(instance$key1)
+  cache[[key]]
+}
+
+export("make_key_string2")
+make_key_string2 <- function(key1) {
+  paste(key1, collapse = "|")
+}
 

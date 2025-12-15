@@ -12,7 +12,7 @@ import("glue")
 
 
 # Load model and prior definitions
-Paths <- modules::use("./bayesian_code/utils/file_paths.R")
+Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
 model_definitions_lib <- modules::use("./Modeling_Pipeline/models/models_definition/models_definition.R")
 conventions <- modules::use(
   "./Modeling_Pipeline/pipeline/config/conventions.R"
@@ -351,7 +351,7 @@ read_instances_specifications_modified <- function(instance_to_fit_path
     fitted_model_file_path <- file.path(fitted_model_dir, paste0("model_", phoneme_group_str)) 
     plots_folder_path <- file.path(Paths$Pipeline_visualsplots_dir,raw_data_type,phoneme_grouping_type,model_type,model_name,phoneme_group_str)
     # Added December 2025: composite key for caching and lookup
-    key1              <- list(row$raw_data_type,row$model_type,row$phoneme_grouping_type)
+    key1              <- list("raw_data_type"= row$raw_data_type,"model_type" = row$model_type, "phoneme_grouping_type"= row$phoneme_grouping_type)
     
     new_model_instance(
       raw_data_type          = raw_data_type,
@@ -426,18 +426,11 @@ read_preprocessed_files_instances <- function(list_of_instances){
 export("find_unique_instances_keys")
 find_unique_instances_keys <- function(list_of_instances) {
   
-  key1_chr <- list_of_instances |>
-    purrr::map(\(x) paste(x$key1, collapse = "|")) |>
+  
+  unique_keys1 <- list_of_instances |>
+    purrr::map("key1") |>
     unique()
   
-  unique_keys1 <- key1_chr |>
-    strsplit("\\|") |>
-    purrr::map(\(k) {
-      setNames(
-        k,
-        names(list_of_instances[[1]]$key1)
-      )
-    })
   
   unique_phoneme_grouping_type <- list_of_instances |>
     purrr::map_chr("phoneme_grouping_type") |>
@@ -450,16 +443,45 @@ find_unique_instances_keys <- function(list_of_instances) {
 }
 
 
-export("get_preprocessed_for_instance")
-get_preprocessed_for_instance <- function(instance, cache) {
-  
-  key <- make_key_string(instance$key1)
-  cache[[key]]
-}
+
 
 export("make_key_string")
 make_key_string <- function(key1) {
-  paste(key1, collapse = "|")
+  paste(
+    # key1["raw_data_type"],
+    # key1["model_type"],
+    # key1["phoneme_grouping_type"],
+    key1$raw_data_type,
+    key1$model_type,
+    key1$phoneme_grouping_type,
+    sep = "|"
+  )
 }
+
+export("expand_preprocessing_key") 
+#  I think I can avoid this step by just including this information as instance attribute.
+expand_preprocessing_key <- function(key1,
+                                     rawdata_paths,
+                                     grouping_paths) {
   
+  #raw_data_path <- rawdata_paths[[ key1["raw_data_type"] ]]
+  raw_data_path <- rawdata_paths[[ key1$raw_data_type ]]
+  if (is.null(raw_data_path))
+    # stop("Unknown raw_data_type: ", key1["raw_data_type"], call. = FALSE)
+    stop("Unknown raw_data_type: ", key1$raw_data_type, call. = FALSE)
+  
+  #phoneme_grouping_data_path <- grouping_paths[[ key1["phoneme_grouping_type"] ]]
+  phoneme_grouping_data_path <- grouping_paths[[ key1$phoneme_grouping_type ]]
+  if (is.null(phoneme_grouping_data_path))
+    #stop("Unknown phoneme_grouping_type: ", key1["phoneme_grouping_type"], call. = FALSE)
+    stop("Unknown phoneme_grouping_type: ",  key1$phoneme_grouping_type, call. = FALSE)
+  
+  c(
+    as.list(key1),
+    list(
+      raw_data_path = raw_data_path,
+      phoneme_grouping_data_path = phoneme_grouping_data_path
+    )
+  )
+}
 

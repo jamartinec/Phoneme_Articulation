@@ -11,7 +11,7 @@ import("utils")
 import("glue")
 
 # Load file path
-Paths <- modules::use("./bayesian_code/utils/file_paths.R")
+Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
 brms_help <- modules::use("./bayesian_code/utils/tristan_brm_helper.R")
 
 
@@ -52,7 +52,8 @@ fit_bayesian_model_funct <- function(model_specific,
                    file_refit = "always", 
                    seed = 20250625,
                    chains = 4,
-                   iter  = 4000,
+                   #iter  = 4000,
+                   iter  = 100,
                    cores = 4#,
                    #...
   )

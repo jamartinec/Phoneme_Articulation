@@ -9,12 +9,10 @@ import("tidyr")
 #------------------------------------------------------------------------------
 # Future work: implement a sanity-check function to verify that the filtered
 # data contains the expected columns.
-
-
 #-----------------------------------------------------------------------------
 # Load shared file-path definitions
-Paths <- modules::use("./bayesian_code/utils/file_paths.R")
-
+Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
+preprocessing_lib   <- modules::use("./Modeling_Pipeline/scripts/preprocess/Preprocessing.R")
 
 # Receives the list of lists produced by `read_instance_specification.R`.
 # We focus on the `(category, levels)` pair associated with each instance.
@@ -97,6 +95,29 @@ read_filtered_data <- function(filtered_file_path) {
   readRDS(filtered_file_path)
 }
 
-
-
+export("auxiliary_get_filtered")
+auxiliary_get_filtered<- function(instance,list_df_phonemes,preprocessed_cache) {
+  
+  # lookup preprocessed data
+  prep <- preprocessing_lib$get_preprocessed_for_instance(instance, preprocessed_cache)
+  df_final <- prep$df_final
+  
+  # lookup phoneme grouping df
+  phoneme_df <- list_df_phonemes[[ instance$phoneme_grouping_type ]]
+  
+  if (is.null(phoneme_df)) {
+    stop(
+      "No phoneme_df found for grouping type: ",
+      instance$phoneme_grouping_type,
+      call. = FALSE
+    )
+  }
+  
+  # call existing filtering logic
+    filtering_data(
+    instance,
+    df_final,
+    phoneme_df
+  )
+}
 

@@ -8,6 +8,8 @@ import("tidybayes")
 import("scales")
 import("ggrepel")
 
+Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
+
 export("plot_base_posterior")
 plot_base_posterior <- function(plot_data, df_points, y_label = "Response") {
   

@@ -9,7 +9,7 @@ library(scales)
 library(ggrepel)
 
 
-Paths <- modules::use("./bayesian_code/utils/file_paths.R")
+Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
 read_instances_specifications_lib <- modules::use("./Modeling_Pipeline/scripts/preprocess/read_instance_specification.R")
 cutting_points_plots_lib<- modules::use("./Modeling_Pipeline/scripts/cutting_points/plot_cutting_points.R")
 ##############################################################################
