@@ -101,8 +101,8 @@ fit_one <- function(item) {
 
 
 export("iterate_run_bayesian_modeling")
-iterate_run_bayesian_modeling <- function(raw_data_type,model_type,phoneme_grouping_type,list_of_instances){
-  
+#iterate_run_bayesian_modeling <- function(raw_data_type,model_type,phoneme_grouping_type,list_of_instances){
+iterate_run_bayesian_modeling <- function(list_of_instances){  
   
   failures <- list()
   
