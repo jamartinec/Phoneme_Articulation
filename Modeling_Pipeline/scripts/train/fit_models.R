@@ -3,7 +3,6 @@
 #-----------------------
 import("dplyr")
 import("tidyr")
-#import("psych") # For factor analysis and scree plot
 import("readr") 
 import("brms") # Run Bayesian modeling
 import("splines") # For natural splines
