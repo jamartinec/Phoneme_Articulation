@@ -3,9 +3,9 @@
 #-----------------------
 import("dplyr")
 import("tidyr")
-import("psych") # For factor analysis and scree plot
+#import("psych") # For factor analysis and scree plot
 import("readr") 
-import("brms") # For Bayesian analysis
+import("brms") # Run Bayesian modeling
 import("splines") # For natural splines
 import("tidyverse")
 import("utils")
@@ -16,8 +16,7 @@ Paths <- modules::use("./bayesian_code/utils/file_paths.R")
 brms_help <- modules::use("./bayesian_code/utils/tristan_brm_helper.R")
 
 
-
-############## mover a utils ##################################################
+# Move to utils 
 ensure_dir <- function(path) {
   if (!dir.exists(path)) dir.create(path, recursive = TRUE, showWarnings = FALSE)
 }
@@ -26,8 +25,9 @@ ensure_parent_dir <- function(file_path) {
   ensure_dir(dirname(file_path))
 }
 
-###############################################################################
 
+# Fit a Bayesian model for a single phoneme group and save the fitted object.
+# The model is always refitted and augmented with validation criteria (LOO, WAIC).
 export("fit_bayesian_model_funct")
 fit_bayesian_model_funct <- function(model_specific,
                                      prior_specific,
@@ -43,13 +43,13 @@ fit_bayesian_model_funct <- function(model_specific,
   ensure_dir(fitted_model_dir)
   
   
-  # Tener cuidado con el argumento file_refit
+  # Be careful with the `file_refit` argument
   brm_args <- brms_help$brms_args_create()
   args <- brm_args(formula = model_specific,
                    data = df_filtered,
                    prior = prior_specific,
                    file = fitted_model_file_path,
-                   # the model is always refitted even if an object with the same name already exists.
+                   # The model is always refitted, even if an object with the same name already exists.
                    file_refit = "always", 
                    seed = 20250625,
                    chains = 4,
@@ -60,7 +60,7 @@ fit_bayesian_model_funct <- function(model_specific,
   args$backend <- "cmdstanr"
   cat("  → Fitting model: ", model_name, "\n")
   model <- do.call(brm, args)
-  # Add the validation criteria and save a file with same name.
+  # Add validation criteria (e.g., LOO and WAIC) and save the fitted model
   cat("  → Adding validation criteria (loo, waic)...\n")
   model <- brms_help$add_validation_criterion(
     model, 
@@ -72,9 +72,9 @@ fit_bayesian_model_funct <- function(model_specific,
   
 }
 
-
+# Fit a single model instance using its associated filtered data
 fit_one <- function(item) {
-  # read only what's needed for this item
+  # Read only the filtered data required for this instance
   df_filtered <- readRDS(item$filtered_file_path)
   fit_bayesian_model_funct(
     model_specific        = item$model_opt,
@@ -88,24 +88,15 @@ fit_one <- function(item) {
 }
 
 
-
-# Una funcion que recibe los identificadores del df_final(preprocessed) que vamos
-# a utilizar (raw_data_type, model_type, phoneme_grouping_type) y
-# lee el correspondiente archivo en folder_path <- Paths$Pipeline_preprocesseddata_dir
-
-# MEJORA--> En algunas partes tenemos redundancia cuando proveemos raw_data_type, model_type, phoneme_grouping_type
-# y las respectivos paths a los archivos. Como parte de las especificaciones de la instancia
-# o configuraicon (?) tener un diccionario que contenga para cada tipo, la correspondiente direccion.
-
-
-
-
+# Iterate over all model instances and run Bayesian fitting with error handling
 export("iterate_run_bayesian_modeling")
 #iterate_run_bayesian_modeling <- function(raw_data_type,model_type,phoneme_grouping_type,list_of_instances){
 iterate_run_bayesian_modeling <- function(list_of_instances){  
   
-  failures <- list()
   
+  # Collect failures without stopping the pipeline and write a persistent log
+  # with timestamps for later inspection or reruns.
+  failures <- list()
   purrr::iwalk(list_of_instances, function(item, idx) {
     cat("\n--- Running:", item$model_name, item$category, item$phoneme_group_str, "\n")
     tryCatch(
