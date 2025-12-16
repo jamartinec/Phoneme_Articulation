@@ -5,8 +5,8 @@ This repository provides a flexible and reproducible pipeline for **modeling pho
 The primary goal of this project is to support **systematic Bayesian modeling of speech development**, with  emphasis on uncertainty quantification, and visualization of posterior behavior.
 
 
-For generating Growth Curves (full pipeline) see `./Modeling_Pipeline/pipeline/run_pipeline.R`
-For generating Growth curves with cutpoints as defined in the presentation see:
+- For generating Growth Curves (full pipeline) see `./Modeling_Pipeline/pipeline/run_pipeline.R`
+- For generating Growth curves with cutpoints as defined in the presentation see:
 `./Modeling_Pipeline/scripts/cutting_points/find_cuts.R`
 ---
 
