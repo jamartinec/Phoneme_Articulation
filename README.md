@@ -35,16 +35,8 @@ Modeling instances are fully specified via configuration files.
 
 ---
 
-### 2. Bayesian Modeling
 
-All models are fitted using **Bayesian methods**, with inference performed via:
-
-- **`brms`** (Stan-based Bayesian regression modeling)
-- **`cmdstanr` / Stan** under the hood
-- **`tidybayes`** for post-processing and summarization of posterior draws
----
-
-### 3. Outputs
+### 2. Outputs
 
 The **primary outputs of the pipeline are visualizations**.
 
@@ -58,7 +50,7 @@ Most analyses focus on:
 
 ---
 
-### 4. Pipeline
+### 3. Pipeline
 
 The repository is organized as a modular pipeline that separates:
 
