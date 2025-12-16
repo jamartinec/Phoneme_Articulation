@@ -1,8 +1,8 @@
 # Phoneme Articulation
 
-This repository provides a flexible and reproducible pipeline for **modeling phoneme-level intelligibility growth curves** using data from multiple sources, including **acoustic models** and **clinical assessments**.
+This repository provides a flexible and reproducible pipeline for **modeling phoneme-level intelligibility growth curves** using data from two sources: **acoustic models** and **clinical assessments**.
 
-The primary goal of this project is to support **systematic Bayesian modeling of speech development**, with a strong emphasis on uncertainty quantification, interpretability, and visualization of posterior behavior.
+The primary goal of this project is to support **systematic Bayesian modeling of speech development**, with  emphasis on uncertainty quantification, and visualization of posterior behavior.
 
 ---
 
@@ -17,9 +17,6 @@ The data used in this pipeline may come from:
 These heterogeneous sources are unified into a common modeling framework.
 
 ---
-
-## General Information
-
 
 ### 1. Modeling Flexibility
 

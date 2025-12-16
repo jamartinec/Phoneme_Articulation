@@ -35,7 +35,56 @@ conventions <- modules::use(
 }
 
 
-# Constructor and validator for ModelInstance objects
+#' Create a ModelInstance object
+#'
+#' Constructs and validates a \code{ModelInstance} object, which encapsulates
+#' all metadata, file paths, and modeling specifications required to fit,
+#' store, and visualize a phoneme-level statistical model within the modeling
+#' pipeline.
+#'
+#' This constructor performs basic type checking via
+#' \code{\link{validate_model_instance}} and assigns the S3 class
+#' \code{"ModelInstance"}.
+#'
+#' @param raw_data_type Character scalar. Identifier for the raw data source
+#'   (e.g., \code{"aaps"}, \code{"multiword"}).
+#' @param model_type Character scalar. High-level model family or likelihood
+#'   (e.g., \code{"beta"}, \code{"binomial"}).
+#' @param model_name Character scalar. Human-readable model identifier.
+#' @param model_opt Model specification object, typically a
+#'   \code{brms::bf()} formula.
+#' @param prior_name Character scalar. Label identifying the prior configuration.
+#' @param prior_specific Prior object, typically created with
+#'   \code{brms::prior()}.
+#' @param category Character scalar. Phoneme category (e.g., vowels, consonants).
+#' @param levels Character vector. Phoneme complexity levels included in the model.
+#' @param phoneme_grouping_type Character scalar. Name of the phoneme grouping
+#'   scheme used.
+#' @param subset_data Character scalar. Identifier for the data subset used
+#'   (e.g., age range, token type).
+#' @param fitted_model_dir Character scalar or NULL. Directory where fitted
+#'   models are stored.
+#' @param phoneme_group_str Character scalar or NULL. String encoding the phoneme
+#'   group used in filenames.
+#' @param filtered_file_path Character scalar or NULL. Path to the filtered input
+#'   dataset used for fitting.
+#' @param target_phonemes Character vector or NULL. Explicit list of phonemes
+#'   included in the model.
+#' @param fitted_model_file_path Character scalar or NULL. Path (without extension)
+#'   to the fitted model file.
+#' @param plots_folder_path Character scalar or NULL. Directory where plots
+#'   associated with this model should be saved.
+#' @param key1 Optional auxiliary key for downstream indexing or bookkeeping.
+#'
+#' @return An object of class \code{"ModelInstance"}.
+#'
+#' @section ModelInstance structure:
+#' A \code{ModelInstance} is a named list containing model metadata (e.g.,
+#' grouping, priors, categories), modeling objects (formula and priors), and
+#' filesystem paths required by the modeling and visualization pipeline.
+#'
+#' @export
+export("new_model_instance")
 new_model_instance <- function(raw_data_type,
                                model_type,
                                model_name, model_opt, prior_name, prior_specific,
@@ -72,7 +121,20 @@ new_model_instance <- function(raw_data_type,
   class(x) <- "ModelInstance"
   x
 }
-
+#' Validate a ModelInstance object
+#'
+#' Performs structural and type validation for a \code{ModelInstance}-like
+#' object. This function is intended for internal use and is called by
+#' \code{\link{new_model_instance}}.
+#'
+#' The validator checks required fields, optional path fields, and basic
+#' compatibility of modeling objects (e.g., \code{brms} formulas and priors).
+#'
+#' @param x A list intended to represent a \code{ModelInstance}.
+#'
+#' @return The validated object \code{x}, invisibly.
+#'
+#' @keywords internal
 validate_model_instance <- function(x) {
   stopifnot(is.list(x),
             is.character(x$raw_data_type),   length(x$raw_data_type)   == 1,
@@ -100,9 +162,18 @@ validate_model_instance <- function(x) {
   x
 }
   
- 
 
-# Print method for ModelInstance objects
+#' Print method for ModelInstance objects
+#'
+#' Provides a readable summary of a \code{ModelInstance},
+#'
+#' @param x A \code{ModelInstance} object.
+#' @param ... Additional arguments (ignored).
+#'
+#' @return Invisibly returns \code{x}.
+#'
+#' @export
+#' @method print ModelInstance
 print.ModelInstance <- function(x, ...) {
   cat(sprintf("<ModelInstance %s | %s | %s | %s[%s]>\n",
               x$model_name, x$prior_name, x$category, paste(x$levels, collapse=",")))
@@ -126,15 +197,6 @@ as_model_instance <- function(x) {
 export("read_instances_specifications")
 read_instances_specifications <- function(instance_to_fit_path, subset_data_grouping_path,phoneme_grouping_data_path){
 
-  # Read the CSV file that contains the phoneme groupings under the `subdata` label.
-  # For example, in the first exercise we grouped phonemes under `data1`; `data1`
-  # includes vowels at level 1 and level 2. In other words, this file defines
-  # groupings of phonemes across different levels. To create a grouping, it is
-  # sufficient to assign the same label in the `subdata` column.
-  
-  # Instances are no longer generated via a Cartesian product of models, priors, and data;
-  # instead, each instance is explicitly defined by a row in the CSV file.
-  
   
   subsetdata_grouping <- readr::read_csv(subset_data_grouping_path,show_col_types = FALSE)
   instance_to_fit_df <- readr::read_csv(instance_to_fit_path,show_col_types = FALSE)
@@ -198,7 +260,7 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
     prior_name             <- row$prior
     phoneme_grouping_type  <- row$phoneme_grouping_type
     subset_data            <- row$subset_data
-    filtered_folder_path   <- file.path(Paths$filtered_data_dir, raw_data_type, model_type, phoneme_grouping_type )
+    filtered_folder_path   <- file.path(Paths$Pipeline_filtered_data_dir, raw_data_type, model_type, phoneme_grouping_type )
     filtered_file_path     <- file.path(filtered_folder_path, paste0(phoneme_group_str, ".rds"))
     target_phonemes        <- .get_target_phonemes(phoneme_df, category, levels)
     fitted_model_dir       <- file.path(Paths$Pipeline_fitted_models_dir,raw_data_type,phoneme_grouping_type,model_type,model_name)
@@ -239,23 +301,50 @@ read_instances_specifications <- function(instance_to_fit_path, subset_data_grou
   return(list_of_instances)
 }
 
+
+#' Read and construct model instances using pipeline conventions
+#'
+#' Reads a CSV file that explicitly defines model instances to be fitted and
+#' converts each row into a validated \code{ModelInstance} object. Unlike
+#' \code{read_instances_specifications()}, this function resolves phoneme
+#' groupings and subset definitions indirectly using the pipeline
+#' \code{conventions} object, rather than requiring explicit file paths as
+#' arguments.
+#'
+#' Phoneme groupings and subset data files are dynamically loaded based on the
+#' identifiers specified in the instance definition table.
+#'
+#' @param instance_to_fit_path Character scalar. Path to a CSV file where each
+#'   row defines a single model instance (model, prior, data source, phoneme
+#'   grouping, and subset).
+#'
+#' @return A list of \code{ModelInstance} objects, one per row in the instance
+#'   specification file.
+#'
+#' @details
+#' This function assumes that:
+#' \itemize{
+#'   \item The global \code{conventions} object defines mappings from
+#'   \code{phoneme_grouping_type} and \code{set_data_file} identifiers to
+#'   their corresponding CSV file paths.
+#'   \item Each \code{subset_data} label corresponds to a unique phoneme
+#'   category and one or more complexity levels.
+#'   \item Model and prior definitions are available via
+#'   \code{model_definitions_lib$return_lists()}.
+#'   \item Directory paths follow the pipeline conventions defined in
+#'   \code{Paths}.
+#' }
+#'
+#' Validation errors are raised if unknown groupings, subset labels, models,
+#' or priors are encountered, or if a prior is incompatible with a model.
+#'
+#' @seealso \code{\link{read_instances_specifications}},
+#'   \code{\link{new_model_instance}}
+#'
+#' @export
 export("read_instances_specifications_modified")
-read_instances_specifications_modified <- function(instance_to_fit_path 
-                                                   #,subset_data_grouping_path,phoneme_grouping_data_path
-                                                   ){
+read_instances_specifications_modified <- function(instance_to_fit_path){
   
-  # Read the CSV file that contains the phoneme groupings under the `subdata` label.
-  # For example, in the first exercise we grouped phonemes under `data1`; `data1`
-  # includes vowels at level 1 and level 2. In other words, this file defines
-  # groupings of phonemes across different levels. To create a grouping, it is
-  # sufficient to assign the same label in the `subdata` column.
-  
-  # Instances are no longer generated via a Cartesian product of models, priors, and data;
-  # instead, each instance is explicitly defined by a row in the CSV file.
-  
-  
-  # conventions contains the mapping between key words used in the instance definitions and 
-  # their associated files.
   grouping_paths <- conventions$grouping_paths
   setdatafiles_paths <- conventions$setdatafiles_paths
   instance_to_fit_df <- readr::read_csv(instance_to_fit_path, show_col_types = FALSE)
@@ -272,15 +361,9 @@ read_instances_specifications_modified <- function(instance_to_fit_path
   print("this is setdatafiles_dfs\n" )
   print(setdatafiles_dfs)
   
-  
-  #subsetdata_grouping <- readr::read_csv(subset_data_grouping_path,show_col_types = FALSE)
-  #subsetdata_grouping < setdatafiles_dfs[["subset_data_grouping2"]]
-  #phoneme_df <- readr::read_csv(phoneme_grouping_data_path,show_col_types = FALSE)
-  #phoneme_df <- grouping_dfs[["grouping2"]]
+
   
   # Future work: validate that input paths belong to the expected directory structure
-  
-  
   # Assumption: within each `subdata`, all phonemes belong to the same category
   # but may span multiple levels.
   
@@ -344,7 +427,7 @@ read_instances_specifications_modified <- function(instance_to_fit_path
     prior_name             <- row$prior
     phoneme_grouping_type  <- row$phoneme_grouping_type
     subset_data            <- row$subset_data
-    filtered_folder_path   <- file.path(Paths$filtered_data_dir, raw_data_type, model_type, phoneme_grouping_type )
+    filtered_folder_path   <- file.path(Paths$Pipeline_filtered_data_dir, raw_data_type, model_type, phoneme_grouping_type )
     filtered_file_path     <- file.path(filtered_folder_path, paste0(phoneme_group_str, ".rds"))
     target_phonemes        <- .get_target_phonemes(phoneme_df, category, levels)
     fitted_model_dir       <- file.path(Paths$Pipeline_fitted_models_dir,raw_data_type,phoneme_grouping_type,model_type,model_name)

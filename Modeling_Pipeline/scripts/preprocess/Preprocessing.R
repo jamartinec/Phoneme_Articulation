@@ -25,6 +25,53 @@ get_mode <- function(x) {
   ux[which.max(tabulate(match(x, ux)))]
 }
 
+#' Create and save preprocessed modeling data
+#'
+#' Reads raw phoneme-level data, applies dataset-specific preprocessing rules,
+#' aggregates observations into a modeling-ready summary, and joins phoneme
+#' grouping metadata. The resulting datasets are saved to disk following the
+#' pipeline directory conventions and returned invisibly for immediate use.
+#'
+#' In addition to the preprocessed dataset (\code{df_final}), this function
+#' computes and saves metadata describing the phoneme number-score mode used
+#' for modeling.
+#'
+#' @param raw_data_type Character scalar. Identifier for the raw data source
+#'   (e.g., \code{"aaps"}, \code{"pllr"}).
+#' @param model_type Character scalar. Model family or likelihood
+#'   (e.g., \code{"beta"}, \code{"binomial"}).
+#' @param phoneme_grouping_type Character scalar. Identifier for the phoneme
+#'   grouping scheme used.
+#' @param raw_data_path Character scalar. Path to the raw input CSV file.
+#' @param phoneme_grouping_data_path Character scalar. Path to the CSV file
+#'   defining phoneme categories and complexity levels.
+#'
+#' @return A list with two elements:
+#' \describe{
+#'   \item{df_final}{Preprocessed and merged dataset used for modeling.}
+#'   \item{phoneme_numscore_mode}{Metadata describing the phoneme number-score
+#'   mode computed from the summarized data.}
+#' }
+#'
+#' @details
+#' Processing steps include:
+#' \itemize{
+#'   \item Dataset-specific column harmonization (e.g., renaming phoneme columns
+#'   for AAPS data).
+#'   \item Dataset-specific filtering (e.g., phoneme self-matches for PLLR data).
+#'   \item Aggregation via \code{create_summary()}.
+#'   \item Joining phoneme grouping metadata.
+#'   \item Saving outputs to \code{Paths$Pipeline_preprocesseddata_dir}.
+#' }
+#'
+#' This function has side effects: it writes multiple \code{.rds} files to disk.
+#' Existing files are overwritten.
+#'
+#' @seealso \code{\link{read_preprocessed_files}},
+#'   \code{\link{create_summary}},
+#'   \code{\link{compute_num_score_mode}}
+#'
+#' @export
 export("create_preprocessed_df")
 create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path){
   dftest <-read.csv(raw_data_path)
@@ -99,7 +146,53 @@ compute_num_score_mode<- function(df_summary,model_type = c("beta", "binomial"))
   return(phoneme_numscore_mode)
   }
 
-# Preprocessing function
+#' Create modeling summary from raw phoneme-level data
+#'
+#' Aggregates raw phoneme-level observations into a speaker-by-phoneme summary
+#' suitable for statistical modeling. The exact aggregation logic depends on
+#' the data source (\code{raw_data_type}) and the model likelihood
+#' (\code{model_type}).
+#'
+#' For beta models, the summary produces a continuous phoneme-level score
+#' (e.g., mean or geometric mean probability). For binomial models, the summary
+#' produces success counts and trial totals.
+#'
+#' @param df A data frame containing raw phoneme-level observations.
+#' @param raw_data_type Character scalar. Type of raw data source. Must be one of
+#'   \code{"pllr"} or \code{"aaps"}.
+#' @param model_type Character scalar. Model likelihood. Must be one of
+#'   \code{"beta"} or \code{"binomial"}.
+#'
+#' @return A data frame with one row per speaker (or subject) and target phoneme,
+#' containing aggregated scores and age information. The returned columns depend
+#' on the selected \code{raw_data_type} and \code{model_type}.
+#'
+#' @details
+#' The aggregation rules are:
+#'
+#' \strong{PLLR data}
+#' \itemize{
+#'   \item \code{beta}: geometric mean of phoneme probabilities
+#'     (\code{mean_prob}).
+#'   \item \code{binomial}: number of correct phoneme matches
+#'     (\code{sum_score}) out of total trials (\code{num_score}).
+#' }
+#'
+#' \strong{AAPS data}
+#' \itemize{
+#'   \item \code{beta}: arithmetic mean of phoneme scores
+#'     (\code{mean_prob}).
+#'   \item \code{binomial}: sum of scores and number of trials.
+#' }
+#'
+#' Age is carried forward using the first observed value per speaker–phoneme
+#' pair. For PLLR data, an age-shifted version (\code{age_months_shifted}) is
+#' also computed for modeling convenience.
+#'
+#' @seealso \code{\link{create_preprocessed_df}},
+#'   \code{\link{compute_num_score_mode}}
+#'
+#' @export
 create_summary <- function(df, raw_data_type = c("pllr", "aaps"), model_type = c("beta", "binomial")) {
   raw_data_type <- match.arg(raw_data_type)
   model_type <- match.arg(model_type)

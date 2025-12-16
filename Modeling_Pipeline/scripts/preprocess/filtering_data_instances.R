@@ -25,8 +25,6 @@ preprocessing_lib   <- modules::use("./Modeling_Pipeline/scripts/preprocess/Prep
 # - model_type
 
 
-
-
 ensure_dir <- function(path) {
   if (!dir.exists(path)) dir.create(path, recursive = TRUE, showWarnings = FALSE)
 }
@@ -36,14 +34,8 @@ ensure_parent_dir <- function(file_path) {
 }
 
 
-
-# phoneme_grouping_data_path <- "./Modeling_Pipeline/phoneme_grouping/phoneme_grouping1.csv"
-# phoneme_df <- read.csv(phoneme_grouping_data_path)
-
-
 # Receives a single instance, which corresponds to one entry in `list_of_instances`.
 export("filtering_data")
-#filtering_data <- function(instance, df_final_data, raw_data_type, model_type, phoneme_grouping_type, phoneme_df){
 filtering_data <- function(instance, df_final_data, phoneme_df){  
   
   category <- instance$category
@@ -81,7 +73,6 @@ ensure_or_create_filtered_rds <- function(phoneme_group_str,
   df_filtered <- df_final_data %>%
     dplyr::filter(.data$expected_phoneme %in% target_phonemes)
   
-  # Make expected_phoneme a factor
   df_filtered$expected_phoneme <- as.factor(df_filtered$expected_phoneme)
   
   ensure_parent_dir(filtered_file_path)
