@@ -7,6 +7,8 @@ import("tibble")
 import("utils")
 import("readr")
 import("glue")
+import("tidyverse")
+
 
 ## Sanity Check: Ensure consistency between `phoneme_grouping1` and `subset_data_grouping1`.
 
@@ -568,3 +570,67 @@ expand_preprocessing_key <- function(key1,
   )
 }
 
+# Read and format Crow&Mcleod
+export("read_crow_mcleod")
+read_crow_mcleod <- function(){
+  file_path <- file.path(Paths$Pipeline_preprocesseddata_dir,"crow-mcleod.csv")
+  crow_mcleod <- read.csv(file_path)
+  
+  
+  crow_mean  <- crow_mcleod %>%
+    transmute(
+      expected_phoneme = phoneme,
+      group,
+      `0.50` = fifty_percent,
+      `0.75` = seventyfive_percent,
+      `0.90` = ninety_percent
+    ) %>%
+    tidyr::pivot_longer(
+      cols = c(`0.50`, `0.75`, `0.90`),
+      names_to = "prob_x_eq_1_hat",
+      values_to = "age_months"
+    ) %>%
+    mutate(prob_x_eq_1_hat = as.numeric(prob_x_eq_1_hat),
+           age_months = as.numeric(round(age_months))
+    )
+  
+  #sd adjustments
+  crow_sd <- crow_mcleod %>%
+    transmute(
+      expected_phoneme = phoneme,
+      group,
+      `0.50` = fifty_sd,
+      `0.75` = seventyfive_sd,
+      `0.90` = ninety_sd
+    ) %>%
+    tidyr::pivot_longer(c(`0.50`, `0.75`, `0.90`),
+                 names_to = "prob_x_eq_1_hat",
+                 values_to = "age_months_sd") %>%
+    mutate(prob_x_eq_1_hat = as.numeric(prob_x_eq_1_hat),
+           age_months_sd = as.numeric(round(age_months_sd))
+    )
+  
+  # join mean + sd columns:
+  crow_joined_base <- crow_mean%>%
+    dplyr::left_join(crow_sd,
+                     by=c("expected_phoneme","group","prob_x_eq_1_hat")
+    )
+  
+  crow_joined_long <- crow_joined_base %>%
+    tidyr::expand_grid(type = c("mean","m1","p1","m2","p2","m3","p3")) %>%
+    mutate(
+      age_months = dplyr::case_when(
+        type == "mean" ~ age_months,
+        type == "m1"   ~ age_months - age_months_sd,
+        type == "p1"   ~ age_months + age_months_sd,
+        type == "m2"   ~ age_months - 2*age_months_sd,
+        type == "p2"   ~ age_months + 2*age_months_sd,
+        type == "m3"   ~ age_months - 3*age_months_sd,
+        type == "p3"   ~ age_months + 3*age_months_sd
+      )
+    ) %>%
+    select(expected_phoneme, group, prob_x_eq_1_hat, type, age_months)
+  
+  return(crow_joined_long)
+  
+}

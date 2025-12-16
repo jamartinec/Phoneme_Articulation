@@ -9,7 +9,8 @@ Pipeline_models_dir <- file.path(Modeling_Pipeline_dir, "models")
 Pipeline_fitted_models_dir <- file.path(Pipeline_models_dir, "fitted_models")
 Pipeline_models_definitions_dir <- file.path(Pipeline_models_dir,"models_definition")
 Pipeline_instance_specification_dir <-file.path(Modeling_Pipeline_dir,"instance_specification")
-
+Pipeline_instance_spec_tests_dir <- file.path(Pipeline_instance_specification_dir,"tests")
+Pipeline_instance_spec_cuttingpoints_dir <- file.path(Pipeline_instance_specification_dir,"cutting_points_instances")
 
 # Fitting model errors
 Pipeline_pipeline_dir <- file.path(Modeling_Pipeline_dir, "pipeline")

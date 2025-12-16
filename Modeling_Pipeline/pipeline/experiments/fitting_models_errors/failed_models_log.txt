@@ -1,0 +1,3 @@
+model_name	category	levels	message	timestamp
+model0_Version2	Consonants	Levelphoneme30	Argument 'data' does not contain observations.	2025-12-16T18:26:46Z
+model0_Version2	Consonants	Levelphoneme34	Argument 'data' does not contain observations.	2025-12-16T18:26:46Z
