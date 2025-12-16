@@ -1,0 +1,108 @@
+- model_opt: "model3"
+  category: "Vowels"
+  levels: 
+        - "Level1"
+        - "Level2"
+  model_specific:
+        - mean_prob_formula: "~ (1 + expected_phoneme) / (1+  exp(-exp(logalpha) * eta))" 
+        
+- model_opt: "model4"
+  category:  "Vowels"
+  levels:
+        - "Level1"
+        - "Level2"
+  model_specific:
+        - eta_formula: " ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker)"
+
+
+- model_opt: "model3"
+  category:  "Vowels"
+  levels:
+        - "Level4"
+        - "Level5"
+  model_specific:
+        - mean_prob_formula: "~ (1 + expected_phoneme) / (1+  exp(-exp(logalpha) * eta))"
+
+
+- model_opt: "model4"
+  category: "Vowels"
+  levels:
+        - "Level4"
+        - "Level5"
+  model_specific:
+        - eta_formula: " ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker)"
+
+
+- model_opt: "model3"
+  category: "Vowels"
+  levels:
+        - "Level3"
+  model_specific:
+        - mean_prob_formula: "~ (1 + expected_phoneme) / (1+  exp(-exp(logalpha) * eta))" 
+
+- model_opt: "model4"
+  category: "Vowels"
+  levels:
+        - "Level3"
+  model_specific:
+        - eta_formula: " ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker)"
+
+
+- model_opt: "model3"
+  category: "Consonants"
+  levels:
+        - "Level3"
+  model_specific:
+        - mean_prob_formula: "~ (1 + expected_phoneme) / (1+  exp(-exp(logalpha) * eta))" 
+
+
+- model_opt: "model4"
+  category: "Consonants"
+  levels:
+        - "Level3"
+  model_specific:
+        - eta_formula: " ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker)"
+
+
+- model_opt: "model3"
+  category: "Consonants"
+  levels:
+        - "Level4"
+  model_specific:
+        - mean_prob_formula: "~ (1 + expected_phoneme) / (1+  exp(-exp(logalpha) * eta))" 
+
+- model_opt: "model4"
+  category: "Consonants"
+  levels:
+        - "Level4"
+  model_specific:
+        - eta_formula: " ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker)"
+
+- model_opt: "model3"
+  category: "Consonants"
+  levels:
+        - "Level5"
+  model_specific:
+        - mean_prob_formula: "~ (1 + expected_phoneme) / (1+  exp(-exp(logalpha) * eta))" 
+
+- model_opt: "model4"
+  category: "Consonants"
+  levels:
+        - "Level5"
+  model_specific:
+        - eta_formula: " ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker)"
+
+
+- model_opt: "model3"
+  category: "Consonants"
+  levels:
+        - "Level6"
+  model_specific:
+        - mean_prob_formula: "~ (1 + expected_phoneme) / (1+  exp(-exp(logalpha) * eta))" 
+
+- model_opt: "model4"
+  category: "Consonants"
+  levels:
+        - "Level6"
+  model_specific:
+        - eta_formula: " ~ 1 + expected_phoneme +  ns(age_months,3) + (1 | speaker)"

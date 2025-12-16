@@ -1,0 +1,252 @@
+---
+title: "Defining Age-Dependent Threshold Curves"
+format:
+  revealjs:
+    slide-number: true
+    theme: simple
+    css: slides.css
+    pdf-export: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## Background: Phoneme Goodness Score curves <span class="subtitle-small">(1/2)</span>
+
+
+- Our primary input is a set of likelihood values assigned by a Wav2Vec2-based acoustic model (PyPLLRComputer software), to each target phoneme in speech recordings obtained from typically developing children.
+
+- We group by speaker and target phoneme, and define Phoneme Goodness Score as the geometric mean of the likelihood assigned to the target phoneme.
+
+- For each phoneme we model a **growth curve** of Phoneme Goodness Score  vs. age using a **Bayesian Beta regression**.
+
+---
+
+## Background: Phoneme Goodness Score curves <span class="subtitle-small">(2/2)</span>
+
+::: {.center}
+![<span style="font-size:0.8em;">Growth curve for R. Posterior median, 50% and 95% centered credible bands.](./pictures/beta_age_plot_R.png){width=60%}
+:::
+
+---
+
+## What does the growth curve mean?
+
+- For most phonemes, the **goodness score increases with age**.
+- This increase might involve:
+
+  - **Linguistic component**  
+    - improved articulation / acquisition
+    
+
+  - **Physiological component**  
+    - maturation / growth of the vocal tract, etc.
+
+---
+
+
+## How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(1/3)</span>
+
+We aim to establish **age-dependent threshold curves** on the Phoneme Goodness Score trajectories such that:
+
+- For each age, the value in the threshold curve represents the **cutpoint** or  minimum score consistent with **mastery of articulation**, and  
+
+- Values **below** this cut-point indicate **insufficient mastery** or incomplete phonological acquisition.
+
+---
+
+## How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(2/3)</span>
+<div class="supersmall-slide">
+
+::: {.center}
+![<span style="font-size:0.8em;">A hypothetical age-invariant mastery threshold.](./pictures/beta_age_plot_R_corte1.png){width=55%}
+:::
+
+If a **constant (age-invariant) threshold line** were sufficient,
+we could hypothesize that **the phoneme goodness score mainly reflects articulation mastery**, with minimal influence from physiological maturation.
+
+</div>
+
+---
+
+
+## How can growth curves inform phoneme articulation mastery? <span class="subtitle-small">(3/3)</span>
+<div class="supersmall-slide">
+
+::: {.center}
+![<span style="font-size:0.8em;">A hypothetical age-dependent threshold.](./pictures/beta_age_plot_R_corte2.png){width=55%}
+:::
+
+If the required threshold **increases substantially with age**,
+then the goodness score is, to some extent, **reflecting physiological maturation rather than pure articulatory mastery**.
+
+</div>
+
+---
+
+
+## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(1/2)</span>
+
+Crowe & McLeod (2020) analyzed data from 15 studies (Approx. 18,900 children) and reported, for each English consonant:
+
+- The **mean age** at which children reach  
+  **50%, 75%, and 90% accuracy** in producing that phoneme, and the corresponding **standard deviations** across studies.
+
+- $x\%$ criterion indicates that $x\%$ of the participants produced the consonant correctly.  
+
+---
+
+## Crowe & McLeod: normative acquisition curves. <span class="subtitle-small">(2/2)</span>
+::: {.center}
+![](./pictures/C&M.png){width=70%}
+:::
+We are using these normative values as **reference anchors** for the  cut-point definition.
+
+---
+
+## AAPS: probability of success vs. age <span class="subtitle-small">(1/2)</span>
+
+- **Arizona Articulation and Phonology Scale (AAPS)**: standardized
+assessment that evaluates whether a child correctly produces a target phoneme in a structured elicitation task. 
+
+- We use AAPS scoring data from the same participants for whom Phoneme Goodness values were computed.
+
+- From these binary (0/1) outcomes we fit a **Bayesian Binomial model** to estimate, for each phoneme, the **probability of correct production** as a function of age.
+
+---
+
+## AAPS: probability of success vs. age <span class="subtitle-small">(2/2)</span>
+
+
+::: {.center}
+![<span style="font-size:0.8em;">Growth curve for R. Posterior median, 50% and 95% centered credible bands.](./pictures/binomial_age_plot_R.png){width=60%}
+:::
+
+---
+
+## Integrating normative and model-based information
+<div class="small-slide">
+
+Our goal is to define, for each phoneme and age,  a **Phoneme Goodness threshold** indicating mastery of articulation.
+
+We integrate three components:
+
+1. **Crowe & McLeod (2020):** Normative ages for **50%, 75%, and 90% accuracy**.
+
+2. **AAPS Bayesian Binomial model:**  For each age,  
+   $\color{blue}{q(\text{age})} = P(\text{100% correct} \mid \text{age})$  gives the *probability of mastery*.
+
+3. **Goodness score (Y) - Bayesian Beta model:**  We find $\color{red}{x_q(\text{age})}$ such that  $P\big(Y \ge \color{red}{x_q(\text{age})} \mid \text{age}\big)
+     = \color{blue}{q(\text{age})}$.
+
+$\color{red}{x_q(\text{age})}$ is the proposed  **age-dependent Phoneme Goodness Score Threshold**.
+
+</div>
+
+ 
+---
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts.png){width=80%}
+:::
+
+--- 
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts2.png){width=80%}
+:::
+
+--- 
+
+## Phoneme Goodness Threshold 
+<div class="supersmall-slide">
+
+<br><br>
+
+::: {.center}
+
+![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts3.png){width=100%}
+:::
+
+- **Red line:** Mean acquisition age = **35 months** (Crowe & McLeod).  
+  Projecting the red segment onto the **x-axis** gives the **±2 SD age range** around this mean.  
+  Threshold at this age: **0.06** (Score ≥ 0.06 → likely mastered).
+
+- **Green line:** Threshold at **48 months** = **0.02**.
+
+- **Purple line:** Threshold at **67 months** = **0.02**.
+
+- **Black curve:** Connects these three values → **age-dependent Goodness Score threshold**.
+
+</div>
+
+--- 
+
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/S_age_plot5_cuts.png){width=80%}
+:::
+
+---
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/R_age_plot5_cuts.png){width=80%}
+:::
+
+---
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/T_age_plot5_cuts.png){width=80%}
+:::
+
+---
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/CH_age_plot5_cuts.png){width=80%}
+:::
+
+---
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/JH_age_plot5_cuts.png){width=80%}
+:::
+
+---
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/L_age_plot5_cuts.png){width=80%}
+:::
+
+---
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/SH_age_plot5_cuts.png){width=80%}
+:::
+
+---
+
+## Phoneme Goodness Threshold 
+
+::: {.center}
+![<span style="font-size:0.8em;">](./pictures/Z_age_plot5_cuts.png){width=80%}
+:::
+

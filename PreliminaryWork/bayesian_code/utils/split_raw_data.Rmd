@@ -1,0 +1,94 @@
+---
+title: "split_raw_data"
+output: html_document
+---
+
+# In this folder we will process de raw data for splitting it and considering only the single words
+
+```{r}
+# Load packages
+library(dplyr)
+library(tidyr)
+library(psych)    # For factor analysis and scree plot
+library(readr)   
+library(brms)     # For Bayesian analysis
+library(splines)  # For natural splines
+library(tidyverse)
+library(here)
+
+
+# Helper information:
+# - Code from Tristan: https://www.tjmahr.com/wisclabmisc/articles/index.html
+# - Phoneme complexities: Level 1 (vowel), Level 2 (vowel), Level 3 (vowel), Level 3 (consonant), 
+#                         Level 4 (vowel), Level 4 (consonant), Level 5 (vowel), Level 5 (consonant), 
+#                         Level 6 (consonant), Level 7 (consonant), Level 8 (consonant)
+
+
+```
+```{r}
+# Load data
+#df <- read.csv("../../data/probabilities-max-frame.csv")
+#df <- read.csv("./data/input_data/probabilities-max-frame.csv.gz")
+
+# Only for markdown version but not for the project structure.
+df <- read.csv(here("data", "input_data", "probabilities-max-frame.csv.gz"))
+
+# Filter to keep rows where expected_phoneme matches phoneme
+df <- df %>%
+  filter(expected_phoneme == phoneme)
+
+```
+
+```{r}
+print(head(df))
+```
+```{r}
+print(unique(df["filename"]))
+```
+```{r}
+#s means that it is multi-word w means that it is single-word
+# Pattern definitions
+pattern_s <- "_s|-S|-s"   
+pattern_w <- "_w|-W|-w"   
+
+# Create subsets based on pattern
+df_s     <- df[grepl(pattern_s, df$filename), ]
+df_w     <- df[grepl(pattern_w, df$filename), ]
+df_other <- df[!grepl(pattern_s, df$filename) & !grepl(pattern_w, df$filename), ]
+
+# Check the split is exhaustive
+n_total <- nrow(df)
+n_split <- nrow(df_s) + nrow(df_w) + nrow(df_other)
+
+if (n_total == n_split) {
+  message("Split is exhaustive: all rows are accounted for.")
+} else {
+  warning("something went wrong: total rows not preserved.")
+}
+
+```
+
+```{r}
+df_other
+```
+```{r}
+
+write.csv(df_s, here("data", "input_data", "probabilities-max-frame_S.csv.gz"), row.names = FALSE)
+
+
+write.csv(df_w, here("data", "input_data", "probabilities-max-frame_W.csv.gz"), row.names = FALSE)
+
+```
+# Proof Reading:
+
+```{r}
+df_w_proof <- read.csv(here("data", "input_data", "probabilities-max-frame_W.csv.gz"))
+
+```
+
+```{r}
+head(df_w_proof)
+```
+
+
+

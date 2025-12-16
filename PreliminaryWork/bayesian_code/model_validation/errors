@@ -1,0 +1,18 @@
+"./data/processed_data/model3/model_Consonants_Level6"
+Error: The model does not contain posterior draws.
+In addition: Warning messages:
+1: Found 22 observations with a pareto_k > 0.7 in model 'model'. We recommend to set 'moment_match = TRUE' in order to perform moment matching for problematic observations.  
+2: 
+218 (8.4%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
+3: Found 10 observations with a pareto_k > 0.7 in model 'model'. We recommend to set 'moment_match = TRUE' in order to perform moment matching for problematic observations.  
+4: 
+195 (7.6%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
+5: Found 6 observations with a pareto_k > 0.7 in model 'model'. We recommend to run more iterations to get at least about 2200 posterior draws to improve LOO-CV approximation accuracy. 
+6: 
+187 (7.3%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
+7: Found 46 observations with a pareto_k > 0.7 in model 'model'. We recommend to set 'moment_match = TRUE' in order to perform moment matching for problematic observations.  
+8: 
+192 (7.4%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
+9: Found 47 observations with a pareto_k > 0.7 in model 'model'. We recommend to set 'moment_match = TRUE' in order to perform moment matching for problematic observations.  
+10: 
+212 (10.3%) p_waic estimates greater than 0.4. We recommend trying loo instead. 

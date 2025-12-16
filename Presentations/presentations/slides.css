@@ -1,0 +1,39 @@
+/* GLOBAL FONT SIZE — medium (comfortable) */
+
+
+/* Reduce margins but not too much */
+.reveal .slides {
+  width: 85%;    /* default ~70–75%; 85% feels roomy without overflow */
+  margin: auto;
+}
+
+/* Slightly smaller headings */
+.reveal h1 { font-size: 1.6em; }
+.reveal h2 { font-size: 1.3em; }
+.reveal h3 { font-size: 1.1em; }
+
+/* Normal code size */
+.reveal pre code {
+  font-size: 0.9em;
+}
+
+/* Optional: mild tightening of lines */
+.reveal p, .reveal li {
+  line-height: 1.25;
+}
+
+.small-slide {
+  font-size: 0.80em;   /* adjust: 0.90, 0.85, 0.80 */
+  line-height: 1.25;
+}
+
+.supersmall-slide {
+  font-size: 0.60em;   /* adjust: 0.90, 0.85, 0.80 */
+  line-height: 1.20;
+}
+
+.subtitle-small {
+  font-size: 0.6em;   /* adjust as needed */
+  font-weight: normal;
+  opacity: 0.8;       /* optional */
+}

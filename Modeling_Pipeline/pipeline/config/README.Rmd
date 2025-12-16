@@ -1,0 +1,81 @@
+```yaml
+---
+title: "README"
+output: github_document
+---
+```
+
+# Phoneme Grouping Definitions
+
+This folder contains files specifying different phoneme groupings that may be used for modeling.
+
+## `phoneme_grouping1.csv`
+
+This file follows **Kent’s phoneme complexity levels**.  
+It includes the columns:
+
+- **type** (Vowels, Consonants)
+- **level**  
+  - Vowels: Levels 1 through 5  
+  - Consonants: Levels 3 through 6  
+- **expected_phonemes**
+
+Example:  
+The group *(Vowels, Level 3)* contains the phonemes:
+
+```
+AO, AY, AW, OY
+```
+
+## `phoneme_grouping2.csv`
+
+This file is used when each phoneme is modeled **independently** , rather than grouped by complexity level.  
+To maintain consistent structure when reading and processing grouping files, each phoneme is assigned an **arbitrary level** These levels are used only for organizational consistency and have no modeling interpretation.
+
+# Phoneme Subset Data Grouping Files ./set_data_files
+
+## `subset_data_grouping1.csv`
+
+This file contains the following columns:
+
+- **subdata**
+- **category** (type)
+- **level**
+
+`subdata` is simply a label representing some subset of (category, level) combinations.  
+For example, phonemes in (Vowels, Level 1) and (Vowels, Level2) are labeled as:
+
+```
+subdata = "data1"
+```
+
+The categories and levels correspond to those defined in:
+
+```
+Modeling_Pipeline/pipeline/phoneme_grouping/phoneme_grouping1.csv
+```
+
+
+## `subset_data_grouping2.csv`
+
+This file has the same structure:
+
+- **subdata**
+- **category** (type)
+- **level**
+
+Again, `subdata` is a label identifying some subset of  (category, level) combinations.  
+These combinations are defined in:
+
+```
+Modeling_Pipeline/pipeline/phoneme_grouping/phoneme_grouping2.csv
+```
+
+# file_paths.R
+
+This file defines and centralizes all directory and file paths used throughout the repository, ensuring consistent access to data, models, and outputs.
+
+# conventions.R
+
+This file maps keywords used in instance specification files to their corresponding configuration files, model definitions, and pipeline components.
+It acts as a central reference to ensure consistency between instance definitions and the rest of the pipeline.
