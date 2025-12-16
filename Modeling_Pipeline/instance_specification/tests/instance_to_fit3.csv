@@ -1,0 +1,3 @@
+raw_data_type,model_type,model,prior,phoneme_grouping_type,set_data_file,subset_data
+aaps,binomial,model_binomial_Probability,prior_binomial,grouping1,subset_data_grouping1,data5
+aaps,binomial,model_binomial_dummytest,prior_binomial,grouping1,subset_data_grouping1,data4

@@ -1,0 +1,4 @@
+raw_data_type,model_type,model,prior,phoneme_grouping_type,set_data_file,subset_data
+aaps,binomial,model_binomial_Probability,prior_binomial,grouping1,subset_data_grouping1,data5
+pllr,beta,model0_Version2,prior0_Version2,grouping1,subset_data_grouping1,data4
+pllr,beta,model0_Version2,prior0_Version2,grouping2,subset_data_grouping2,dataPhoneme25
