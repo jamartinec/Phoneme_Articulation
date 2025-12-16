@@ -53,11 +53,14 @@ visualize_age_standards_funct <- function(model_type=c("binomial","beta"),
     select(-mode_num_score)  
   }
   
-  # The posterior predictive draws will be done using tidybayes
-  # re_formula = NA sets the random effects values to 0 and make predictions
-  # re_formula = NULL, allow_new_levels = TRE will resample random 
-  # effect values from existing speakers as a way of simulating/averaging over 
-  # speakers.
+  # Receive a model (object) fitted to some observed data, y_obs, and predictors
+  # x_obs. Given new values of predictors, x_new, supplied in the data frame newdata,
+  # add_predicted_draws() adds draws from the posterior predictive distribution p(y_new| x_new, y_obs)
+  # to the data. It corresponds to rstanarm::posterior_predict() or brms::posterior_predict().
+  
+  # re_formula: formula containing group-level effects to be considered in the prediction. If NULL
+  # include all group-level effects; if NA, include no group-level effects. If you want to marginalize 
+  # over grouping factors specify a new level of a factor in newdata and use allow_new_levels=TRUE
   predicted<- tidybayes::add_predicted_draws(
     fitted_model,
     newdata = newdata,
@@ -105,7 +108,8 @@ visualize_age_standards_funct <- function(model_type=c("binomial","beta"),
   
   
   # Load filtered data for plot overlay
-  df_filtered <- readRDS(instance$filtered_file_path)
+  df_filtered <- readRDS(instance$filtered_file_path) %>%
+    dplyr::filter(dplyr::between(age_months, agerange[1], agerange[2]))
   
   df_points <- df_filtered %>%
     mutate(
