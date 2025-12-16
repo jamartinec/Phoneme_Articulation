@@ -10,6 +10,9 @@ import("ggrepel")
 
 Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
 
+
+# This function plots the median and the central credible intervals and also overlay the original data points
+
 export("plot_base_posterior")
 plot_base_posterior <- function(plot_data, df_points, y_label = "Response") {
   

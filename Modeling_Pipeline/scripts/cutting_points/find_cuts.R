@@ -15,6 +15,60 @@ read_instances_specifications_lib <- modules::use("./Modeling_Pipeline/scripts/p
 cutting_points_plots_lib          <- modules::use("./Modeling_Pipeline/scripts/cutting_points/plot_cutting_points.R")
 preprocessing_lib                 <- modules::use("./Modeling_Pipeline/scripts/preprocess/Preprocessing.R")
 
+#' Compute posterior predictive probabilities for fixed-success binomial targets (AAPS)
+#'
+#' Given a fitted binomial Bayesian model for AAPS data, this function computes
+#' posterior predictive quantities for a fixed target number of successes across
+#' age and phoneme. The target number of successes is derived from a desired
+#' success fraction and a rule for approximating to an integer.
+#'
+#' For each phoneme and age, the function evaluates the posterior predictive
+#' probability that the model predicts exactly \eqn{k} successes out of
+#' \eqn{n} trials, where \eqn{n} is fixed to the modal number of trials observed
+#' in the data.
+#'
+#' @param instance A \code{ModelInstance} object describing the fitted model,
+#'   including target phonemes and model type.
+#' @param fitted_model A fitted \code{brms} model object with a binomial likelihood.
+#' @param phoneme_numscore_mode Data frame containing the modal number of trials
+#'   (\code{mode_num_score}) per phoneme.
+#' @param agerange Numeric vector of length two giving the minimum and maximum
+#'   age (in months) over which predictions are computed.
+#' @param success_frac Numeric scalar in \eqn{[0,1]}. Desired fraction of
+#'   successes used to define the target number of successes.
+#' @param target_rule Character scalar. Rule used to map the fractional target
+#'   \eqn{f \times n} to an integer number of successes. Must be one of
+#'   \code{"ceil"}, \code{"floor"}, or \code{"round"}.
+#'
+#' @return A list with two elements:
+#' \describe{
+#'   \item{q_exact_k_ppc}{A data frame containing posterior predictive probabilities
+#'   \eqn{P(\hat{Y} = k \mid \text{age}, \text{phoneme})} for each phoneme–age pair.}
+#'   \item{plot_post_mean}{A \code{ggplot} object showing the posterior mean number
+#'   of predicted successes as a function of age (in years).}
+#' }
+#'
+#' @details
+#' The function:
+#' \itemize{
+#'   \item Constructs a prediction grid over age and target phonemes.
+#'   \item Fixes the total number of trials \eqn{n} to the modal observed value
+#'     per phoneme.
+#'   \item Converts the desired success fraction into an integer target
+#'     \eqn{k} using the specified approx. rule (take floor or ceil etc).
+#'   \item Draws from the posterior predictive distribution using
+#'     \code{tidybayes::add_predicted_draws()}.
+#'   \item Estimates the probability that the predicted number of successes
+#'     equals the target \eqn{k}.
+#' }
+#'
+#' Predictions include group-level effects by allowing new levels for the
+#' grouping factor (e.g., a synthetic speaker).
+#'
+#' @seealso \code{\link{tidybayes::add_predicted_draws}},
+#'   \code{\link{fit_bayesian_model_funct}}
+#'
+#' @export
 
 extract_q_aaps_binomial <- function(
     instance,
@@ -77,14 +131,7 @@ extract_q_aaps_binomial <- function(
     allow_new_levels = TRUE
   ) %>% tibble::as_tibble()
   
-  
-  
-  # message("this is preds from binomial: ")
-  # print(preds)
-  # 
-  # message("this is the maximum value predicted")
-  # print(max(preds$.prediction))
-  
+
   
   # stricter threshold using k = target_successes
   q_exact_k_ppc <- preds %>%
@@ -104,11 +151,6 @@ extract_q_aaps_binomial <- function(
     # The model predits k succeses 15% of the posterior draws for the phoneme R at 48 months
     
   
-  # message("this is q_exact_k_ppc")
-  # print(q_exact_k_ppc)
-  # 
-  
-  
   
   posterior_mean_numb_success<-preds %>%
     dplyr::group_by(expected_phoneme, age_months) %>%
@@ -123,8 +165,7 @@ extract_q_aaps_binomial <- function(
     labs(x = "Age (years)", y = "Posterior mean # successes") +
     theme_minimal()
   
-  message("this is posterior_mean_numb_success")
-  print(posterior_mean_numb_success)
+  
   
   
   result<-list(
@@ -135,6 +176,64 @@ extract_q_aaps_binomial <- function(
   
 }
 ###############################################################################
+
+#' Extract age-dependent quantile cutpoints from a PLLR beta (or binomial) model
+#'
+#' Computes age- and phoneme-specific quantile cutpoints (\eqn{x_q}) from the
+#' posterior predictive distribution of a fitted PLLR model. The quantile levels
+#' are determined by externally supplied age-dependent tail probabilities,
+#' including reference curves derived from Crowe & McLeod norms.
+#'
+#' For each phoneme and age, the function evaluates the posterior predictive
+#' distribution and extracts the response value \eqn{x_q} such that
+#' \eqn{P(\hat{Y} \le x_q) = 1 - q(\text{age})}, where \eqn{q(\text{age})} is a
+#' phoneme- and age-specific tail probability.
+#'
+#' @param instance A \code{ModelInstance} object describing the fitted PLLR model,
+#'   including target phonemes and file paths.
+#' @param fitted_model A fitted \code{brms} model object (beta or binomial).
+#' @param phoneme_numscore_mode Data frame containing the modal number of trials
+#'   per phoneme (used only for binomial models).
+#' @param agerange Numeric vector of length two giving the minimum and maximum
+#'   age (in months) over which predictions are computed.
+#' @param q_age Data frame containing age- and phoneme-specific tail
+#'   probabilities (\code{prob_x_eq_1_hat}) used to define quantile levels.
+#' @param crowe_mcleod Data frame containing Crowe & McLeod reference curves
+#'   (e.g., mean, \eqn{\pm}2 SD) expressed as age-dependent tail probabilities.
+#'
+#' @return A list with three elements:
+#' \describe{
+#'   \item{xq_all}{A data frame containing extracted quantile cutpoints
+#'   \eqn{x_q} for each phoneme, age, and reference curve type.}
+#'   \item{crow_tables}{A named list of reference tables (e.g., mean, -2SD, +2SD)
+#'   used to compute quantiles.}
+#'   \item{age_plot_crow4}{A \code{ggplot} object visualizing posterior predictive
+#'   summaries, observed data, and extracted cutpoints.}
+#' }
+#'
+#' @details
+#' The function proceeds as follows:
+#' \itemize{
+#'   \item Constructs a prediction grid over age and target phonemes.
+#'   \item Generates posterior predictive draws using
+#'     \code{tidybayes::add_predicted_draws()} with group-level effects included.
+#'   \item Normalizes model outputs to a unified response scale
+#'     (probability or PLLR score).
+#'   \item Computes posterior median and credible intervals (50\%, 95\%).
+#'   \item Converts age-dependent tail probabilities into CDF quantiles.
+#'   \item Extracts posterior predictive quantiles corresponding to
+#'     Crowe & McLeod reference curves.
+#' }
+#'
+#' For binomial models, predictions are converted to proportions using the
+#' modal number of trials per phoneme. Observed data are overlaid with small
+#' jitter for visualization purposes only.
+#'
+#' @seealso \code{\link{extract_q_aaps_binomial}},
+#'   \code{\link{tidybayes::add_predicted_draws}},
+#'   \code{\link{cutting_points_plots_lib$plot_cutting_points}}
+#'
+#' @export
 extract_x_q_pllr_beta <- function(
                                   instance,
                                   fitted_model,
@@ -156,8 +255,7 @@ extract_x_q_pllr_beta <- function(
     speaker          = "fake" 
   )
   
-  message("newdata")
-  print(newdata,width=Inf)
+  
   
   # Use the mode across participants for that particular phoneme.
   # binomial-only: attach mode num_score
@@ -189,8 +287,7 @@ extract_x_q_pllr_beta <- function(
       row_id = .row
     ) 
   
-  message("predicted for the  model (pllr data):")
-  print(predicted)
+
   
   # unify to a single response vector `.resp`, then give it a model-specific name
   
@@ -212,7 +309,7 @@ extract_x_q_pllr_beta <- function(
   }
   
   message("predicted for the  model (pllr data):")
-  print(predicted,width = Inf)
+  
   
   predicted <- predicted %>%
     dplyr::mutate(
@@ -258,14 +355,12 @@ extract_x_q_pllr_beta <- function(
       q50  = !!resp_col
     )
   
-  message("plot_data")
-  print(plot_data,width = Inf)
+  
   
   q_beta_join <- q_age %>%
     dplyr::select(expected_phoneme, age_months, q_age = prob_x_eq_1_hat)
   
-  message("this is q_beta_join")
-  print(q_beta_join)
+  
   
   crow_grouped <- crowe_mcleod %>% 
     dplyr::rename(q_age = prob_x_eq_1_hat)%>% 
@@ -278,8 +373,8 @@ extract_x_q_pllr_beta <- function(
     dplyr::group_split() %>%
     purrr::set_names(crow_grouped %>% dplyr::group_keys() %>% dplyr::pull(type))
   
-  message("crow_tables:")
-  print(crow_tables)
+  # message("crow_tables:")
+  # print(crow_tables)
   
   crow_tables[["prediction"]] <- q_beta_join
   
@@ -288,10 +383,6 @@ extract_x_q_pllr_beta <- function(
     dplyr::inner_join(q_beta_join, by = c("expected_phoneme","age_months")) %>%
     dplyr::mutate(p_quant = pmax(0, pmin(1, 1 - q_age)))  # convert tail prob to CDF prob
   
-  
-  # message("preds_with_q:")
-  # print(preds_with_q, width = Inf)
-
   
   compute_xq <- function(predicted, crow_tbl, label) {
     
@@ -338,6 +429,7 @@ extract_x_q_pllr_beta <- function(
 
 }
 ################################################################################
+
 get_instances_and_preprocessed <-function(instance_to_fit_path_mod){
   
   list_of_instances_modread <- read_instances_specifications_lib$read_instances_specifications_modified(instance_to_fit_path_mod)
