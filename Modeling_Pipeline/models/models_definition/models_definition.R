@@ -155,7 +155,7 @@ prior0 = c(
 )
 
 
-#chatgpt advice for priors
+
 prior1 = c(
   # Coefficients for eta (usually log-linear predictor for mean)
   prior(normal(0, 2), class = "b", nlpar = "eta"),
