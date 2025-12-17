@@ -44,22 +44,25 @@ pllr          | beta       | model0_Version2  | prior0_Version2  | grouping2    
 
 
 Here is what each component means:
-raw_data_type = pllr: the input data are csv files with PLLR values, located in Modeling_Pipeline/data/raw.
-model0_Version2: the model specification defined in Modeling_Pipeline/models/models_definition.
-prior0_Version2: the corresponding prior, also defined in the same directory.
-subset_data = dataPhoneme27: specifies which phonemes are modeled. This can be traced through the configuration files grouping2 and subset_data_grouping2.
-subset_data_grouping2 points to
+- raw_data_type = pllr: the input data are csv files with PLLR values, located in Modeling_Pipeline/data/raw.
+- model0_Version2: the model specification defined in Modeling_Pipeline/models/models_definition.
+- prior0_Version2: the corresponding prior, also defined in the same directory.
+- subset_data = dataPhoneme27: specifies which phonemes are modeled. This can be traced through the configuration files grouping2 and subset_data_grouping2.
+- subset_data_grouping2 points to
 Modeling_Pipeline/pipeline/config/set_data_files/subset_data_grouping2.csv, where you’ll see:
 
 subdata      | category  |  level
 dataPhoneme27| Consonants| Levelphoneme27
 
-grouping2 points to Modeling_Pipeline/pipeline/config/phoneme_grouping/phoneme_grouping2.csv, which contains:
+- grouping2 points to Modeling_Pipeline/pipeline/config/phoneme_grouping/phoneme_grouping2.csv, which contains:
 
 Consonants Levelphoneme27 T
 
 (so in this case, we are modeling only the phoneme T).
-For context, grouping1 and subset_data_grouping1 correspond to an earlier setup where we modeled groups of phonemes based on Kent’s phoneme complexity levels, used in a preliminary analysis a few months ago.
+
+- For context, grouping1 and subset_data_grouping1 correspond to an earlier setup where we modeled groups of phonemes based on Kent’s phoneme complexity levels, used in a preliminary analysis a few months ago.
+
+
 You can find examples that walk through the different pipeline steps in
 Modeling_Pipeline/pipeline/run_pipeline.R.
 The code used to compute the cutting points is located in
