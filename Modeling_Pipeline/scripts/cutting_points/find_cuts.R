@@ -542,8 +542,8 @@ ListB <- get_instances_and_preprocessed(instance_to_fitB_path_mod)
 list_of_instancesB_modread <-  ListB$list_of_instances_modread
 preprocessed_B_cache_read  <-  ListB$preprocessed_cache_read
 
-# no 8, no 4 ()
-k<- 10
+# 8 instances in total
+k<- 1
 instancia_pruebaA <- list_of_instancesA_modread[[k]]
 instancia_pruebaB <- list_of_instancesB_modread[[k]]
 
