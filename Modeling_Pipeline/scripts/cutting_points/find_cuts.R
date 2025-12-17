@@ -112,8 +112,8 @@ extract_q_aaps_binomial <- function(
   k_vec <- pmax(0L, pmin(as.integer(k_vec), newdata$num_score))
   newdata$target_successes <- k_vec
   
-  message("this is k_vec:")
-  print(k_vec)
+  # message("this is k_vec:")
+  # print(k_vec)
   
     # Receive a model (object) fitted to some observed data, y_obs, and predictors
     # x_obs. Given new values of predictors, x_new, supplied in the data frame newdata,
@@ -321,8 +321,8 @@ extract_x_q_pllr_beta <- function(
     ) %>%
     dplyr::select(-.resp) 
   
-  message("predicted for the  model (pllr data):")
-  print(predicted, width = Inf)
+  # message("predicted for the  model (pllr data):")
+  # print(predicted, width = Inf)
   
   # Load filtered data for plot overlay
   df_filtered <- readRDS(instance$filtered_file_path) %>%
@@ -336,8 +336,8 @@ extract_x_q_pllr_beta <- function(
       else if (model_type == "beta")
         mean_prob
     )
-  message("df_points")
-  print(df_points, width = Inf)
+  # message("df_points")
+  # print(df_points, width = Inf)
   
   # summarize intervals on the unified response
   plot_data <- predicted %>%
@@ -423,9 +423,25 @@ extract_x_q_pllr_beta <- function(
                                                    color1 = "black",
                                                    color2 = "blue",
                                                    color3 = "green")
+  age_plot_crow5 <- cutting_points_plots_lib$plot_cutting_points_intervals(plot_data, df_points, y_label, xq_all,
+                                            c = "mean", 
+                                            m2 = "m2",
+                                            p2 = "p2",
+                                            label1 = NULL,
+                                            label2 = NULL,
+                                            label3 = NULL,
+                                            label_in50 = "C&M-50% acquisition",
+                                            label_in75 = "C&M-75% acquisition",
+                                            label_in90 = "C&M-90% acquisition",
+                                            color1 = "grey60",
+                                            color2 = "grey40",
+                                            color3 = "grey40",
+                                            colorin1 = "red",
+                                            colorin2 = "darkgreen",
+                                            colorin3 = "purple"
+  )
   
-  
-  return(list(xq_all=xq_all,crow_tables=crow_tables, age_plot_crow4=age_plot_crow4))
+  return(list(xq_all=xq_all,crow_tables=crow_tables, age_plot_crow4=age_plot_crow4,age_plot_crow5=age_plot_crow5))
 
 }
 ################################################################################
@@ -509,8 +525,10 @@ get_plotcuts_instance<-function(instancia_pruebaA,
   crow_tables <- list_extracted_x$crow_tables
   xq_all <- list_extracted_x$xq_all
   age_plot_crow4 <-list_extracted_x$age_plot_crow4
+  age_plot_crow5 <-list_extracted_x$age_plot_crow5
+  cut_points <- list(age_plot_crow=age_plot_crow4, age_plot_crow_intervals=age_plot_crow5 ,xq_all=xq_all )
   
-  return(age_plot_crow4)
+  return(cut_points)
   
 }
 ################################################################################
@@ -543,13 +561,15 @@ list_of_instancesB_modread <-  ListB$list_of_instances_modread
 preprocessed_B_cache_read  <-  ListB$preprocessed_cache_read
 
 # 8 instances in total
-k<- 1
+k<- 8
 instancia_pruebaA <- list_of_instancesA_modread[[k]]
 instancia_pruebaB <- list_of_instancesB_modread[[k]]
 
-age_plot_crow <- get_plotcuts_instance(instancia_pruebaA,
+cut_points <- get_plotcuts_instance(instancia_pruebaA,
                                 instancia_pruebaB,
                                 preprocessed_A_cache_read,
                                 preprocessed_B_cache_read)
 
-age_plot_crow
+age_plot_crow<-cut_points$age_plot_crow
+age_plot_crow_intervals<-cut_points$age_plot_crow_intervals
+xq_all<-cut_points$xq_all
