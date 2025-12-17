@@ -18,7 +18,7 @@ conventions <- modules::use("./Modeling_Pipeline/pipeline/config/conventions.R")
 
 
 
-# Let us recall the inputs required by `read_instance_specification`.
+# Recall the inputs required by `read_instance_specification`.
 # We need to read the file that defines the phoneme groupings into
 # the data levels we want to model. Recall that there are phoneme
 # classifications by categories and levels, but we want the flexibility
