@@ -58,7 +58,7 @@ Modeling_Pipeline/pipeline/config/set_data_files/subset_data_grouping2.csv, wher
 |dataPhoneme27| Consonants| Levelphoneme27|
 
 - grouping2 points to Modeling_Pipeline/pipeline/config/phoneme_grouping/phoneme_grouping2.csv, which contains:
-|||
+
 |--|--|--|
 |Consonants| Levelphoneme27| T |
 
