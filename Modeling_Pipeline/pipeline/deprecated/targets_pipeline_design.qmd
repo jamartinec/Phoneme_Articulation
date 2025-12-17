@@ -1,0 +1,176 @@
+---
+title: "Design Notes: Refactoring the Project into a `{targets}` Pipeline"
+format: html
+toc: true
+---
+Chatgpt feedback about the project structure.
+
+## Context and Motivation
+
+The current workflow is based on:
+- A CSV file defining modeling *instances*
+- Strict, instance-specific output directories (models, plots, tables)
+- Manual or script-based orchestration of preprocessing, modeling, and plotting
+
+While this approach is conceptually sound, it becomes inefficient and error-prone as the project grows:
+- Changes in inputs or parameters often require manual decisions about what to rerun
+- It is easy to recompute too much or, worse, reuse stale results
+- Dependencies between instance definitions, fitted models, and outputs are implicit rather than explicit
+
+The `{targets}` package is a natural fit for turning this structure into a **true, reproducible pipeline**.
+
+---
+
+## Core Design Principles
+
+### 1. Keep the CSV for Instance Definitions
+
+- The CSV file defining instances (e.g., `instances.csv`) remains the *single source of truth*
+- Each row corresponds to one modeling instance
+- Any change to the CSV should trigger recomputation of the affected instances
+
+In `{targets}`:
+- The CSV is treated as a pipeline input
+- Its *content hash* (not just timestamp) determines downstream invalidation
+
+This matches the intuition:
+
+> If an instance definition changes, the pipeline should rerun for that instance.
+
+---
+
+### 2. Treat Instances as First-Class Objects
+
+Each instance is represented as a structured object derived from a row of the CSV.
+
+Key idea:
+- Instances are *data*, not just configuration
+- All downstream targets (models, plots, summaries) depend explicitly on the instance object
+
+Dynamic branching is used so that:
+- Each instance is processed independently
+- Only affected instances rerun when changes occur
+
+---
+
+### 3. Explicit Instance Identity and Deduplication
+
+Problem:
+- Two rows in the CSV may define *identical* instances
+- Naively branching over rows would duplicate computation
+
+Solution:
+- Define a **stable instance ID**, e.g.:
+  - A hash of the instance fields (recommended), or
+  - A structured identifier built from key parameters
+
+Example uses:
+- Deduplicating instances before branching
+- Naming output directories
+- Ensuring identical instances map to identical outputs
+
+Result:
+- Identical instances are computed once
+- No wasted computation
+- Outputs are uniquely and reproducibly linked to instance definitions
+
+---
+
+### 4. Strict, Deterministic Output Paths per Instance
+
+The existing philosophy of strict output organization is preserved.
+
+Typical structure:
+
+```text
+outputs/
+└─ <instance_id>/
+   ├─ model.rds
+   ├─ posterior_summaries.csv
+   ├─ diagnostics/
+   └─ plots/
+      ├─ growth_curve.png
+      └─ cutpoints.png
+```
+
+In `{targets}`:
+- Targets return the paths to generated files
+- File-producing targets use `format = "file"`
+- `{targets}` tracks *which files came from which instance*
+
+This preserves traceability and reproducibility.
+
+---
+
+### 5. Make Stan / brms Sampling Parameters Explicit Inputs
+
+Parameters that affect model quality (e.g.):
+- `iter`
+- `warmup`
+- `adapt_delta`
+- `max_treedepth`
+
+**must not** be hard-coded inside modeling functions.
+
+Instead:
+- They are treated as explicit pipeline inputs
+- Changing them automatically invalidates and refits models
+
+Conceptually:
+
+> Sampling settings are data, not implementation details.
+
+---
+
+### 6. Dependency Chain: From Instance to Outputs
+
+For each unique instance, the dependency structure is:
+
+```text
+instances.csv
+   ↓
+instance (one row / object)
+   ↓
+preprocessed data
+   ↓
+fitted model (brms / Stan)
+   ↓
+posterior summaries
+   ↓
+plots and tables (files)
+```
+
+Key property:
+- Models and outputs are *explicitly* linked to the instance definition
+- `{targets}` automatically determines what needs to be recomputed
+
+---
+
+## Big Picture
+
+This refactor does **not** discard existing work:
+- Existing functions remain
+- CSV-based instance definitions remain
+- Output organization remains
+
+What changes is **who manages the logic**:
+- Instead of manually orchestrating scripts, `{targets}` manages dependencies
+- The project becomes:
+  - More efficient
+  - Fully reproducible
+  - Easier to extend and debug
+  - Safer against accidental reuse of stale results
+
+In short:
+
+> The package provides the *engine*; `{targets}` provides the *pipeline*.
+
+---
+
+## Status
+
+- This design is agreed upon and intended as the guiding architecture
+- Next steps include:
+  - Defining the exact `instances.csv` schema
+  - Implementing instance ID logic
+  - Creating the initial `_targets.R` with dynamic branching
