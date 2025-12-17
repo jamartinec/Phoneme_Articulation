@@ -164,6 +164,9 @@ export("add_validation_criterion")
 #'
 #' @examples
 #' model <- add_validation_criterion(model, val_list = c("loo", "waic"), use_reloo = TRUE)
+#' @note
+#' This function is just a small tweak to the add_validation_loo described in 
+#' https://www.tjmahr.com/wisclabmisc/articles/brms.html
 add_validation_criterion <- function(
     x,
     ...,

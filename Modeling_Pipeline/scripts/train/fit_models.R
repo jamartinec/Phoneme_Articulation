@@ -9,6 +9,7 @@ import("splines") # For natural splines
 import("tidyverse")
 import("utils")
 import("glue")
+import("wisclabmisc")# <- tristan wisclab package
 
 # Load file path, 
 Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
@@ -83,7 +84,7 @@ fit_bayesian_model_funct <- function(model_specific,
   
   
   # Be careful with the `file_refit` argument
-  brm_args <- brms_help$brms_args_create()
+  brm_args <- wisclabmisc::brms_args_create()
   args <- brm_args(formula = model_specific,
                    data = df_filtered,
                    prior = prior_specific,
