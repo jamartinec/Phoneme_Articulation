@@ -91,7 +91,3 @@ Most analyses focus on:
 
 
 ---
-
-### 3. Pipeline
-
-The pipeline is defined in `Modeling_Pipeline`.
