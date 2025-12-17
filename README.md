@@ -39,8 +39,10 @@ You can see an example in
 Modeling_Pipeline/instance_specification/cutting_points_instances/instance_to_fit1_B.csv,
 where each row defines a single instance. For example, the first row is:
 
-raw_data_type | model_type | model            | prior            | phoneme_grouping_type | set_data_file         | subset_data
-pllr          | beta       | model0_Version2  | prior0_Version2  | grouping2             | subset_data_grouping2 | dataPhoneme27
+| raw_data_type | model_type | model           | prior           | phoneme_grouping_type | set_data_file         | subset_data     |
+|---------------|------------|-----------------|-----------------|------------------------|-----------------------|-----------------|
+| pllr          | beta       | model0_Version2 | prior0_Version2 | grouping2              | subset_data_grouping2 | dataPhoneme27   |
+
 
 
 Here is what each component means:
@@ -51,12 +53,13 @@ Here is what each component means:
 - subset_data_grouping2 points to
 Modeling_Pipeline/pipeline/config/set_data_files/subset_data_grouping2.csv, where you’ll see:
 
-subdata      | category  |  level
-dataPhoneme27| Consonants| Levelphoneme27
+|subdata      | category  |  level|
+|-----------------------------------------|
+|dataPhoneme27| Consonants| Levelphoneme27|
 
 - grouping2 points to Modeling_Pipeline/pipeline/config/phoneme_grouping/phoneme_grouping2.csv, which contains:
 
-Consonants Levelphoneme27 T
+|Consonants| Levelphoneme27| T |
 
 (so in this case, we are modeling only the phoneme T).
 
