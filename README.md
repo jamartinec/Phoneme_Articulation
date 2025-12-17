@@ -33,6 +33,39 @@ The pipeline supports:
 
 Modeling instances are fully specified via configuration files.
 
+
+The key concept is an “instance”, which represents a full model specification: the phonemes to include, the raw data source, the model type (i.e., response variable), and the specific model and prior to use.
+You can see an example in
+Modeling_Pipeline/instance_specification/cutting_points_instances/instance_to_fit1_B.csv,
+where each row defines a single instance. For example, the first row is:
+
+raw_data_type | model_type | model            | prior            | phoneme_grouping_type | set_data_file         | subset_data
+pllr          | beta       | model0_Version2  | prior0_Version2  | grouping2             | subset_data_grouping2 | dataPhoneme27
+
+
+Here is what each component means:
+raw_data_type = pllr: the input data are csv files with PLLR values, located in Modeling_Pipeline/data/raw.
+model0_Version2: the model specification defined in Modeling_Pipeline/models/models_definition.
+prior0_Version2: the corresponding prior, also defined in the same directory.
+subset_data = dataPhoneme27: specifies which phonemes are modeled. This can be traced through the configuration files grouping2 and subset_data_grouping2.
+subset_data_grouping2 points to
+Modeling_Pipeline/pipeline/config/set_data_files/subset_data_grouping2.csv, where you’ll see:
+
+subdata      | category  |  level
+dataPhoneme27| Consonants| Levelphoneme27
+
+grouping2 points to Modeling_Pipeline/pipeline/config/phoneme_grouping/phoneme_grouping2.csv, which contains:
+
+Consonants Levelphoneme27 T
+
+(so in this case, we are modeling only the phoneme T).
+For context, grouping1 and subset_data_grouping1 correspond to an earlier setup where we modeled groups of phonemes based on Kent’s phoneme complexity levels, used in a preliminary analysis a few months ago.
+You can find examples that walk through the different pipeline steps in
+Modeling_Pipeline/pipeline/run_pipeline.R.
+The code used to compute the cutting points is located in
+Modeling_Pipeline/scripts/cutting_points/find_cuts.R.
+
+
 ---
 
 
@@ -52,11 +85,4 @@ Most analyses focus on:
 
 ### 3. Pipeline
 
-The repository is organized as a modular pipeline that separates:
-
-- **Data ingestion and preprocessing**
-- **Model specification and fitting**
-- **Posterior analysis and visualization**
-
-Intermediate results (e.g., preprocessed data, fitted models) are cached to avoid unnecessary recomputation.
 The pipeline is defined in `Modeling_Pipeline`.
