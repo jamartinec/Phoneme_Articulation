@@ -14,6 +14,7 @@ import("glue")
 #-------------------------------------------------------------------------------
 Paths <- modules::use("./Modeling_Pipeline/pipeline/config/file_paths.R")
 
+# Move this functions to some utils file:>
 # Define a geometric mean function
 geometric_mean <- function(x) {
   exp(mean(log(x[x > 0]), na.rm = TRUE))  # Avoid log(0) or negative probs

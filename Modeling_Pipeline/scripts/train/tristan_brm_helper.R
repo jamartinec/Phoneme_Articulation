@@ -1,4 +1,4 @@
-# Tristan Mahr code (wisclabmisc) which contains helpers for 
+# Tristan Mahr's code (wisclabmisc) which contains helpers for 
 # running brms R package.
 
 #' Set default arguments for brms model fitting
