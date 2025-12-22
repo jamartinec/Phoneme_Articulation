@@ -250,3 +250,25 @@ $\color{red}{x_q(\text{age})}$ is the proposed  **age-dependent Phoneme Goodness
 ![<span style="font-size:0.8em;">](./pictures/Z_age_plot5_cuts.png){width=80%}
 :::
 
+---
+
+## AAPS ~ PGS+Age. Restricted to Phoneme R.
+
+::: {.center}
+![<span style="font-size:0.5em;">](./pictures/contoursR.png){width=70%}
+:::
+---
+
+## AAPS ~ PGS+Age. Restricted to Phoneme R.
+
+::: {.center}
+![<span style="font-size:0.5em;">](./pictures/contours_points_R.png){width=70%}
+:::
+
+---
+
+## AAPS ~ PGS+Age. Restricted to Phoneme S.
+
+::: {.center}
+![<span style="font-size:0.4em;">](./pictures/contours_points_S.png){width=70%}
+:::
