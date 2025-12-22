@@ -521,7 +521,7 @@ model_S <- brms_help$add_validation_criterion(
   val_list=c("loo","waic"),
   use_reloo = FALSE)
 saveRDS(model_S, file = paste0(fitted_model_file_path_S,".rds"))
-
+model_S<- readRDS(paste0(fitted_model_file_path_S,".rds"))
 
 age_grid_months <- seq(
   from = min(df_model_S$age_months),
@@ -724,7 +724,122 @@ ggplot(surface_long_S, aes(x = age_months, y = PGS, z = p)) +
     panel.grid.minor = element_blank()
   )
 
+### new plot####### 
 
 
 
+target_p <- 0.9
+ndraws_target <- 1000   # adjust (400-800 usually enough)
+
+age_grid_months <- seq(min(df_model_S$age_months), max(df_model_S$age_months), by = 1)
+
+# More PGS resolution helps contour extraction
+pgs_z_seq <- seq(min(df_model_S$logit_mean_prob_z),
+                 max(df_model_S$logit_mean_prob_z),
+                 length.out = 200)
+
+newdata_surface <- tidyr::crossing(
+  age_months = age_grid_months,
+  logit_mean_prob_z = pgs_z_seq,
+  num_score = 1,
+  speaker = "new_child"
+) %>%
+  mutate(
+    age_months_z = (age_months - age_center) / age_scale,
+    logit_mean_prob = logit_mean_prob_z * pgs_scale + pgs_center,
+    PGS = plogis(logit_mean_prob)
+  )
+
+pred_surface_S <- newdata_surface %>%
+  tidybayes::add_epred_draws(
+    model_S,
+    re_formula = NULL,
+    allow_new_levels = TRUE,
+    sample_new_levels = "gaussian",
+    ndraws = ndraws_target
+  )
+
+
+extract_contour_pgs <- function(df, target = 0.7) {
+  df <- df[order(df$PGS), ]
+  p <- df$.epred
+  y <- df$PGS
+  d <- p - target
+  
+  # if any exact hits (rare), take the first
+  hit <- which(d == 0)
+  if (length(hit) > 0) return(y[hit[1]])
+  
+  # find sign change intervals (crossing)
+  idx <- which(d[-length(d)] * d[-1] <= 0)
+  
+  if (length(idx) > 0) {
+    i <- idx[1]
+    # linear interpolation between i and i+1
+    y0 <- y[i]; y1 <- y[i+1]
+    d0 <- d[i]; d1 <- d[i+1]
+    if (d1 == d0) return(y0)
+    t <- (0 - d0) / (d1 - d0)
+    return(y0 + t * (y1 - y0))
+  }
+  
+  # no crossing inside grid -> take closest point
+  y[which.min(abs(d))]
+}
+
+contour_draws <- pred_surface_S %>%
+  dplyr::group_by(.draw, age_months) %>%
+  dplyr::summarise(
+    PGS_star = extract_contour_pgs(dplyr::cur_data(), target = target_p),
+    .groups = "drop"
+  )
+
+contour_summ <- contour_draws %>%
+  dplyr::group_by(age_months) %>%
+  dplyr::summarise(
+    PGS_med = stats::median(PGS_star, na.rm = TRUE),
+    PGS_p10 = stats::quantile(PGS_star, 0.15, na.rm = TRUE),
+    PGS_p90 = stats::quantile(PGS_star, 0.85, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+df_points_S <- df_model_S %>%
+  mutate(
+    PGS = mean_prob,
+    prop = sum_score / num_score,
+    prop3 = factor(round(prop, 2),
+                   levels = c(0, 0.5, 1),
+                   labels = c("0", "0.5", "1"))
+  )
+
+
+ggplot() +
+  geom_ribbon(
+    data = contour_summ,
+    aes(x = age_months, ymin = PGS_p10, ymax = PGS_p90),
+    alpha = 0.25
+  ) +
+  geom_line(
+    data = contour_summ,
+    aes(x = age_months, y = PGS_med),
+    linewidth = 1.1
+  ) +
+  geom_point(
+    data = df_points_S,
+    aes(x = age_months, y = PGS, size = prop3),
+    color = "black",
+    alpha = 0.6
+  ) +
+  scale_size_manual(
+    values = c("0" = 1.0, "0.5" = 2.5, "1" = 4.0),
+    name = "Observed success"
+  ) +
+  labs(
+    x = "Age (months)",
+    y = "PGS",
+    title = paste0("PGS threshold curve for P(success) = ", target_p, " (phoneme S)"),
+    subtitle = "Median contour (line) and centered 70% credible band"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(panel.grid.minor = element_blank())
 
