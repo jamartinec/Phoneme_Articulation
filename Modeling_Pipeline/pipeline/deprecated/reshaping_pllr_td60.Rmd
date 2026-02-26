@@ -1,0 +1,68 @@
+---
+title: "reshaping_pllr_td60"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(stringr)
+library(readr)
+library(tidyr)
+```
+
+
+```{r}
+path_td60 <- "../../data/raw/td60pllr/td60phonewise_pllr_df_max.csv"
+file.info(path_td60)$size #bytes
+file.info(path_td60)$size / 1024^2 #MB
+file.info(path_td60)$size / 1024^3 #GB
+
+n_lines <- length(readLines(path_td60, warn = FALSE))
+n_lines
+```
+```{r}
+df_pllr_td60<-read_csv(path_td60, show_col_types = FALSE)
+glimpse(df_pllr_td60)
+```
+# The columns in the old data csv file we were using are:
+  speaker = col_character(),
+  age_months = col_double(),
+  filename = col_character(),
+  tocs_item = col_character(),
+  utterance = col_character(),
+  expected_phoneme = col_character(),
+  most_likely_phoneme = col_character(),
+  position = col_double(),
+  phoneme = col_character(),
+  prob = col_double()
+
+Ask to Tristan: how to get columns utterance and position
+
+```{r}
+
+df_pllr_td60_long <- df_pllr_td60%>%
+  mutate(
+    age_months = as.integer(str_match(FileName, "^[^_]*_([^_]*)_")[,2]),
+     tocs_item  = str_match(FileName, "-(.+)$")[,2]
+         )%>%
+  tidyr::pivot_longer(
+    cols = starts_with("Phoneme_"),
+    names_to = "phoneme",
+    values_to = "prob"
+  ) %>%
+  mutate(phoneme = str_remove(phoneme, "^Phoneme_")) %>%
+  filter(!phoneme %in% c("[UNK]", "[PAD]")) %>%
+  dplyr::rename(
+    speaker = Speaker,
+    filename = FileName,
+    expected_phoneme = ExpectedPhoneme,
+    most_likely_phoneme = MostLikelyPhoneme
+  )%>%select(
+    speaker, age_months, filename, tocs_item, expected_phoneme, most_likely_phoneme, phoneme,prob
+  )
+```
+
+```{r}
+df_pllr_td60_long|> write_csv("../../data/raw/td60pllr/long_tables/td60phonewise_pllr_df_max_long.csv")
+```
+

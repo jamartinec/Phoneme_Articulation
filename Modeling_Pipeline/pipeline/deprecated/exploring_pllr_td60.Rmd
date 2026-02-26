@@ -1,0 +1,98 @@
+---
+title: "exploring_pllr_td60"
+output: html_document
+---
+
+```{r}
+path_td60 <- "../../data/raw/td60pllr/td60phonewise_pllr_df_max.csv"
+file.info(path_td60)$size #bytes
+file.info(path_td60)$size / 1024^2 #MB
+file.info(path_td60)$size / 1024^3 #GB
+
+n_lines <- length(readLines(path_td60, warn = FALSE))
+n_lines
+```
+
+```{r}
+library(readr)
+spec <- readr::spec_csv(path_td60)   
+spec
+```
+
+```{r}
+readr::read_csv(path_td60, n_max = 200, show_col_types = FALSE)
+```
+
+
+
+
+#td60framewise
+```{r}
+library(readr)
+path_td60framewise <- "../../data/raw/td60pllr/td60framewise.csv"
+spec <- readr::spec_csv(path_td60framewise)   
+spec
+```
+
+
+#td517_w2tg_02_01_26_framewise
+```{r}
+library(readr)
+path_td517 <- "../../data/raw/td60pllr/td517_w2tg_02_01_26_framewise.csv"
+spec <- readr::spec_csv(path_td517)   
+spec
+```
+
+
+
+#OLD data
+```{r}
+path_all_old <- "../../data/raw/probabilities-max-frame.csv.gz"
+file.info(path_all_old)$size #bytes
+file.info(path_all_old)$size / 1024^2 #MB
+file.info(path_all_old)$size / 1024^3 #GB
+
+n_lines <- length(readLines(path_all_old, warn = FALSE))
+n_lines
+```
+```{r}
+library(readr)
+spec <- readr::spec_csv(path_all_old)   
+spec
+```
+
+```{r}
+readr::read_csv(path_all_old, n_max = 20, show_col_types = FALSE)
+```
+```{r}
+library(data.table)
+
+
+
+dt <- fread(path_all_old)   # reads whole file
+rows <- dt[speaker == "F_114_2021"]
+rows
+```
+
+
+
+
+```{r}
+readr::read_csv(path_td60, n_max = 20, show_col_types = FALSE)
+```
+```{r}
+dt <- fread(path_td60)   # reads whole file
+rows <- dt[Speaker == "F_114_2021"]
+rows
+```
+
+
+speaker --> Speaker
+filename --> Filename
+age_months --> MISSING (I assume can be obtained from the speaker and the aaps?/ filename?)
+tocs_item -->???
+utterance --->???
+expected_phoneme --> ExpectedPhoneme
+most_likely_phoneme --> MostLikelyPhoneme
+position --> PhonePosition
+phoneme --> ???
