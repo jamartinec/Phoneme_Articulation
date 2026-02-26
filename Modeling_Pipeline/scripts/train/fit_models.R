@@ -83,6 +83,12 @@ fit_bayesian_model_funct <- function(model_specific,
   ensure_dir(fitted_model_dir)
   
   
+  if(is.null(prior_specific)){
+    
+    prior_specific <-brms::default_prior(model_specific, data = df_filtered)
+  }
+  
+  
   # Be careful with the `file_refit` argument
   brm_args <- wisclabmisc::brms_args_create()
   args <- brm_args(formula = model_specific,
