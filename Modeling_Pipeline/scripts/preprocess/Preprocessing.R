@@ -75,7 +75,7 @@ get_mode <- function(x) {
 #' @export
 export("create_preprocessed_df")
 create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_type, raw_data_path,phoneme_grouping_data_path){
-  dftest <-read.csv(raw_data_path)
+  #dftest <-read.csv(raw_data_path)
   
   #message("colnames")
   #print(colnames(dftest))
@@ -95,11 +95,22 @@ create_preprocessed_df <- function(raw_data_type,model_type,phoneme_grouping_typ
   
   phoneme_df <- read.csv(phoneme_grouping_data_path)
   
+  qualitative_data_path <- file.path(Paths$Pipeline_rawdata_dir, glue("qualitative_data.csv"))
+  qualitative_df  <- read.csv(qualitative_data_path)
+  
   df_summary <- create_summary(df,raw_data_type, model_type)
   df_final <- df_summary %>%
-  left_join(phoneme_df, by = "expected_phoneme")
+  left_join(phoneme_df, by = "expected_phoneme")%>%
+    left_join(qualitative_df, by = "expected_phoneme")
   
-  # print(df)
+  df_final <- df_final %>%
+    mutate(
+      phon_type = factor(phon_type, levels = c("Vowels","Consonants")),
+      level_cm = factor(level_cm, levels = c("early","middle","late"), ordered = TRUE)
+    )
+  
+  message("probando df_final_cols")
+  print(head(df_final))
  
   # Save `df_final`.
   # Consider defining a function to check whether the file already exists

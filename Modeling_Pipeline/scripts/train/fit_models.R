@@ -99,8 +99,8 @@ fit_bayesian_model_funct <- function(model_specific,
                    file_refit = "always", 
                    seed = 20250625,
                    chains = 4,
-                   iter  = 4000,
-                   #iter  = 100,
+                   #iter  = 4000,
+                   iter  = 1000,
                    cores = 4#,
                    #...
   )

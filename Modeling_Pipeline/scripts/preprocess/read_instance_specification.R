@@ -159,7 +159,7 @@ validate_model_instance <- function(x) {
   if (!is.null(x$plots_folder_path)) stopifnot(is.character(x$plots_folder_path), length(x$plots_folder_path) == 1)
   # Class compatibility checks
   if (!inherits(x$model_opt, c("brmsformula","bf"))) warning("model_opt no parece brms::bf")
-  if (!inherits(x$prior_specific, "brmsprior"))       warning("prior_specific no parece brms::prior")
+  #if (!inherits(x$prior_specific, "brmsprior"))       warning("prior_specific no parece brms::prior")
   
   x
 }

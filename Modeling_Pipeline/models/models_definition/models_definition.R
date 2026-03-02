@@ -117,7 +117,21 @@ model0_Version2 <- bf(
   phi ~ 1  + age_months,  # Precision parameter
   family = Beta(link = "logit")
   #nl = TRUE # Non-linear model
-)  
+)
+#--------------------------------------------------------------------------------
+model_pool1 <- bf(
+  mean_prob ~ exp(logalpha) * eta,
+  
+  eta ~ 1 + phon_type + ns(age_months,3):phon_type +
+    (1 | speaker) + (1 | phon_type:level_cm) + (1 | expected_phoneme),
+  
+  logalpha ~ 1 + expected_phoneme,
+  phi ~  1 + age_months + phon_type + (1 | phon_type:level_cm) + (1 | expected_phoneme),
+  
+  family = Beta(link = "logit"),
+  nl = TRUE
+)
+
 #-------------------------------------------------------------------------------
 # Model type: Beta
 # Variable modeled: mean_prob
@@ -135,7 +149,8 @@ model_list <- list(
   "model0_Version2"              = model0_Version2,
   "model_binomial_dummytest"     = model_binomial,
   "model_binomial_Probability"   = model_binomial,
-  "model_binomialv2"             = model_binomialv2
+  "model_binomialv2"             = model_binomialv2,
+  "model_pool1"                  = model_pool1
 )
 
 ################################################################################
@@ -174,7 +189,7 @@ prior0_Version2 = c(
   prior(normal(0, 1), class = "b",dpar="phi")         # priors for phi model
 )
 
-
+priors_default <- NULL
 
 
 
@@ -186,8 +201,8 @@ prior_list <- list(
                                                                        "model_binomial_Probability_singleWords",
                                                                        "model_binomialv2"
                                                                        
-                                                                       )
-                             )
+                                                                       )),
+  "priors_default" = list(object = priors_default, valid_models=c("model_pool1"))
 )
 
 export("return_lists")
