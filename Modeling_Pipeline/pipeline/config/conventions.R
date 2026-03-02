@@ -19,6 +19,7 @@ rawdata_paths <- list(
 
 # 2. Define the paths to the grouping files
 grouping_paths <- list(
+  grouping4 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping_ALL.csv"),
   grouping3 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping_Crowe_Mcleod_2020.csv"),
   grouping2 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping2.csv"),
   grouping1 = file.path(Paths$Pipeline_phoneme_grouping_dir, "phoneme_grouping1.csv")
@@ -26,6 +27,7 @@ grouping_paths <- list(
 
 # 3. Define the paths to the subset data files
 setdatafiles_paths <- list(
+  subset_data_grouping4 = file.path(Paths$Pipeline_set_data_files_dir, "subset_data_grouping_ALL.csv"),
   subset_data_grouping3 = file.path(Paths$Pipeline_set_data_files_dir, "subset_data_groupingCM2020.csv"),
   subset_data_grouping2 = file.path(Paths$Pipeline_set_data_files_dir, "subset_data_grouping2.csv"),
   subset_data_grouping1 = file.path(Paths$Pipeline_set_data_files_dir, "subset_data_grouping1.csv")

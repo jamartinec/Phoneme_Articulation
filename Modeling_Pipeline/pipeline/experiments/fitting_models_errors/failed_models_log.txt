@@ -9,3 +9,23 @@ model0_Version2	Consonants	early	CmdStan path has not been set yet. See ?set_cmd
 model0_Version2	Consonants	middle	CmdStan path has not been set yet. See ?set_cmdstan_path.	2026-02-26T00:38:36Z
 model0_Version2	Consonants	late	CmdStan path has not been set yet. See ?set_cmdstan_path.	2026-02-26T00:38:36Z
 model0_Version2	Vowels	early	CmdStan path has not been set yet. See ?set_cmdstan_path.	2026-02-26T00:38:36Z
+model_pool1	all	all	The following priors do not correspond to any model parameter: 
+b ~ normal(0, 5)
+Function 'default_prior' might be helpful to you.	2026-02-26T21:58:57Z
+model_pool1	all	all	The following priors do not correspond to any model parameter: 
+b ~ normal(0, 5)
+Function 'default_prior' might be helpful to you.	2026-02-26T22:08:35Z
+model_pool1	all	all	The following priors do not correspond to any model parameter: 
+Intercept_eta ~ normal(0, 2)
+Intercept_logalpha ~ normal(0, 2)
+Function 'default_prior' might be helpful to you.	2026-02-26T22:20:29Z
+model_pool1	all	all	The following priors do not correspond to any model parameter: 
+b_phi_Intercept ~ normal(0, 1)
+Function 'default_prior' might be helpful to you.	2026-02-26T22:22:28Z
+model_pool1	all	all	could not find function ""is.NULL""	2026-02-26T22:35:35Z
+model_pool1	all	all	object 'formula' not found	2026-02-26T22:38:47Z
+model_pool1	all	all	Argument 'data' must be coercible to a data.frame.	2026-02-26T22:40:32Z
+model_pool1	all	all	The following priors do not correspond to any model parameter: 
+b ~ normal(0, 2.5)
+sd ~ normal(0, 1)
+Function 'default_prior' might be helpful to you.	2026-02-26T22:41:25Z
