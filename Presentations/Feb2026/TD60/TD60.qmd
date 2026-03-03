@@ -1,0 +1,20 @@
+---
+title: "TD60"
+format: html
+---
+```{r}
+library(knitr)
+```
+
+
+```{r}
+#| fig-cap: "Growth curve for the TD60 sample."
+#| fig-align: center
+#| out-width: "70%"
+path1 <- "../../../../Phoneme_Articulation/Modeling_Pipeline/visuals/plots/pllr/grouping3/beta/model0_Version2/Consonants_early/age_plot.png"
+cat('<div style="background: white; padding: 12px; display: inline-block; border-radius: 6px;">')
+knitr::include_graphics(path1)
+cat('</div>')
+```
+
+

@@ -150,7 +150,8 @@ model_list <- list(
   "model_binomial_dummytest"     = model_binomial,
   "model_binomial_Probability"   = model_binomial,
   "model_binomialv2"             = model_binomialv2,
-  "model_pool1"                  = model_pool1
+  "model_pool1"                  = model_pool1,
+  "model4"                      = model4
 )
 
 ################################################################################
@@ -202,7 +203,7 @@ prior_list <- list(
                                                                        "model_binomialv2"
                                                                        
                                                                        )),
-  "priors_default" = list(object = priors_default, valid_models=c("model_pool1"))
+  "priors_default" = list(object = priors_default, valid_models=c("model_pool1","model4"))
 )
 
 export("return_lists")
