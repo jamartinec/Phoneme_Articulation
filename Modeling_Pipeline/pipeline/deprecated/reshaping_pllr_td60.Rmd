@@ -24,6 +24,13 @@ n_lines
 df_pllr_td60<-read_csv(path_td60, show_col_types = FALSE)
 glimpse(df_pllr_td60)
 ```
+```{r}
+unique(df_pllr_td60$FileName)
+
+```
+
+
+
 # The columns in the old data csv file we were using are:
   speaker = col_character(),
   age_months = col_double(),
