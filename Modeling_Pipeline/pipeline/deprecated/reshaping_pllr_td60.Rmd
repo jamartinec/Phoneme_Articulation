@@ -12,7 +12,7 @@ library(tidyr)
 
 
 ```{r}
-path_td60 <- "../../data/raw/td60pllr/td60phonewise_pllr_df_max.csv"
+path_td60 <- "../../data/raw/td60_w2tg_pllr/td60phonewise_pllr_df_max.csv"
 file.info(path_td60)$size #bytes
 file.info(path_td60)$size / 1024^2 #MB
 file.info(path_td60)$size / 1024^3 #GB
@@ -71,5 +71,63 @@ df_pllr_td60_long <- df_pllr_td60%>%
 
 ```{r}
 df_pllr_td60_long|> write_csv("../../data/raw/td60pllr/long_tables/td60phonewise_pllr_df_max_long.csv")
+```
+
+### repetir para el csv de pllr adultos:
+(este es el archivo que viene de la carpeta ASU)
+```{r}
+path_adults <- "../../data/raw/adults_w2tg_pllr/td60phonewise_pllr_df_max.csv"
+file.info(path_adults)$size #bytes
+file.info(path_adults)$size / 1024^2 #MB
+file.info(path_adults)$size / 1024^3 #GB
+
+n_lines <- length(readLines(path_adults, warn = FALSE))
+n_lines
+```
+```{r}
+df_pllr_adults<-read_csv(path_adults, show_col_types = FALSE)
+glimpse(df_pllr_adults)
+```
+
+```{r}
+unique(df_pllr_adults$FileName)
+
+```
+
+```{r}
+
+df_pllr_adults_long <- df_pllr_adults %>%
+  mutate(
+    age_code = stringr::str_match(FileName, "^[^_]*_([^_]*)_")[,2],
+    age_years = as.integer(substr(age_code, 1, 2)),
+    age_extra_months = as.integer(substr(age_code, 3, 4)),
+    age_months = 12 * age_years + age_extra_months,
+    tocs_item = stringr::str_match(FileName, "-(.+)$")[,2]
+  )%>%
+  tidyr::pivot_longer(
+    cols = starts_with("Phoneme_"),
+    names_to = "phoneme",
+    values_to = "prob"
+  ) %>%
+  mutate(phoneme = str_remove(phoneme, "^Phoneme_")) %>%
+  filter(!phoneme %in% c("[UNK]", "[PAD]")) %>%
+  dplyr::rename(
+    speaker = Speaker,
+    filename = FileName,
+    expected_phoneme = ExpectedPhoneme,
+    most_likely_phoneme = MostLikelyPhoneme
+  )%>%select(
+    speaker, age_months, filename, tocs_item, expected_phoneme, most_likely_phoneme, phoneme,prob
+  )
+```
+
+```{r}
+df_pllr_adults_long|> write_csv("../../data/raw/adults_w2tg_pllr/adults_phonewise_pllr_df_max_long.csv")
+```
+
+
+```{r}
+glimpse(df_pllr_adults_long)
+
 ```
 
