@@ -72,6 +72,78 @@ df_pllr_td60_long <- df_pllr_td60%>%
 ```{r}
 df_pllr_td60_long|> write_csv("../../data/raw/td60pllr/long_tables/td60phonewise_pllr_df_max_long.csv")
 ```
+# Separar Sentence and Word tokens for independent fitting and simulation.
+```{r}
+library(dplyr)
+library(stringr)
+library(readr)
+library(tidyr)
+path_td60 <- "../../data/raw/td60_w2tg_pllr/td60phonewise_pllr_df_max.csv"
+
+df_pllr_td60 <- readr::read_csv(path_td60, show_col_types = FALSE)
+
+df_pllr_td60_long <- df_pllr_td60 %>%
+  mutate(
+    age_months = as.integer(stringr::str_match(FileName, "^[^_]*_([^_]*)_")[, 2]),
+    sex_raw    = substr(FileName, 1, 1),
+    sex        = dplyr::recode(
+      sex_raw,
+      "F" = "female",
+      "M" = "male",
+      .default = NA_character_
+    ),
+    token      = sub("^[^-]*-", "", FileName),
+    token_type = substr(token, 1, 1),
+    token_type = dplyr::recode(
+      token_type,
+      "w" = "word",
+      "s" = "sentence",
+      .default = NA_character_
+    )
+  ) %>%
+  tidyr::pivot_longer(
+    cols = dplyr::starts_with("Phoneme_"),
+    names_to = "phoneme",
+    values_to = "prob"
+  ) %>%
+  mutate(
+    phoneme = stringr::str_remove(phoneme, "^Phoneme_")
+  ) %>%
+  dplyr::filter(!phoneme %in% c("[UNK]", "[PAD]")) %>%
+  dplyr::rename(
+    speaker = Speaker,
+    filename = FileName,
+    expected_phoneme = ExpectedPhoneme,
+    most_likely_phoneme = MostLikelyPhoneme
+  ) %>%
+  dplyr::select(
+    speaker,
+    sex,
+    age_months,
+    filename,
+    token,
+    token_type,
+    expected_phoneme,
+    most_likely_phoneme,
+    phoneme,
+    prob
+  )
+
+df_pllr_td60_word <- df_pllr_td60_long %>%
+  dplyr::filter(token_type == "word")
+
+df_pllr_td60_sentence <- df_pllr_td60_long %>%
+  dplyr::filter(token_type == "sentence")
+
+df_pllr_td60_word|> write_csv("../../data/raw/td60_w2tg_pllr/long_tables/td60phonewise_pllr_df_max_long_word.csv")
+
+df_pllr_td60_sentence|> write_csv("../../data/raw/td60_w2tg_pllr/long_tables/td60phonewise_pllr_df_max_long_sentence.csv")
+```
+
+
+
+
+
 
 ### repetir para el csv de pllr adultos:
 (este es el archivo que viene de la carpeta ASU)
@@ -119,7 +191,10 @@ df_pllr_adults_long <- df_pllr_adults %>%
   )%>%select(
     speaker, age_months, filename, tocs_item, expected_phoneme, most_likely_phoneme, phoneme,prob
   )
+
+df_pllr_adults_long|> write_csv("../../data/raw/adults_w2tg_pllr/adults_phonewise_pllr_df_max_long.csv")
 ```
+
 
 ```{r}
 df_pllr_adults_long|> write_csv("../../data/raw/adults_w2tg_pllr/adults_phonewise_pllr_df_max_long.csv")
@@ -129,5 +204,101 @@ df_pllr_adults_long|> write_csv("../../data/raw/adults_w2tg_pllr/adults_phonewis
 ```{r}
 glimpse(df_pllr_adults_long)
 
+```
+
+
+```{r}
+library(dplyr)
+library(stringr)
+library(readr)
+library(tidyr)
+
+path_adults <- "../../data/raw/adults_w2tg_pllr/td60phonewise_pllr_df_max.csv"
+
+df_pllr_adults <- readr::read_csv(path_adults, show_col_types = FALSE)
+
+df_pllr_adults_long <- df_pllr_adults %>%
+  mutate(
+    age_code = stringr::str_match(FileName, "^[^_]*_([^_]*)_")[, 2],
+    age_years = as.integer(substr(age_code, 1, 2)),
+    age_extra_months = as.integer(substr(age_code, 3, 4)),
+    age_months = 12 * age_years + age_extra_months,
+    sex_raw = substr(FileName, 1, 1),
+    sex = dplyr::recode(
+      sex_raw,
+      "F" = "female",
+      "M" = "male",
+      .default = NA_character_
+    ),
+    token = sub("^[^-]*-", "", FileName),
+    token_type = substr(token, 1, 1),
+    token_type = dplyr::recode(
+      token_type,
+      "w" = "word",
+      "s" = "sentence",
+      .default = NA_character_
+    )
+  ) %>%
+  tidyr::pivot_longer(
+    cols = dplyr::starts_with("Phoneme_"),
+    names_to = "phoneme",
+    values_to = "prob"
+  ) %>%
+  mutate(
+    phoneme = stringr::str_remove(phoneme, "^Phoneme_")
+  ) %>%
+  dplyr::filter(!phoneme %in% c("[UNK]", "[PAD]")) %>%
+  dplyr::rename(
+    speaker = Speaker,
+    filename = FileName,
+    expected_phoneme = ExpectedPhoneme,
+    most_likely_phoneme = MostLikelyPhoneme
+  ) %>%
+  dplyr::select(
+    speaker,
+    sex,
+    age_months,
+    filename,
+    token,
+    token_type,
+    expected_phoneme,
+    most_likely_phoneme,
+    phoneme,
+    prob
+  )
+
+df_pllr_adults_word <- df_pllr_adults_long %>%
+  dplyr::filter(token_type == "word")
+
+df_pllr_adults_sentence <- df_pllr_adults_long %>%
+  dplyr::filter(token_type == "sentence")
+
+df_pllr_adults_word |>
+  readr::write_csv("../../data/raw/adults_w2tg_pllr/adults_phonewise_pllr_df_max_long_word.csv")
+
+df_pllr_adults_sentence |>
+  readr::write_csv("../../data/raw/adults_w2tg_pllr/adults_phonewise_pllr_df_max_long_sentence.csv")
+```
+
+```{r}
+df_pllr_adults_long %>%
+  count(token_type, sex)
+
+summary(df_pllr_adults_long$age_months)
+```
+
+
+
+```{r}
+unique(df_pllr_adults_long$expected_phoneme)
+```
+
+
+```{r}
+unique(df_pllr_adults_word$expected_phoneme)
+```
+
+```{r}
+unique(df_pllr_adults_sentence$expected_phoneme)
 ```
 
