@@ -141,10 +141,6 @@ df_pllr_td60_sentence|> write_csv("../../data/raw/td60_w2tg_pllr/long_tables/td6
 ```
 
 
-
-
-
-
 ### repetir para el csv de pllr adultos:
 (este es el archivo que viene de la carpeta ASU)
 ```{r}
